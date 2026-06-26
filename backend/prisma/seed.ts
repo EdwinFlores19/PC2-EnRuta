@@ -303,7 +303,7 @@ async function main() {
 
   console.log(`✅ Admins Gubernamentales creados: ${districtAdmin.email} (DEMUNA), ${macroAdmin.email} (SUNAT)`);
 
-  // 10. Crear Cuentas de Cursos del "Semáforo Social" (Capacitación y Feature Gating)
+  // 10. Crear Cuentas de Cursos del "EnRuta" (Capacitación y Feature Gating)
   const course1 = await prisma.course.create({
     data: {
       title: 'Gestión Financiera Básica y Ahorro',
@@ -340,7 +340,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Cursos del Semáforo Social creados con éxito.');
+  console.log('✅ Cursos del EnRuta creados con éxito.');
 
   console.log('🎉 Seed de Asignación por Proximidad e IA completado exitosamente.');
 }

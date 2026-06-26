@@ -208,6 +208,84 @@ export const listServiceRequests = asyncHandler(async (req: Request, res: Respon
   );
 });
 
+/**
+ * Disparar una alerta SOS silenciosa por parte de un usuario en peligro
+ * POST /api/v1/services/sos
+ */
+export const triggerSOS = asyncHandler(async (req: Request, res: Response) => {
+  const { requestId, latitude, longitude } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Autenticación requerida para emitir una alerta SOS.',
+    });
+  }
+
+  if (!requestId || !latitude || !longitude) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Los campos "requestId", "latitude" y "longitude" son obligatorios.',
+    });
+  }
+
+  const lat = parseFloat(latitude);
+  const lng = parseFloat(longitude);
+
+  if (isNaN(lat) || isLngInvalid(lng)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Las coordenadas GPS proporcionadas son inválidas.',
+    });
+  }
+
+  const updatedRequest = await ServiceService.triggerSOS(
+    requestId,
+    lat,
+    lng,
+    userId
+  );
+
+  res.status(200).json(
+    buildResponse(updatedRequest, '🚨 Alerta SOS enviada de forma silenciosa. Serenazgo ha sido despachado a tus coordenadas GPS.')
+  );
+});
+
+/**
+ * Sincronizar por lotes un conjunto de operaciones encoladas de forma offline
+ * POST /api/v1/services/sync
+ */
+export const syncOfflineOperations = asyncHandler(async (req: Request, res: Response) => {
+  const { operations } = req.body;
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+
+  if (!userId || !userRole) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Autenticación requerida para sincronizar operaciones offline.',
+    });
+  }
+
+  if (!operations || !Array.isArray(operations)) {
+    return res.status(400).json({
+      status: 'error',
+      message: 'El lote "operations" debe ser un arreglo de operaciones válido.',
+    });
+  }
+
+  const result = await ServiceService.syncOfflineOperations(
+    operations,
+    userId,
+    userRole
+  );
+
+  res.status(200).json(
+    buildResponse(result, `Sincronización por lotes completada con éxito. Se procesaron ${result.processedCount} operaciones de forma atómica.`)
+  );
+});
+
 // Helpers
 function isLngInvalid(lng: number): boolean {
   return isNaN(lng) || lng < -180 || lng > 180;

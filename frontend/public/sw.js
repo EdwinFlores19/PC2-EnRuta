@@ -1,5 +1,5 @@
-// Service Worker para el Soporte Offline / PWA de Semáforo Social
-const CACHE_NAME = 'semaforo-social-pwa-v1';
+// Service Worker para el Soporte Offline / PWA de EnRuta
+const CACHE_NAME = 'en-ruta-pwa-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',

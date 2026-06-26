@@ -38,7 +38,7 @@ export default function App(): React.JSX.Element {
                 <span className="text-xl">🚦</span>
               </div>
               <span className="text-xl font-black text-white tracking-tight group-hover:text-blue-400 transition-colors">
-                Semáforo<span className="text-blue-500">Social</span>
+                En<span className="text-blue-500">Ruta</span>
               </span>
             </Link>
             
@@ -108,7 +108,7 @@ export default function App(): React.JSX.Element {
       {/* FOOTER GLOBAL */}
       <footer className="bg-[#0B0F19] border-t border-slate-950 py-8 text-center text-sm text-slate-500">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
-          <p className="font-semibold text-slate-400">🚦 Semáforo Social — Transformación Social Vial con IA & Fintech</p>
+          <p className="font-semibold text-slate-400">🚦 EnRuta — Transformación Social Vial con IA & Fintech</p>
           <p>&copy; {new Date().getFullYear()} — PC2 Boilerplate Full-Stack. Ecosistema Agéntico SRE. Fiscalización MINTRA/MIMP.</p>
         </div>
       </footer>
@@ -131,7 +131,7 @@ function HomeView(): React.JSX.Element {
           🚀 TECNOLOGÍA CON IMPACTO SOCIAL REAL
         </span>
         <h1 className="text-5xl font-black text-white tracking-tight sm:text-6xl bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-          Plataforma Semáforo Social
+          Plataforma EnRuta
         </h1>
         <p className="text-lg text-slate-400 max-w-3xl mx-auto leading-relaxed">
           Un sistema on-demand inteligente enfocado en la **formalización, capacitación y salud financiera** para asistentes viales independientes en el Perú, garantizando la erradicación del trabajo infantil.

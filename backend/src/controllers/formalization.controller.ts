@@ -23,7 +23,7 @@ function calculateAge(birthDate: Date): number {
 }
 
 /**
- * Función centralizada para recalcular el puntaje de Gamificación del Semáforo Social (0 a 100 puntos)
+ * Función centralizada para recalcular el puntaje de Gamificación del EnRuta (0 a 100 puntos)
  * y actualizar el estado y color del Semáforo Personal del Trabajador.
  */
 export async function recalculateSemaphoreScore(userId: string): Promise<any> {
@@ -181,7 +181,7 @@ export const registerKYC = asyncHandler(async (req: Request, res: Response) => {
 
     return res.status(403).json({
       status: 'blocked',
-      message: 'Registro Bloqueado: El sistema "Semáforo Social" prohíbe el registro de menores de 14 años para erradicar el trabajo infantil.',
+      message: 'Registro Bloqueado: El sistema "EnRuta" prohíbe el registro de menores de 14 años para erradicar el trabajo infantil.',
       canalesAyuda: {
         ministerioMujer: {
           entidad: 'Ministerio de la Mujer y Poblaciones Vulnerables (MIMP)',
@@ -286,7 +286,7 @@ export const registerKYC = asyncHandler(async (req: Request, res: Response) => {
     buildResponse({
       verification,
       gamification: gamificationResult
-    }, 'Verificación KYC completada con éxito. ¡Bienvenido al Semáforo Social!')
+    }, 'Verificación KYC completada con éxito. ¡Bienvenido al EnRuta!')
   );
 });
 
@@ -450,7 +450,7 @@ export const updateCourseProgress = asyncHandler(async (req: Request, res: Respo
 });
 
 /**
- * Obtener estado de mi perfil de Formalización y Semáforo Social
+ * Obtener estado de mi perfil de Formalización y EnRuta
  * GET /api/v1/formalization/profile
  */
 export const getMyFormalizationProfile = asyncHandler(async (req: Request, res: Response) => {

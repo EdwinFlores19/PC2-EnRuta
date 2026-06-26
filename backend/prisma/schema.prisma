@@ -462,7 +462,7 @@ model FormalizationProfile {
   isHiredB2B     Boolean           @default(false)         @map("is_hired_b2b")
   currentCompany String?           @map("current_company") // Empresa contratante actual si la hay
   
-  // Estado del Semáforo Social (Gamificación)
+  // Estado del EnRuta (Gamificación)
   semaphoreColor TrafficLightColor @default(RED)           @map("semaphore_color")
   score          Int               @default(0)             // 0 a 100 puntos
 

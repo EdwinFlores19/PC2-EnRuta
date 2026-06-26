@@ -46,7 +46,7 @@ export async function scrapSunatRuc(ruc: string): Promise<SunatRucResult> {
   } else if (ruc.startsWith('20')) {
     return {
       ruc,
-      razonSocial: 'SERVICIOS LIMPIOS S.A.C. (B2B Aliado Semáforo Social)',
+      razonSocial: 'SERVICIOS LIMPIOS S.A.C. (B2B Aliado EnRuta)',
       estado: 'ACTIVO',
       condicion: 'HABIDO',
       direccion: 'JR. CARABAYA 450, CERCADO DE LIMA, LIMA',

@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Playwright E2E Testing Configuration for Semáforo Social
+ * Playwright E2E Testing Configuration for EnRuta
  */
 export default defineConfig({
   testDir: './tests',

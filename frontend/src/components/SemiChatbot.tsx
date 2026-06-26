@@ -5,7 +5,6 @@ export type ChatbotRole = 'trabajador' | 'cliente' | 'fiscalizador' | 'employer'
 
 interface SemiChatbotProps {
   role: ChatbotRole;
-  onSelectCandidate?: (candidateId: string) => void; // Para cuando se seleccionan cards dentro del chat
 }
 
 interface ChatMessage {
@@ -85,7 +84,7 @@ const ROLE_CONFIGS = {
   }
 };
 
-export default function SemiChatbot({ role, onSelectCandidate }: SemiChatbotProps): React.JSX.Element {
+export default function SemiChatbot({ role }: SemiChatbotProps): React.JSX.Element {
   const config = ROLE_CONFIGS[role];
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);

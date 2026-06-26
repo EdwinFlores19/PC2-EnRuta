@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import apiClient from '../api/axios';
+import React, { useState } from 'react';
+
 
 interface MetricDetail {
   id: string;
@@ -10,39 +10,6 @@ interface MetricDetail {
 }
 
 export default function WorkerDashboard(): React.JSX.Element {
-  // Estados para el SOS Silencioso (Long Press 3 segundos)
-  const [sosActive, setSosActive] = useState(false);
-  const [sosSending, setSosSending] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const startPress = () => {
-    if (sosSending) return;
-    timerRef.current = setTimeout(async () => {
-      setSosSending(true);
-      setSosActive(true);
-      try {
-        await apiClient.post('/services/sos', {
-          latitude: -12.122485, // Coordenadas simuladas en Lima/Miraflores
-          longitude: -77.031023,
-        });
-      } catch (error) {
-        console.warn('Error silencioso al enviar alerta SOS:', error);
-      } finally {
-        setTimeout(() => {
-          setSosActive(false);
-          setSosSending(false);
-        }, 4000); // 4 segundos de confirmación visual sutil
-      }
-    }, 3000); // 3 segundos para el long press
-  };
-
-  const endPress = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-  };
-
   // Simulamos el progreso interactivo para el MVP
   const [legalMetrics] = useState<MetricDetail[]>([
     { id: 'l1', name: 'Identidad Verificada (DNI + Biometría)', score: 12, maxScore: 12, completed: true },
@@ -72,19 +39,19 @@ export default function WorkerDashboard(): React.JSX.Element {
   // Lógica del semáforo
   let trafficLightColor = '🔴';
   let trafficLightLabel = 'Reciente / Perfil Básico';
-  let trafficLightBg = 'bg-[#ef4444] shadow-[0_0_15px_rgba(239,68,68,0.5)]';
-  let trafficLightText = 'text-[#ef4444]';
+  let trafficLightBg = 'bg-red-500 shadow-glow-red border-red-400/50';
+  let trafficLightText = 'text-red-400';
 
   if (totalScore >= 75) {
     trafficLightColor = '🟢';
     trafficLightLabel = 'Confiable / Formalizado';
-    trafficLightBg = 'bg-[#10b981] shadow-[0_0_15px_rgba(16,185,129,0.5)]';
-    trafficLightText = 'text-[#10b981]';
+    trafficLightBg = 'bg-emerald-500 shadow-glow-green border-emerald-400/50';
+    trafficLightText = 'text-emerald-400';
   } else if (totalScore >= 40) {
     trafficLightColor = '🟡';
     trafficLightLabel = 'Verificado / Capacitándose';
-    trafficLightBg = 'bg-[#f59e0b] shadow-[0_0_15px_rgba(245,158,11,0.5)]';
-    trafficLightText = 'text-[#f59e0b]';
+    trafficLightBg = 'bg-amber-500 shadow-glow-yellow border-amber-400/50';
+    trafficLightText = 'text-amber-400';
   }
 
   // Interacción: Completar curso pendiente para subir puntaje
@@ -103,65 +70,50 @@ export default function WorkerDashboard(): React.JSX.Element {
 
   return (
     <div
-      className="min-h-screen bg-[#020617] text-slate-50 p-6 md:p-8 flex flex-col font-sans"
+      className="min-h-screen bg-[#070A13] text-slate-100 p-6 md:p-8 flex flex-col font-sans"
       data-testid="worker-dashboard-container"
     >
       {/* CABECERA */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-white/10 pb-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-800 pb-6">
         <div>
           <span className="text-[#06b6d4] uppercase text-xs tracking-widest font-mono font-bold block mb-1">
-            Portal del Trabajador
+            ✨ METAS Y AUTOSUPERACIÓN PERSONAL
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Chambea Ahora! — <span className="text-[#06b6d4]">Meta Personal</span>
+            Chambea Ahora! — <span className="text-[#06b6d4]">Mi Progreso</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Esta sección es 100% privada. Tu semáforo interno te ayuda a capacitarte y mejorar tus finanzas.
+          <p className="text-slate-400 text-sm mt-1 max-w-2xl leading-relaxed">
+            Esta sección es 100% privada. Tu semáforo interno te ayuda a capacitarte, organizar tus finanzas y acceder a mejores beneficios económicos.
           </p>
         </div>
-        <div className="bg-[#0f172a]/60 border border-white/10 px-4 py-2.5 rounded-xl flex items-center gap-3">
-          <div className="relative flex h-3.5 w-3.5">
+        <div className="bg-[#101625]/60 border border-slate-800 px-4 py-2.5 rounded-2xl flex items-center gap-3 self-start md:self-center">
+          <div className="relative flex h-3 w-3">
             <div className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${trafficLightBg.split(' ')[0]}`}></div>
-            <div className={`relative inline-flex rounded-full h-3.5 w-3.5 ${trafficLightBg.split(' ')[0]}`}></div>
+            <div className={`relative inline-flex rounded-full h-3 w-3 ${trafficLightBg.split(' ')[0]}`}></div>
           </div>
           <span className="text-xs font-mono font-bold text-slate-300">MODO GAMIFICACIÓN ACTIVO</span>
         </div>
       </div>
 
       {/* SECCIÓN DEL SEMÁFORO PRINCIPAL */}
-      <div className="bg-[#0f172a]/45 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.50)] p-6 md:p-8 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+      <div className="bg-[#101625] border border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+          
           {/* Luz de Semáforo */}
-          <div className="flex flex-col items-center justify-center text-center md:border-r md:border-white/10 py-4 relative">
-            {/* Micro-brillo rojo de confirmación de alerta SOS Silencioso */}
-            {sosActive && (
-              <div className="absolute top-2 right-2 flex h-2.5 w-2.5 z-10" data-testid="sos-brillo-confirmacion">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ef4444] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#ef4444] shadow-[0_0_10px_rgba(239,68,68,0.9)]"></span>
-              </div>
-            )}
-            <div
-              className={`flex flex-col gap-3 bg-black/40 p-4 rounded-3xl border w-24 items-center select-none cursor-pointer transition-all duration-300 ${sosActive ? 'border-[#ef4444]/60 shadow-[0_0_20px_rgba(239,68,68,0.45)] scale-95' : 'border-white/5'}`}
-              onMouseDown={startPress}
-              onMouseUp={endPress}
-              onMouseLeave={endPress}
-              onTouchStart={startPress}
-              onTouchEnd={endPress}
-              title="Mantén presionado por 3 segundos para activar SOS silencioso"
-              data-testid="sos-trigger"
-            >
+          <div className="flex flex-col items-center justify-center text-center md:border-r md:border-slate-800/80 py-4 md:pr-8">
+            <div className="flex flex-col gap-4 bg-[#070A13] p-5 rounded-[2.5rem] border border-slate-800/60 w-28 items-center shadow-inner">
               {/* Luz Roja */}
-              <div className={`w-10 h-10 rounded-full transition-all duration-300 ${totalScore < 40 || sosActive ? 'bg-[#ef4444] shadow-[0_0_15px_rgba(239,68,68,0.8)]' : 'bg-red-950/40'}`}></div>
+              <div className={`w-11 h-11 rounded-full transition-all duration-300 ${totalScore < 40 ? 'bg-[#ef4444] shadow-glow-red border-2 border-red-400/40' : 'bg-red-950/20 border border-red-950/10'}`}></div>
               {/* Luz Amarilla */}
-              <div className={`w-10 h-10 rounded-full transition-all duration-300 ${totalScore >= 40 && totalScore < 75 && !sosActive ? 'bg-[#f59e0b] shadow-[0_0_15px_rgba(245,158,11,0.8)]' : 'bg-amber-950/40'}`}></div>
+              <div className={`w-11 h-11 rounded-full transition-all duration-300 ${totalScore >= 40 && totalScore < 75 ? 'bg-[#f59e0b] shadow-glow-yellow border-2 border-amber-400/40' : 'bg-amber-950/20 border border-amber-950/10'}`}></div>
               {/* Luz Verde */}
-              <div className={`w-10 h-10 rounded-full transition-all duration-300 ${totalScore >= 75 && !sosActive ? 'bg-[#10b981] shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'bg-emerald-950/40'}`}></div>
+              <div className={`w-11 h-11 rounded-full transition-all duration-300 ${totalScore >= 75 ? 'bg-[#10b981] shadow-glow-green border-2 border-emerald-400/40' : 'bg-emerald-950/20 border border-emerald-950/10'}`}></div>
             </div>
-            <div className="mt-4">
-              <span className={`text-xs font-bold uppercase tracking-wider font-mono ${trafficLightText}`}>
-                Semáforo Personal
+            <div className="mt-5 space-y-1">
+              <span className={`text-[10px] font-bold uppercase tracking-wider font-mono ${trafficLightText}`}>
+                Mi Nivel Actual
               </span>
-              <h3 className="text-lg font-extrabold text-white block mt-0.5" data-testid="worker-traffic-light">
+              <h3 className="text-lg font-extrabold text-white block" data-testid="worker-traffic-light">
                 {trafficLightColor} {trafficLightLabel}
               </h3>
             </div>
@@ -169,10 +121,10 @@ export default function WorkerDashboard(): React.JSX.Element {
 
           {/* Barra de Progreso y Puntaje */}
           <div className="md:col-span-2 space-y-6">
-            <div>
-              <div className="flex justify-between items-end mb-2">
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
                 <div>
-                  <span className="text-sm text-slate-400 font-medium">Meta de Formalización</span>
+                  <span className="text-xs text-slate-400 font-bold uppercase tracking-wide font-mono">Meta de Formalización</span>
                   <h2 className="text-4xl font-extrabold font-mono tracking-tight text-white mt-1" data-testid="worker-score">
                     {totalScore} <span className="text-lg text-slate-500">/ 100 pts</span>
                   </h2>
@@ -181,104 +133,110 @@ export default function WorkerDashboard(): React.JSX.Element {
                   {totalScore}% Completado
                 </span>
               </div>
-              <div className="w-full bg-slate-800 h-4 rounded-full overflow-hidden border border-white/5">
+              <div className="w-full bg-slate-800/55 h-4 rounded-full overflow-hidden border border-white/5 shadow-inner">
                 <div
-                  className={`h-full transition-all duration-500 ease-out ${totalScore >= 75 ? 'bg-[#10b981]' : totalScore >= 40 ? 'bg-[#f59e0b]' : 'bg-[#ef4444]'}`}
+                  className={`h-full transition-all duration-500 ease-out rounded-full ${totalScore >= 75 ? 'bg-emerald-500' : totalScore >= 40 ? 'bg-amber-500' : 'bg-red-500'}`}
                   style={{ width: `${totalScore}%` }}
                 ></div>
               </div>
             </div>
 
             {/* Tres Pilares Resumen */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="bg-black/30 p-3 rounded-xl border border-white/5 text-center">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Validación Legal</span>
-                <span className="text-base font-extrabold font-mono mt-1 block text-slate-200" data-testid="meta-legal-progress">
+            <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="bg-[#070A13] p-4 rounded-2xl border border-slate-800 text-center">
+                <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider font-mono">Validación Legal</span>
+                <span className="text-lg font-black font-mono mt-1.5 block text-slate-200" data-testid="meta-legal-progress">
                   {legalScore}/30 pts
                 </span>
               </div>
-              <div className="bg-black/30 p-3 rounded-xl border border-white/5 text-center">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Capacitación</span>
-                <span className="text-base font-extrabold font-mono mt-1 block text-[#8b5cf6]" data-testid="meta-capacitacion-progress">
+              <div className="bg-[#070A13] p-4 rounded-2xl border border-slate-800 text-center">
+                <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider font-mono">Capacitación</span>
+                <span className="text-lg font-black font-mono mt-1.5 block text-[#8b5cf6]" data-testid="meta-capacitacion-progress">
                   {capScore}/40 pts
                 </span>
               </div>
-              <div className="bg-black/30 p-3 rounded-xl border border-white/5 text-center">
-                <span className="text-[10px] text-slate-400 block font-bold uppercase">Manejo Financiero</span>
-                <span className="text-base font-extrabold font-mono mt-1 block text-[#06b6d4]" data-testid="meta-finanzas-progress">
+              <div className="bg-[#070A13] p-4 rounded-2xl border border-slate-800 text-center">
+                <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider font-mono">Salud Financiera</span>
+                <span className="text-lg font-black font-mono mt-1.5 block text-[#06b6d4]" data-testid="meta-finanzas-progress">
                   {finScore}/30 pts
                 </span>
               </div>
             </div>
+
           </div>
         </div>
       </div>
 
       {/* DOS COLUMNAS DETALLES */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
         {/* COLUMNA IZQUIERDA: CURSOS Y CAPACITACIONES */}
-        <div className="bg-[#0f172a]/45 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
-          <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
-            <h3 className="text-xl font-bold flex items-center gap-2 text-[#8b5cf6]">
-              🎓 Cursos de Capacitación (Peso: 40%)
-            </h3>
-            <span className="text-xs bg-[#8b5cf6]/10 text-[#8b5cf6] border border-[#8b5cf6]/20 px-2 py-1 rounded-full font-bold">
-              Subir Semáforo
-            </span>
-          </div>
+        <div className="bg-[#101625] border border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
+              <h3 className="text-xl font-bold flex items-center gap-2 text-[#8b5cf6]">
+                🎓 Cursos de Capacitación (40%)
+              </h3>
+              <span className="text-[10px] bg-[#8b5cf6]/10 text-[#8b5cf6] border border-[#8b5cf6]/20 px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider font-mono">
+                Subir Semáforo
+              </span>
+            </div>
 
-          <div className="space-y-4">
-            {capMetrics.map((item) => (
-              <div
-                key={item.id}
-                className="bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-between hover:border-white/10 transition-colors"
-                data-testid={item.completed ? 'course-card-completed' : 'course-card-active'}
-              >
-                <div>
-                  <h4 className="text-sm font-semibold text-white">{item.name}</h4>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${item.completed ? 'bg-[#10b981]/20 text-[#10b981]' : 'bg-[#f59e0b]/20 text-[#f59e0b]'}`}>
-                      {item.completed ? 'Completo (+8 pts)' : 'Pendiente (+8 pts)'}
-                    </span>
-                    <span className="text-xs text-slate-500 font-medium">Capacitación</span>
+            <div className="space-y-4">
+              {capMetrics.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-slate-950/40 rounded-2xl border border-slate-800 p-4.5 flex items-center justify-between hover:border-slate-700 transition-colors"
+                  data-testid={item.completed ? 'course-card-completed' : 'course-card-active'}
+                >
+                  <div className="pr-4">
+                    <h4 className="text-sm font-extrabold text-white leading-tight">{item.name}</h4>
+                    <div className="flex items-center gap-2.5 mt-2">
+                      <span className={`text-[9px] font-bold font-mono px-2 py-0.5 rounded ${
+                        item.completed ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'
+                      }`}>
+                        {item.completed ? 'COMPLETO (+8 pts)' : 'PENDIENTE (+8 pts)'}
+                      </span>
+                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider font-mono">Capacitación</span>
+                    </div>
                   </div>
+                  {!item.completed && (
+                    <button
+                      onClick={() => handleCompleteCourse(item.id)}
+                      className="bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-black text-xs py-2.5 px-4 rounded-xl hover:shadow-[0_0_15px_rgba(139,92,246,0.3)] transition-all shrink-0"
+                    >
+                      Estudiar Curso
+                    </button>
+                  )}
                 </div>
-                {!item.completed && (
-                  <button
-                    onClick={() => handleCompleteCourse(item.id)}
-                    className="bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold text-xs py-2 px-3 rounded-lg hover:shadow-[0_0_15px_rgba(139,92,246,0.4)] transition-all duration-300 active:scale-95"
-                  >
-                    Estudiar Curso
-                  </button>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
         {/* COLUMNA DERECHA: METAS FINANCIERAS Y CRÉDITO */}
-        <div className="bg-[#0f172a]/45 backdrop-blur-xl border border-white/10 rounded-2xl p-6 flex flex-col justify-between">
+        <div className="bg-[#101625] border border-slate-800 rounded-3xl p-6 md:p-8 flex flex-col justify-between space-y-6">
           <div>
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
               <h3 className="text-xl font-bold flex items-center gap-2 text-[#06b6d4]">
-                💰 Salud Financiera & Crédito (Peso: 30%)
+                💰 Salud Financiera & Crédito (30%)
               </h3>
-              <span className="text-xs bg-[#06b6d4]/10 text-[#06b6d4] border border-[#06b6d4]/20 px-2 py-1 rounded-full font-bold">
+              <span className="text-[10px] bg-[#06b6d4]/10 text-[#06b6d4] border border-[#06b6d4]/20 px-2.5 py-1 rounded-full font-extrabold uppercase tracking-wider font-mono">
                 Finanzas Clave
               </span>
             </div>
 
             {/* Ahorros */}
-            <div className="bg-black/30 p-4 rounded-xl border border-white/5 mb-4" data-testid="saving-goal-progress">
-              <div className="flex justify-between text-xs font-mono font-bold mb-1.5 text-slate-400">
+            <div className="bg-[#070A13] p-5 rounded-2xl border border-slate-800 mb-6" data-testid="saving-goal-progress">
+              <div className="flex justify-between text-[10px] font-mono font-bold mb-2 text-slate-400 uppercase tracking-wider">
                 <span>META DE AHORRO ACTIVA</span>
                 <span className="text-[#06b6d4]">60%</span>
               </div>
-              <div className="flex justify-between items-end mb-2">
-                <span className="text-sm font-semibold text-white">Comprar herramientas eléctricas</span>
-                <span className="text-sm font-mono font-bold text-[#06b6d4]">$120 / $200</span>
+              <div className="flex justify-between items-end mb-3">
+                <span className="text-sm font-extrabold text-white">Comprar herramientas eléctricas</span>
+                <span className="text-sm font-mono font-bold text-[#06b6d4]">S/. 120 / S/. 200</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-slate-800/80 h-2.5 rounded-full overflow-hidden">
                 <div className="bg-[#06b6d4] h-full" style={{ width: '60%' }}></div>
               </div>
             </div>
@@ -288,18 +246,18 @@ export default function WorkerDashboard(): React.JSX.Element {
               {finMetrics.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-black/20 rounded-xl border border-white/5 p-4 flex items-center justify-between hover:border-white/10 transition-colors"
+                  className="bg-slate-950/40 rounded-2xl border border-slate-800 p-4.5 flex items-center justify-between hover:border-slate-700 transition-colors"
                 >
-                  <div>
-                    <h4 className="text-sm font-semibold text-white">{item.name}</h4>
-                    <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-black/40 text-slate-300 mt-1.5 inline-block">
-                      {item.completed ? 'Completo (+10 pts)' : 'Falta pagar cuota (+10 pts)'}
+                  <div className="pr-4">
+                    <h4 className="text-sm font-extrabold text-white leading-tight">{item.name}</h4>
+                    <span className="text-[9px] font-bold font-mono px-2 py-0.5 rounded bg-[#070A13] text-slate-300 mt-2 inline-block">
+                      {item.completed ? 'COMPLETO (+10 pts)' : 'PENDIENTE DE PAGO (+10 pts)'}
                     </span>
                   </div>
                   {!item.completed && (
                     <button
                       onClick={() => handlePayLoan(item.id)}
-                      className="bg-[#06b6d4] hover:bg-[#0891b2] text-[#020617] font-extrabold text-xs py-2 px-3 rounded-lg hover:shadow-[0_0_15px_rgba(6,182,212,0.4)] transition-all duration-300 active:scale-95"
+                      className="bg-[#06b6d4] hover:bg-[#0891b2] text-[#070A13] font-black text-xs py-2.5 px-4 rounded-xl hover:shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all shrink-0"
                     >
                       Pagar Cuota
                     </button>
@@ -310,21 +268,22 @@ export default function WorkerDashboard(): React.JSX.Element {
           </div>
 
           {/* BENEFICIOS DEL SEMÁFORO EN VERDE */}
-          <div className="mt-6 bg-[#10b981]/5 border border-[#10b981]/20 rounded-xl p-4 flex items-center gap-3">
-            <span className="text-2xl">🎉</span>
-            <div>
-              <h4 className="text-sm font-bold text-[#10b981]">¡Beneficios Nivel Verde Desbloqueados!</h4>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Al estar en nivel Verde, accedes a micro-créditos de $500 con tasa preferencial del 4.5% y micro-seguros gratis.
+          <div className="bg-[#10b981]/5 border border-emerald-500/20 rounded-2xl p-5 flex items-start gap-4">
+            <span className="text-3xl">🎉</span>
+            <div className="space-y-1">
+              <h4 className="text-sm font-extrabold text-emerald-400">¡Beneficios Nivel Verde Desbloqueados!</h4>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Al consolidar tu Semáforo en **Verde**, desbloqueas de inmediato micro-créditos de hasta S/. 500 con tasa de interés preferencial (4.5%) y micro-seguros gratuitos respaldados por MINTRA.
               </p>
             </div>
           </div>
         </div>
+
       </div>
 
       {/* BOTÓN PARA REVISAR TU PERFIL PÚBLICO */}
-      <div className="mt-8 text-center text-xs text-slate-500 font-mono">
-        Recuerda: Tu Semáforo es una herramienta interna de capacitación y financiamiento. Ningún cliente puede ver este color.
+      <div className="mt-10 text-center text-xs text-slate-500 font-mono font-bold tracking-wide">
+        🛡️ Recuerda: Tu Semáforo es una herramienta de uso interno privado de formalización. Los peatones y conductores calificados no ven el color de tu semáforo personal.
       </div>
     </div>
   );

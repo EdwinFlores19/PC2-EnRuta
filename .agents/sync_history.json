@@ -6,7 +6,7 @@
     "commits": [
       "feat(legaltech): implementar KYC, scoring de semáforo social y scraping SUNAT para validación de RUC."
     ],
-    "pull_request_url": "https://github.com/EdwinFlores19/PC2-SemaforoSocial/pull/new/feature/US03-legaltech-and-scoring",
+    "pull_request_url": "https://github.com/EdwinFlores19/PC2-EnRuta/pull/new/feature/US03-legaltech-and-scoring",
     "api_contracts_updated": true
   }
 }

@@ -22,7 +22,7 @@ El agente que realiza el push debe registrar los detalles del push en el archivo
       "feat(core): implementar motor de proximidad PostGIS y validación SRE de semáforo rojo",
       "test(service): añadir suite de integración 15/15 para asignación vial"
     ],
-    "pull_request_url": "https://github.com/EdwinFlores19/PC2-SemaforoSocial/pull/new/feature/US02-proximity-and-traffic-lights",
+    "pull_request_url": "https://github.com/EdwinFlores19/PC2-EnRuta/pull/new/feature/US02-proximity-and-traffic-lights",
     "api_contracts_updated": true
   }
 }

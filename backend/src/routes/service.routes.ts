@@ -102,4 +102,26 @@ router.patch('/request/:id/status',
   serviceController.transitionStatus
 );
 
+/**
+ * @route   POST /api/v1/services/sos
+ * @desc    Registrar una alerta SOS silenciosa de un trabajador
+ * @access  Privado (Cualquier usuario autenticado - Rol WORKER)
+ */
+router.post('/sos',
+  authenticate,
+  body('latitude').isFloat().withMessage('La latitud es obligatoria y debe ser un número decimal.'),
+  body('longitude').isFloat().withMessage('La longitud es obligatoria y debe ser un número decimal.'),
+  validate,
+  serviceController.reportSOSAlert
+);
+
+/**
+ * @route   GET /api/v1/services/sos/events
+ * @desc    Canal de Server-Sent Events (SSE) para notificaciones de alertas SOS en tiempo real
+ * @access  Público / Privado (Gobernanza Municipal / Admin)
+ */
+router.get('/sos/events',
+  serviceController.registerSOSEventStream
+);
+
 export default router;

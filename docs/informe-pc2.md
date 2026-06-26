@@ -1,11 +1,11 @@
-# Informe Técnico PC2 — Semáforo Social (Plataforma On-Demand & Fintech)
+# Informe Técnico PC2 — EnRuta (Plataforma On-Demand & Fintech)
 
 > **Curso:** Proyecto de Fin de Carrera / Ingeniería de Software II  
 > **Docente:** Profesor de Cátedra  
 > **Grupo:** Grupo de Desarrollo Agéntico SRE  
 > **Integrantes:** Edwin Flores Sanchez (Asignado Único)  
 > **Fecha de Entrega:** 25/06/2026  
-> **Repositorio:** [https://github.com/EdwinFlores19/PC2-SemaforoSocial](https://github.com/EdwinFlores19/PC2-SemaforoSocial)  
+> **Repositorio:** [https://github.com/EdwinFlores19/PC2-EnRuta](https://github.com/EdwinFlores19/PC2-EnRuta)  
 > **URL del Sistema en Producción:** [https://pc2-backend-pfdc3.onrender.com](https://pc2-backend-pfdc3.onrender.com)
 
 ---
@@ -18,10 +18,10 @@ El presente informe ha sido estructurado, formateado y redactado bajo los lineam
 ## 1. Metodología DevOps y Stack Tecnológico
 
 ### 1.1 Principios y Filosofía DevOps Adoptada
-El desarrollo y despliegue del sistema **"Semáforo Social"** adopta la filosofía **DevOps** no como un conjunto de herramientas, sino como un cambio cultural enfocado en la colaboración, automatización y retroalimentación constante. Se aplican los siguientes principios fundamentales:
+El desarrollo y despliegue del sistema **"EnRuta"** adopta la filosofía **DevOps** no como un conjunto de herramientas, sino como un cambio cultural enfocado en la colaboración, automatización y retroalimentación constante. Se aplican los siguientes principios fundamentales:
 
 *   **Shift-Left Testing and Security:** La validación de la calidad del código, las pruebas unitarias y la seguridad se desplazan al inicio del ciclo de vida del desarrollo. Los análisis sintácticos (linting) y las pruebas de compilación estática (`npx tsc --noEmit`) se ejecutan de manera local en el entorno del desarrollador antes de realizar cualquier confirmación a la rama remota, previniendo la propagación de fallos en producción.
-*   **Servicios Platform-as-a-Service (PaaS) Orientados a la Agilidad:** Para el caso de negocio "Semáforo Social", el tiempo de salida al mercado (Time-to-Market) y la estabilidad de la infraestructura son críticos. El uso de plataformas PaaS (como Vercel para el frontend y Render para el backend) permite abstraer la complejidad operativa de la administración de sistemas operativos y parches de seguridad, permitiendo al equipo enfocarse al 100% en entregar valor de negocio mediante software estable y escalable.
+*   **Servicios Platform-as-a-Service (PaaS) Orientados a la Agilidad:** Para el caso de negocio "EnRuta", el tiempo de salida al mercado (Time-to-Market) y la estabilidad de la infraestructura son críticos. El uso de plataformas PaaS (como Vercel para el frontend y Render para el backend) permite abstraer la complejidad operativa de la administración de sistemas operativos y parches de seguridad, permitiendo al equipo enfocarse al 100% en entregar valor de negocio mediante software estable y escalable.
 *   **Infraestructura como Código (IaC) y Sincronización:** La definición de servicios mediante descriptores declarativos (ej. `render.yaml` para el backend y `vercel.json` para el frontend) garantiza que el entorno de desarrollo y producción sean idénticos, eliminando el clásico problema de "en mi máquina local sí funciona".
 
 ### 1.2 Ciclo de Vida del Software (8 Fases)
@@ -53,14 +53,14 @@ El ciclo de vida del desarrollo del proyecto se gestiona de forma continua a tra
 *Nota: Elaboración propia.*
 
 ### 1.4 Vínculo con el Problema de Negocio
-La arquitectura propuesta resuelve directamente los desafíos técnicos del sistema de formalización y micro-empleo **"Semáforo Social"**. Al desacoplar completamente la interfaz de usuario de la lógica de procesamiento (Frontend en Vercel, API en Render), garantizamos que un pico de conductores solicitando lavados express no degrade el rendimiento del panel de los trabajadores. De igual manera, el uso de PostgreSQL con transacciones ACID asegura que las operaciones de la billetera digital y split de comisiones se completen con total consistencia, impidiendo la pérdida de dinero y blindando legalmente el registro del sistema frente a menores de edad no autorizados.
+La arquitectura propuesta resuelve directamente los desafíos técnicos del sistema de formalización y micro-empleo **"EnRuta"**. Al desacoplar completamente la interfaz de usuario de la lógica de procesamiento (Frontend en Vercel, API en Render), garantizamos que un pico de conductores solicitando lavados express no degrade el rendimiento del panel de los trabajadores. De igual manera, el uso de PostgreSQL con transacciones ACID asegura que las operaciones de la billetera digital y split de comisiones se completen con total consistencia, impidiendo la pérdida de dinero y blindando legalmente el registro del sistema frente a menores de edad no autorizados.
 
 ---
 
 ## 2. Diagramas: Casos de Uso y Arquitectura
 
 ### 2.1 Actores del Sistema
-Los roles que interactúan con la plataforma "Semáforo Social" se definen a continuación:
+Los roles que interactúan con la plataforma "EnRuta" se definen a continuación:
 
 *   **Trabajador Vial (Limpiador):** Persona nacional o extranjera (DNI, CE, PTP) que vive del día a día, expuesta al sol y accidentes en luz roja, que busca formalizarse, capacitarse y aumentar sus ingresos mediante lavado de lunas rápido y seguro.
 *   **Conductor (Cliente Express):** Persona sin tiempo para ir a un taller formal que busca solicitar un lavado express de lunas rápido de forma segura durante la luz roja del semáforo.
@@ -79,7 +79,7 @@ graph LR
         R([👤 Analista RRHH])
     end
 
-    subgraph Sistema "Semáforo Social"
+    subgraph Sistema "EnRuta"
         UC1(Solicitar Lavado Express)
         UC2(Aceptar y Validar Luz Roja)
         UC3(Registrarse con KYC Legal)
@@ -119,19 +119,74 @@ La aplicación sigue un patrón de **Diseño Multicapa Desacoplado**, estructura
 5.  **Capa de Acceso a Datos (Repository / Prisma Client):** Abstrae las consultas SQL crudas mediante sentencias de Prisma parametrizadas con índices en claves foráneas, garantizando la consistencia transaccional y la tipificación de datos.
 
 ### 2.5 Arquitectura Física en Nube (SRE Topology)
-```text
-[Cliente: Navegador Web (React SPA)] 
-    -- HTTPS (TLS 1.3) --> [CDN de Vercel (Edge Network)]
-    -- Consumo de API REST --> [Render Web Service (Servidor Express)]
+
+La topología de infraestructura de la plataforma "EnRuta" está distribuida en tres nubes optimizadas y coordinadas para garantizar el rendimiento, la seguridad de las transacciones financieras y la tolerancia a fallos.
+
+```mermaid
+flowchart TB
+    %% Estilos de fuentes y temas oscuros
+    classDef actorStyle fill:#212529,stroke:#495057,stroke-width:2px,color:#fff;
+    classDef clientStyle fill:#1a0f2e,stroke:#7b2cbf,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
+    classDef appStyle fill:#0b1d16,stroke:#0f9b0f,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
+    classDef dbStyle fill:#1f130b,stroke:#d47a2a,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
+    classDef extStyle fill:#2d2d2d,stroke:#7f8c8d,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;
     
-[Render Web Service]
-    -- Conexión Segura Pooler (Puerto 6543) --> [Supabase Cloud (PostgreSQL 15)]
-    -- Inferencia Cognitiva (HTTPS) --> [Google Gemini 3.5 API]
+    subgraph Capa_Cliente ["🌐 CLIENT LAYER (Vercel Cloud - Staging/Prod)"]
+        direction LR
+        client_app["📱 React 19 + Vite SPA<br/>(TypeScript + Tailwind CSS)<br/>- Mobile-First & PWA Ready<br/>- JWT session storage<br/>- Playwright E2E Contracts"]
+        client_specs["📋 ESPECIFICACIONES TÉCNICAS<br/>- Vercel Edge Network (Global CDN)<br/>- Comunicación HTTPS (TLS 1.3)<br/>- Axios Client con Interceptores<br/>- data-testid selectors inmutables"]
+    end
     
-[GitHub Repository]
-    -- Webhooks automáticos --> [GitHub Actions Runner (CI/CD Pipeline)]
-    -- Auto-deploy en éxito --> [Render & Vercel Deploy Hooks]
+    subgraph Capa_Aplicacion ["⚙️ APPLICATION LAYER (Render Cloud - Web Service)"]
+        direction LR
+        app_api["🖥️ Express API (Node.js v20)<br/>- MVC: Router -> Controller -> Service<br/>- Security: Helmet, CORS, Rate Limit<br/>- express-validator sanitization<br/>- Prisma Client ORM Integration"]
+        app_specs["📋 ESPECIFICACIONES TÉCNICAS<br/>- Event Loop e I/O no bloqueante<br/>- Motor de Asignación Proximidad (Haversine)<br/>- Gestión de KYC & Permisos MINTRA<br/>- Split Payment (Comisión 5% y Yape QR)<br/>- API Rate-Limiting & SSL"]
+    end
+
+    subgraph Capa_Datos ["💾 DATA LAYER (Supabase Cloud - Managed Postgres)"]
+        direction LR
+        db_sql["🗄️ PostgreSQL 15 Engine<br/>- Esquema Relacional en 3FN (18 tablas)<br/>- UUID PKs & Bcrypt Password Hashing<br/>- Índices espaciales (PostGIS)<br/>- Restricciones ON DELETE Restrict"]
+        db_specs["📋 ESPECIFICACIONES TÉCNICAS<br/>- Conexión segura SSL (Puerto 6543)<br/>- PgBouncer Connection Pooling<br/>- Copias de seguridad automáticas diarias<br/>- Auditoría de Soft Delete (isDeleted)<br/>- Alta disponibilidad SRE"]
+    end
+
+    subgraph Capa_Externa ["🔌 EXTERNAL INTEGRATIONS"]
+        ext_yape["💳 Yape / Plin APIs<br/>- QR Code Generation<br/>- Payment Webhook"]
+        ext_mintra["📄 MTPE / MINTRA API<br/>- Teen Labor Validation<br/>- Auth PDF validation"]
+        ext_sunat["🏢 SUNAT Web Service<br/>- RUC Status Check<br/>- NRUS Declarations"]
+        ext_gemini["🧠 Google Gemini 3.5 API<br/>- AI Coach Fito (Chatbot)<br/>- Recruiter Ramiro (RAG)"]
+    end
+    
+    subgraph Usuarios ["👤 ACTORES DEL SISTEMA"]
+        u_peon["👤 Trabajador Vial<br/>(Asistente / Limpiador)"]
+        u_cond["👤 Conductor<br/>(Cliente Express)"]
+        u_fiscal["👤 Fiscalizador Gubernamental<br/>(MINTRA / SUNAT)"]
+        u_recrut["👤 Reclutador B2B<br/>(Car Wash / RRHH)"]
+    end
+    
+    %% Conexiones
+    Usuarios -- "HTTPS (TLS 1.3)" --> Capa_Cliente
+    Capa_Cliente -- "HTTPS REST JSON" --> Capa_Aplicacion
+    Capa_Aplicacion -- "Prisma ORM TCP/SSL (Port 6543)" --> Capa_Datos
+    
+    Capa_Aplicacion <--> ext_yape
+    Capa_Aplicacion <--> ext_mintra
+    Capa_Aplicacion <--> ext_sunat
+    Capa_Aplicacion <--> ext_gemini
+
+    %% Estilos de los subgrafos
+    style Capa_Cliente fill:#10091d,stroke:#5a189a,stroke-width:2px;
+    style Capa_Aplicacion fill:#05120d,stroke:#0f730f,stroke-width:2px;
+    style Capa_Datos fill:#120b06,stroke:#a65f24,stroke-width:2px;
+    style Capa_Externa fill:#161616,stroke:#555555,stroke-width:2px;
+    style Usuarios fill:#111213,stroke:#2b2e31,stroke-width:2px;
+
+    class u_peon,u_cond,u_fiscal,u_recrut actorStyle;
+    class client_app,client_specs clientStyle;
+    class app_api,app_specs appStyle;
+    class db_sql,db_specs dbStyle;
+    class ext_yape,ext_mintra,ext_sunat,ext_gemini extStyle;
 ```
+
 
 ### 2.6 Diagrama de Estados del Viaje (ServiceRequest)
 ```mermaid
@@ -163,7 +218,7 @@ Una Historia de Usuario se considera **TERMINADA** cuando:
 ### 3.2 Sprints de Desarrollo
 
 **Tabla 3**  
-*Épicas de Desarrollo del Sistema Semáforo Social*  
+*Épicas de Desarrollo del Sistema EnRuta*  
 
 | Código Épica | Nombre de la Épica | Descripción Técnica | Prioridad |
 | :--- | :--- | :--- | :--- |
@@ -194,7 +249,7 @@ Una Historia de Usuario se considera **TERMINADA** cuando:
 ## 4. Ingeniería de Datos, Implementación y Despliegue
 
 ### 4.1 Justificación de Base de Datos
-Se selecciona **PostgreSQL** sobre NoSQL (como MongoDB) para "Semáforo Social" debido a:
+Se selecciona **PostgreSQL** sobre NoSQL (como MongoDB) para "EnRuta" debido a:
 *   **Consistencia Transaccional (ACID):** Las operaciones de billeteras virtuales (baleance, retiro, split de comisiones) no permiten estados parciales o inconsistencias de lectura.
 *   **Integridad Referencial Estricta:** Las llaves foráneas con restricciones estrictas de cascada impiden la existencia de transacciones huérfanas o servicios asignados a usuarios inexistentes.
 
@@ -263,7 +318,7 @@ Total: 6 tests in 3 files
 ## 6. Conclusiones y Escalabilidad
 
 ### 6.1 Logros Técnicos del Proyecto
-Se implementó con éxito una arquitectura Full-Stack robusta, segura y desacoplada que asegura la escalabilidad de "Semáforo Social". Se sincronizó un entorno ágil con Scrum asignando todo el backlog al usuario en Jira Cloud, respaldado por un pipeline de automatización CI/CD y un script de validación local pre-commit en TypeScript que reduce la intervención humana a cero, garantizando que todo cambio de software sea estable por diseño.
+Se implementó con éxito una arquitectura Full-Stack robusta, segura y desacoplada que asegura la escalabilidad de "EnRuta". Se sincronizó un entorno ágil con Scrum asignando todo el backlog al usuario en Jira Cloud, respaldado por un pipeline de automatización CI/CD y un script de validación local pre-commit en TypeScript que reduce la intervención humana a cero, garantizando que todo cambio de software sea estable por diseño.
 
 ### 6.2 Honestidad Técnica y Limitaciones
 Dadas las restricciones de tiempo inherentes a un examen presencial de 5 horas, se reconocen los siguientes alcances simulados:
