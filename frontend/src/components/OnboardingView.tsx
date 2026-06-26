@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import apiClient from '../api/axios';
 import { Card, Button } from './SemaforoComponents.js';
+import { ShieldIcon, ShieldCheckIcon, UploadIcon, LockIcon, CheckIcon, SparklesIcon } from './SemaforoIcons.js';
 
 export default function OnboardingView(): React.JSX.Element {
   const [birthdate, setBirthdate] = useState('');
@@ -140,7 +141,7 @@ export default function OnboardingView(): React.JSX.Element {
                 className="p-5 bg-[#E53E3E]/10 border border-[#E53E3E]/30 text-[#E53E3E] rounded-xl space-y-2 animate-fadeIn"
               >
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <span>🚫</span>
+                  <LockIcon size="sm" />
                   <span>Restricción de Edad Legal</span>
                 </div>
                 <p className="text-xs text-[#A0AEC0] leading-relaxed">
@@ -190,7 +191,7 @@ export default function OnboardingView(): React.JSX.Element {
                 className="p-5 border-2 border-dashed border-[#F6AD55]/40 bg-[#F6AD55]/5 rounded-xl space-y-3 animate-fadeIn"
               >
                 <div className="flex items-center gap-2 text-[#F6AD55] font-bold text-sm">
-                  <span>📄</span>
+                  <UploadIcon size="sm" />
                   <span>Permiso de Trabajo MINTRA Requerido</span>
                 </div>
                 <p className="text-xs text-[#A0AEC0] leading-relaxed">

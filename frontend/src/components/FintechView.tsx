@@ -1,5 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
+import { MetricCard } from './SemaforoComponents.js';
+import {
+  LightningIcon,
+  UsersIcon,
+  ShieldCheckIcon,
+  TrendingUpIcon,
+  WifiIcon,
+  WalletIcon,
+  KeyIcon,
+  ExclamationIcon,
+  SparklesIcon,
+  CheckIcon,
+  CreditCardIcon,
+  QrCodeIcon,
+  LockIcon,
+  DocumentTextIcon,
+} from './SemaforoIcons.js';
 
 interface User {
   id: string;
@@ -387,7 +404,7 @@ export default function FintechView(): React.JSX.Element {
                 activeTab === 'terminal' ? 'border-[#3B82F6] text-[#F7FAFC] font-semibold' : 'border-transparent hover:text-[#F7FAFC]'
               }`}
             >
-              📶 POS Terminal
+              <WifiIcon size="sm" /> POS Terminal
             </button>
             <button
               data-testid="tab-wallet"
@@ -396,7 +413,7 @@ export default function FintechView(): React.JSX.Element {
                 activeTab === 'wallet' ? 'border-[#3B82F6] text-[#F7FAFC] font-semibold' : 'border-transparent hover:text-[#F7FAFC]'
               }`}
             >
-              🗄️ Mi Billetera Digital
+              <WalletIcon size="sm" /> Mi Billetera Digital
             </button>
           </div>
         </div>
@@ -423,40 +440,36 @@ export default function FintechView(): React.JSX.Element {
 
       {/* GRID DE MÉTRICAS (METRICCARD COMPONENT) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="enruta-card flex flex-col justify-between">
-          <span className="text-2xl">⚡</span>
-          <div>
-            <div className="text-3xl font-bold mt-2">S/. 12.5K</div>
-            <div className="text-xs text-[#A0AEC0] uppercase tracking-wider font-medium mt-1">Monto Procesado</div>
-          </div>
-        </div>
-        <div className="enruta-card flex flex-col justify-between">
-          <span className="text-2xl">👥</span>
-          <div>
-            <div className="text-3xl font-bold mt-2">350+</div>
-            <div className="text-xs text-[#A0AEC0] uppercase tracking-wider font-medium mt-1">Asistentes Viales</div>
-          </div>
-        </div>
-        <div className="enruta-card flex flex-col justify-between">
-          <span className="text-2xl">🛡️</span>
-          <div>
-            <div className="text-3xl font-bold mt-2">0%</div>
-            <div className="text-xs text-[#A0AEC0] uppercase tracking-wider font-medium mt-1">Trabajo Infantil</div>
-          </div>
-        </div>
-        <div className="enruta-card flex flex-col justify-between">
-          <span className="text-2xl">📈</span>
-          <div>
-            <div className="text-3xl font-bold mt-2">95%</div>
-            <div className="text-xs text-[#A0AEC0] uppercase tracking-wider font-medium mt-1">Tasa de Desembolso</div>
-          </div>
-        </div>
+        <MetricCard
+          icon={<LightningIcon size="lg" className="text-[#3B82F6]" />}
+          value="S/. 12.5K"
+          label="Monto Procesado"
+          className="enruta-card"
+        />
+        <MetricCard
+          icon={<UsersIcon size="lg" className="text-[#3B82F6]" />}
+          value="350+"
+          label="Asistentes Viales"
+          className="enruta-card"
+        />
+        <MetricCard
+          icon={<ShieldCheckIcon size="lg" className="text-emerald-400" />}
+          value="0%"
+          label="Trabajo Infantil"
+          className="enruta-card border-emerald-500/10"
+        />
+        <MetricCard
+          icon={<TrendingUpIcon size="lg" className="text-[#3B82F6]" />}
+          value="95%"
+          label="Tasa de Desembolso"
+          className="enruta-card"
+        />
       </div>
 
       {/* MENSAJES DE ESTADO */}
       {error && (
         <div className="bg-[#E53E3E]/15 border border-[#E53E3E]/30 text-[#E53E3E] p-4 rounded-xl text-sm font-semibold flex items-center justify-between">
-          <span>⚠️ {error}</span>
+          <span className="inline-flex items-center gap-2"><ExclamationIcon size="sm" /> {error}</span>
           {error.includes('billetera') && (
             <button
               onClick={handleActivateWallet}
@@ -469,7 +482,7 @@ export default function FintechView(): React.JSX.Element {
       )}
       {successMessage && (
         <div className="bg-[#48BB78]/15 border border-[#48BB78]/30 text-[#48BB78] p-4 rounded-xl text-sm font-semibold flex items-center gap-2">
-          <span>🎉</span> {successMessage}
+          <SparklesIcon size="sm" /> {successMessage}
         </div>
       )}
 
@@ -480,7 +493,7 @@ export default function FintechView(): React.JSX.Element {
         <div className="lg:col-span-1 space-y-6">
           <div className="enruta-card space-y-4">
             <h2 className="text-lg font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3">
-              🔑 Cuentas & Roles Disponibles
+              <KeyIcon size="md" className="inline align-text-bottom mr-1.5 text-[#3B82F6]" /> Cuentas & Roles Disponibles
             </h2>
             <p className="text-xs text-[#A0AEC0]">
               Inicia sesión como un usuario simulado para probar el ciclo completo de validación y flujos financieros.
@@ -537,7 +550,9 @@ export default function FintechView(): React.JSX.Element {
           {/* INDICADOR DE SEMÁFORO DE EDUCACIÓN FINANCIERA (SemaforoProgress Component) */}
           {profile && (
             <div className="enruta-card space-y-4">
-              <h3 className="text-sm font-bold text-[#F7FAFC]">📶 Progreso de Formalización del Asistente</h3>
+              <h3 className="text-sm font-bold text-[#F7FAFC] inline-flex items-center gap-1.5">
+                <TrendingUpIcon size="sm" /> Progreso de Formalización del Asistente
+              </h3>
               
               {loadingProfile ? (
                 <div className="text-xs text-[#A0AEC0] animate-pulse">Sincronizando perfil SRE...</div>
@@ -579,7 +594,9 @@ export default function FintechView(): React.JSX.Element {
           {/* CONTROL EDUCATIVO: PACTO DE GATING (Falla de curso financiero) */}
           {profile && !profile.hasCompletedFinancialCourse && activeTab === 'wallet' ? (
             <div data-testid="locked-wallet-modal" className="enruta-card text-center py-12 space-y-6">
-              <div className="text-5xl">🔒</div>
+              <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-[#E53E3E]/10 text-[#E53E3E]">
+                <LockIcon size="2xl" />
+              </div>
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-[#F7FAFC]">Billetera Digital Bloqueada</h2>
                 <p className="text-sm text-[#A0AEC0] max-w-md mx-auto leading-relaxed">
@@ -631,7 +648,9 @@ export default function FintechView(): React.JSX.Element {
               {/* POS TERMINAL EMBEDDED DENTRO DE LA BILLETERA (Garantiza que ambos existan al unísono para el test de Playwright) */}
               <div className="enruta-card space-y-6">
                 <div className="border-b border-[#2D3748] pb-3">
-                  <h2 className="text-xl font-bold text-[#F7FAFC]">📶 POS Terminal: Procesamiento de Cobro</h2>
+                  <h2 className="text-xl font-bold text-[#F7FAFC] inline-flex items-center gap-2">
+                    <WifiIcon size="md" className="text-[#3B82F6]" /> POS Terminal: Procesamiento de Cobro
+                  </h2>
                   <p className="text-xs text-[#A0AEC0] mt-1">Ingresa el monto del servicio vial y selecciona el medio de cobro.</p>
                 </div>
 
@@ -670,7 +689,7 @@ export default function FintechView(): React.JSX.Element {
                           } border`}
                           disabled={processingPayment || qrTx !== null}
                         >
-                          📶 NFC
+                          <WifiIcon size="sm" /> NFC
                         </button>
                         <button
                           onClick={() => { setPaymentMethod('YAPE'); setQrTx(null); }}
@@ -681,7 +700,7 @@ export default function FintechView(): React.JSX.Element {
                           } border`}
                           disabled={processingPayment || qrTx !== null}
                         >
-                          🍇 Yape
+                          <QrCodeIcon size="sm" /> Yape
                         </button>
                         <button
                           onClick={() => { setPaymentMethod('PLIN'); setQrTx(null); }}
@@ -692,7 +711,7 @@ export default function FintechView(): React.JSX.Element {
                           } border`}
                           disabled={processingPayment || qrTx !== null}
                         >
-                          💧 Plin
+                          <QrCodeIcon size="sm" /> Plin
                         </button>
                       </div>
                     </div>
@@ -703,7 +722,7 @@ export default function FintechView(): React.JSX.Element {
                         disabled={processingPayment}
                         className="w-full enruta-btn enruta-btn-primary"
                       >
-                        {processingPayment ? '📶 Procesando Tarjeta NFC...' : 'Procesar Pago Contactless NFC'}
+                        {processingPayment ? <><WifiIcon size="sm" className="inline" /> Procesando Tarjeta NFC...</> : <><CreditCardIcon size="sm" className="inline" /> Procesar Pago Contactless NFC</>}
                       </button>
                     ) : (
                       <button
@@ -722,7 +741,9 @@ export default function FintechView(): React.JSX.Element {
                     
                     {processingPayment && paymentMethod === 'NFC' && (
                       <div className="space-y-4 animate-pulse">
-                        <div className="text-4xl">📶</div>
+                        <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-[#3B82F6]/10 text-[#3B82F6]">
+                          <WifiIcon size="2xl" />
+                        </div>
                         <div className="text-md font-bold text-[#3B82F6]">Esperando Contactless...</div>
                         <p className="text-xs text-[#A0AEC0] max-w-[200px]">Acerque su tarjeta de débito o crédito o su celular con NFC al POS.</p>
                       </div>
@@ -730,7 +751,9 @@ export default function FintechView(): React.JSX.Element {
 
                     {!processingPayment && paymentMethod === 'NFC' && (
                       <div className="space-y-4">
-                        <div className="text-4xl">💳</div>
+                        <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-[#1A202C] text-[#3B82F6]">
+                          <CreditCardIcon size="2xl" />
+                        </div>
                         <div className="text-md font-bold text-[#F7FAFC]">Lector NFC Habilitado</div>
                         <p className="text-xs text-[#A0AEC0] max-w-[220px]">
                           La tecnología Tap-to-Pay permite que el trabajador use su smartphone como terminal para recibir transacciones sin contacto de manera segura.
@@ -756,7 +779,7 @@ export default function FintechView(): React.JSX.Element {
                             onClick={() => handleSimulateWebhook('COMPLETED')}
                             className="enruta-btn bg-[#48BB78]/10 hover:bg-[#48BB78]/20 border border-[#48BB78]/30 text-[#48BB78] text-xs h-11"
                           >
-                            🟢 Simular Webhook OK
+                            <CheckIcon size="sm" /> Simular Webhook OK
                           </button>
                           <button
                             onClick={() => handleSimulateWebhook('FAILED')}
@@ -770,7 +793,9 @@ export default function FintechView(): React.JSX.Element {
 
                     {!qrTx && (paymentMethod === 'YAPE' || paymentMethod === 'PLIN') && (
                       <div className="space-y-4">
-                        <div className="text-4xl">{paymentMethod === 'YAPE' ? '🍇' : '💧'}</div>
+                        <div className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-[#1A202C] text-[#3B82F6]">
+                          <QrCodeIcon size="2xl" />
+                        </div>
                         <div className="text-md font-bold text-[#F7FAFC]">{paymentMethod} QR Terminal</div>
                         <p className="text-xs text-[#A0AEC0] max-w-[220px]">
                           Haz click en "Generar QR" para simular un código dinámico e interactuar con el Webhook de reconciliación bancaria instantánea.
@@ -786,7 +811,7 @@ export default function FintechView(): React.JSX.Element {
               {/* LISTA COMPACTA DE TRANSACCIONES (Cards based - No HTML default table) */}
               <div className="enruta-card space-y-4">
                 <h3 className="text-md font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3 flex justify-between items-center">
-                  <span>📝 Historial Reciente de Cobros</span>
+                  <span className="inline-flex items-center gap-1.5"><DocumentTextIcon size="sm" /> Historial Reciente de Cobros</span>
                   <span className="text-xs text-[#A0AEC0] font-normal">{wallet?.transactions?.length || 0} transacciones</span>
                 </h3>
 
@@ -803,7 +828,7 @@ export default function FintechView(): React.JSX.Element {
                         <div key={t.id} className="flex justify-between items-center p-4 rounded-xl bg-[#1A202C] border border-[#2D3748] hover:border-[#3B82F6]/30 transition-all duration-150">
                           <div className="space-y-1">
                             <div className="font-bold text-sm text-[#F7FAFC] flex items-center gap-2">
-                              <span>{isNfc ? '📶 Contactless NFC' : `${t.paymentMethod} QR`}</span>
+                              <span className="inline-flex items-center gap-1.5">{isNfc ? <><WifiIcon size="xs" /> Contactless NFC</> : <><QrCodeIcon size="xs" /> {t.paymentMethod} QR</>}</span>
                               <span className={`h-1.5 w-1.5 rounded-full ${isSuccess ? 'bg-[#48BB78]' : 'bg-[#E53E3E]'}`} />
                             </div>
                             <div className="text-xs text-[#A0AEC0]">

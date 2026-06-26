@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { MapPinIcon, SearchIcon, StarIcon, PhoneIcon, LightningIcon, ExclamationIcon } from './SemaforoIcons.js';
 
 interface Worker {
   id: string;
@@ -82,8 +83,8 @@ export default function ClientMap(): React.JSX.Element {
       {/* SEARCH / MAP CONTROL HEADER */}
       <div className="p-6 bg-[#1A202C] border-b border-[#2D3748] sticky top-0 z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <span className="text-[#3B82F6] uppercase text-xs tracking-widest font-mono font-bold block mb-1">
-            📍 MAPA DE GEOLOCALIZACIÓN PÚBLICA
+          <span className="text-[#3B82F6] uppercase text-xs tracking-widest font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+            <MapPinIcon size="sm" /> MAPA DE GEOLOCALIZACIÓN PÚBLICA
           </span>
           <h1 className="text-2xl font-black text-white tracking-tight">
             Chambea Ahora! — <span className="text-[#3B82F6]">Buscar Servicios</span>
@@ -98,7 +99,7 @@ export default function ClientMap(): React.JSX.Element {
             className="w-full bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-[#F7FAFC] placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6] transition-all font-sans min-h-[44px]"
             data-testid="map-search-input"
           />
-          <span className="absolute right-4 top-3.5 text-slate-500 text-sm">🔍</span>
+          <SearchIcon size="sm" className="absolute right-4 top-3.5 text-slate-500" />
         </div>
       </div>
 
@@ -122,7 +123,7 @@ export default function ClientMap(): React.JSX.Element {
             <div className="flex flex-col items-center">
               {/* Overlay rating details */}
               <div className="bg-[#1A202C]/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-xl border border-[#3B82F6]/40 flex items-center gap-1 shadow-md whitespace-nowrap mb-1.5 transition-all">
-                <span>⭐ {worker.rating}</span>
+                <span className="inline-flex items-center gap-1"><StarIcon size="xs" className="text-[#F6AD55]" /> {worker.rating}</span>
                 <span className="text-[#A0AEC0] font-normal">| {worker.specialty.split(' ')[0]}</span>
               </div>
               {/* Marker pin */}
@@ -139,7 +140,7 @@ export default function ClientMap(): React.JSX.Element {
         {/* Client Marker indicator */}
         <div className="absolute z-10" style={{ top: '55%', left: '48%' }}>
           <div className="flex flex-col items-center">
-            <span className="bg-[#3B82F6] text-[#0F1117] font-black text-[9px] px-2 py-0.5 rounded-full mb-1 tracking-wider font-mono">TÚ ESTÁS AQUÍ</span>
+            <span className="bg-[#3B82F6] text-[#0F1117] font-black text-[9px] px-2 py-0.5 rounded-full mb-1 tracking-wider font-mono inline-flex items-center gap-1"><MapPinIcon size="xs" /> TÚ ESTÁS AQUÍ</span>
             <div className="relative flex h-5 w-5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3B82F6] opacity-50"></span>
               <span className="relative inline-flex rounded-full h-5 w-5 bg-[#3B82F6] shadow-md"></span>
@@ -174,15 +175,15 @@ export default function ClientMap(): React.JSX.Element {
                   <h3 className="text-xl font-bold text-white" data-testid="sheet-worker-name">
                     {selectedWorker.name}
                   </h3>
-                  <span className="bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/30 text-xs px-2.5 py-0.5 rounded-full font-black flex items-center gap-1" data-testid="sheet-worker-rating">
-                    ★ {selectedWorker.rating}
+                  <span className="bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/30 text-xs px-2.5 py-0.5 rounded-full font-black inline-flex items-center gap-1" data-testid="sheet-worker-rating">
+                    <StarIcon size="xs" /> {selectedWorker.rating}
                   </span>
                 </div>
                 <p className="text-[#3B82F6] text-sm font-bold mt-1">
                   {selectedWorker.specialty}
                 </p>
                 <div className="flex items-center gap-3 text-xs text-[#A0AEC0] mt-2 font-semibold font-mono">
-                  <span>📍 A 150m de ti</span>
+                  <span className="inline-flex items-center gap-1"><MapPinIcon size="xs" /> A 150m de ti</span>
                   <span>•</span>
                   <span>{selectedWorker.reviewsCount} recomendaciones</span>
                 </div>
@@ -201,7 +202,7 @@ export default function ClientMap(): React.JSX.Element {
               <div className="flex gap-3 w-full md:w-auto">
                 {hired ? (
                   <div className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/30 font-bold rounded-xl px-6 py-3.5 text-sm text-center flex-grow flex items-center justify-center gap-2">
-                    <span>✔️</span> ¡Trabajador contratado! Se dirige a tu ubicación.
+                    <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#48BB78]" /> ¡Trabajador contratado! Se dirige a tu ubicación.</span>
                   </div>
                 ) : (
                   <>
@@ -209,14 +210,14 @@ export default function ClientMap(): React.JSX.Element {
                       href={`tel:${selectedWorker.phone}`}
                       className="bg-[#1A202C] hover:bg-[#1A202C]/80 text-[#F7FAFC] font-extrabold px-4.5 py-3.5 rounded-xl border border-[#2D3748] text-sm flex items-center justify-center shrink-0 shadow-sm min-h-[44px]"
                     >
-                      📞 Llamar
+                      <PhoneIcon size="sm" /> Llamar
                     </a>
                     <button
                       onClick={handleHire}
                       className="bg-[#3B82F6] hover:bg-[#2563EB] text-white font-black px-6 py-3.5 rounded-xl shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all text-sm flex-grow md:flex-initial min-h-[44px]"
                       data-testid="btn-hire-now"
                     >
-                      ⚡ Contratar Ahora (Chambea Ya)
+                      <LightningIcon size="sm" /> Contratar Ahora (Chambea Ya)
                     </button>
                   </>
                 )}

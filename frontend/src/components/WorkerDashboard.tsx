@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api/axios';
 import { Card, Button, Badge, SemaforoProgress } from './SemaforoComponents.js';
-import { SparklesIcon, RadarIcon, AcademicCapIcon, CurrencyDollarIcon, CheckIcon, XIcon, ExclamationIcon, ShieldIcon } from './SemaforoIcons.js';
+import { SparklesIcon, RadarIcon, AcademicCapIcon, CurrencyDollarIcon, CheckIcon, ExclamationIcon, ShieldIcon } from './SemaforoIcons.js';
 
 interface MetricDetail {
   id: string;
@@ -280,7 +280,7 @@ export default function WorkerDashboard(): React.JSX.Element {
           </div>
         ) : radarError ? (
           <div className="p-4 bg-[#E53E3E]/10 border border-[#E53E3E]/20 text-[#E53E3E] rounded-xl text-center text-sm font-semibold">
-            ⚠️ {radarError}
+            <ExclamationIcon size="sm" className="inline" /> {radarError}
           </div>
         ) : activeService ? (
           <div
@@ -293,7 +293,9 @@ export default function WorkerDashboard(): React.JSX.Element {
               </span>
               <span className="text-[13px] text-[#A0AEC0] font-mono font-bold">ID: {activeService.id}</span>
             </div>
-            <h3 className="text-[20px] font-bold text-white">🚧 Asistencia en: {activeService.intersectionName}</h3>
+            <h3 className="text-[20px] font-bold text-white flex items-center gap-2">
+              <RadarIcon size="md" className="text-[#48BB78]" /> Asistencia en: {activeService.intersectionName}
+            </h3>
             <p className="text-[14px] text-[#A0AEC0] leading-[1.6]">
               Has activado el cruce guiado para peatones. Mantén la señalización en alto y guía al peatón de forma segura mientras la luz vehicular se mantenga en <strong>ROJO</strong> ({activeService.lightColorSnapshot}).
             </p>
@@ -302,7 +304,7 @@ export default function WorkerDashboard(): React.JSX.Element {
               onClick={() => setActiveService(null)}
               className="mt-2 text-xs"
             >
-              Completar Cruce Seguro &times;
+              <CheckIcon size="xs" /> Completar Cruce Seguro
             </Button>
           </div>
         ) : (
@@ -326,7 +328,7 @@ export default function WorkerDashboard(): React.JSX.Element {
                     <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
                       isGreen ? 'bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20' : 'bg-[#E53E3E]/10 text-[#E53E3E] border border-[#E53E3E]/20'
                     }`}>
-                      🚦 Vehicular: {intersection.lightColor}
+                      SEMAFORO VEHICULAR: {intersection.lightColor}
                     </span>
                   </div>
 
@@ -374,7 +376,7 @@ export default function WorkerDashboard(): React.JSX.Element {
           <div>
             <div className="flex items-center justify-between border-b border-[#2D3748] pb-4 mb-5">
               <h3 className="text-xl font-bold flex items-center gap-2 text-purple-400">
-                🎓 Cursos de Capacitación (40%)
+                <AcademicCapIcon size="md" /> Cursos de Capacitación (40%)
               </h3>
               <span className="text-[11px] bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider font-mono">
                 Subir Semáforo
@@ -417,7 +419,7 @@ export default function WorkerDashboard(): React.JSX.Element {
           <div>
             <div className="flex items-center justify-between border-b border-[#2D3748] pb-4 mb-5">
               <h3 className="text-xl font-bold flex items-center gap-2 text-cyan-400">
-                💰 Salud Financiera & Crédito (30%)
+                <CurrencyDollarIcon size="md" /> Salud Financiera & Crédito (30%)
               </h3>
               <span className="text-[11px] bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider font-mono">
                 Finanzas Clave
@@ -467,7 +469,9 @@ export default function WorkerDashboard(): React.JSX.Element {
 
           {/* BENEFICIOS DEL SEMÁFORO EN VERDE */}
           <div className="bg-[#48BB78]/5 border border-[#48BB78]/20 rounded-xl p-5 flex items-start gap-4">
-            <span className="text-3xl">🎉</span>
+            <div className="inline-flex items-center justify-center h-10 w-10 rounded-full bg-[#48BB78]/10 text-[#48BB78] shrink-0">
+              <SparklesIcon size="lg" />
+            </div>
             <div className="space-y-1">
               <h4 className="text-sm font-bold text-[#48BB78]">¡Beneficios Nivel Verde Desbloqueados!</h4>
               <p className="text-xs text-[#A0AEC0] leading-relaxed">
@@ -480,7 +484,7 @@ export default function WorkerDashboard(): React.JSX.Element {
       </div>
 
       <div className="mt-10 text-center text-xs text-[#A0AEC0] font-mono font-bold tracking-wide">
-        🛡️ Recuerda: Tu Semáforo es una herramienta de uso interno privado de formalización. Los peatones y conductores calificados no ven el color de tu semáforo personal.
+        <ShieldIcon size="xs" className="inline" /> Recuerda: Tu Semáforo es una herramienta de uso interno privado de formalización. Los peatones y conductores calificados no ven el color de tu semáforo personal.
       </div>
     </div>
   );
