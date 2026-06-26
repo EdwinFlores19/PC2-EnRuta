@@ -6,6 +6,7 @@ import WorkerDashboard from './components/WorkerDashboard';
 import ClientMap from './components/ClientMap';
 import FintechView from './components/FintechView';
 import OnboardingView from './components/OnboardingView';
+import AuthView from './components/AuthView.js';
 import { MetricCard, RoleCard, Button, Card, Badge } from './components/SemaforoComponents.js';
 import SemiChatbot, { ChatbotRole } from './components/SemiChatbot';
 import {
@@ -164,25 +165,25 @@ export default function App(): React.JSX.Element {
         {mobileMenuOpen && (
           <div className="xl:hidden bg-[#0F1117] border-t border-[#2D3748] px-6 py-5 space-y-2.5 flex flex-col shadow-2xl animate-fadeIn">
             <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/dashboard', 'border-[#3B82F6]/40 text-[#3B82F6]')}>
-              <HomeIcon size="sm" className="text-[#3B82F6]" /> Dashboard
+              Dashboard
             </Link>
             <Link to="/candidate" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/candidate', 'border-emerald-500/40 text-emerald-400')}>
-              <ChatIcon size="sm" className="text-emerald-400" /> Coach CV
+              Coach CV
             </Link>
             <Link to="/employer" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/employer', 'border-indigo-500/40 text-indigo-400')}>
-              <SearchIcon size="sm" className="text-indigo-400" /> Buscar RAG
+              Buscar RAG
             </Link>
             <Link to="/chambea-ahora" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/chambea-ahora', 'border-[#48BB78]/40 text-[#48BB78]')}>
-              <SparklesIcon size="sm" className="text-[#48BB78]" /> Chambea Ahora!
+              Chambea Ahora!
             </Link>
             <Link to="/buscar" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/buscar', 'border-[#F6AD55]/40 text-[#F6AD55]')}>
-              <MapPinIcon size="sm" className="text-[#F6AD55]" /> Mapa Vial
+              Mapa Vial
             </Link>
             <Link to="/payments" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/payments', 'border-cyan-500/40 text-cyan-400')}>
-              <CreditCardIcon size="sm" className="text-cyan-400" /> POS & Pagos
+              POS & Pagos
             </Link>
             <Link to="/onboarding" onClick={() => setMobileMenuOpen(false)} className={getLinkClass('/onboarding', 'border-purple-500/40 text-purple-400')}>
-              <ShieldIcon size="sm" className="text-purple-400" /> KYC Registro
+              KYC Registro
             </Link>
             <div className="flex flex-col gap-2 pt-3 border-t border-[#2D3748]/50">
               {user ? (
@@ -215,7 +216,7 @@ export default function App(): React.JSX.Element {
       <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <Routes>
           <Route path="/" element={<HomeView />} />
-          <Route path="/login" element={<LoginPlaceholder />} />
+          <Route path="/login" element={<AuthView onAuthSuccess={setUser} />} />
           <Route path="/dashboard" element={<DashboardPlaceholder />} />
           <Route path="/candidate" element={<CandidateView />} />
           <Route path="/employer" element={<EmployerView />} />
@@ -365,86 +366,91 @@ function HomeView(): React.JSX.Element {
   );
 }
 
-function LoginPlaceholder(): React.JSX.Element {
-  return (
-    <div className="max-w-md mx-auto my-8">
-      <Card className="relative overflow-hidden bg-[#171923] border border-[#2D3748]">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/5 rounded-full blur-2xl pointer-events-none" />
-        <h2 className="text-[24px] font-semibold text-[#F7FAFC] text-center mb-2 tracking-tight">Iniciar Sesión</h2>
-        <p className="text-[13px] text-[#A0AEC0] text-center mb-6 leading-[1.6]">Accede a la ruta de formalización de EnRuta</p>
-        
-        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-          <div>
-            <label className="block text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em] mb-1.5">Correo Electrónico</label>
-            <input
-              type="email"
-              placeholder="correo@ejemplo.com"
-              className="w-full bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
-              defaultValue="admin@test.com"
-            />
-          </div>
-          <div>
-            <label className="block text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em] mb-1.5">Contraseña</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              className="w-full bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
-              defaultValue="Admin123!"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full min-h-[44px] mt-6"
-          >
-            Ingresar
-          </Button>
-        </form>
-      </Card>
-    </div>
-  );
-}
-
 function DashboardPlaceholder(): React.JSX.Element {
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="border-b border-[#2D3748] pb-6">
-        <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold block mb-1">
-          <ChartBarIcon size="sm" className="inline align-text-bottom mr-1.5 text-[#3B82F6]" /> MÉTRICAS GENERALES DE PLATAFORMA
+    <div className="space-y-10 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-2xl p-6 md:p-10 shadow-xl">
+        <span className="text-[#3B82F6] uppercase text-[12px] tracking-[0.12em] font-mono font-bold inline-flex items-center gap-2 mb-3">
+          <ChartBarIcon size="sm" /> MÉTRICAS GENERALES DE PLATAFORMA
         </span>
-        <h1 className="text-[36px] font-bold text-[#F7FAFC] tracking-tight">Panel de Control (Dashboard)</h1>
-        <p className="text-[16px] text-[#A0AEC0] mt-1">Inspección de operatividad y estadísticas fiscales en tiempo real.</p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-        <Card className="flex flex-col justify-between">
-          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Estatus del Backend</span>
-          <span className="mt-2 text-[24px] font-bold text-[#48BB78] flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-[#48BB78]" /> Activo
-          </span>
-        </Card>
-        <Card className="flex flex-col justify-between">
-          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Conexión Supabase</span>
-          <span className="mt-2 text-[24px] font-bold text-[#3B82F6] flex items-center gap-2">
-            <span className="h-3 w-3 rounded-full bg-[#3B82F6]" /> Conectado
-          </span>
-        </Card>
-        <Card className="flex flex-col justify-between">
-          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Monitoreo SRE</span>
-          <span className="mt-2 text-[24px] font-bold text-[#F7FAFC]">100% Saludable</span>
-        </Card>
-      </div>
-
-      <Card className="space-y-4">
-        <h3 className="text-[20px] font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3">
-          <ShieldIcon size="md" className="inline align-text-bottom mr-1.5 text-[#3B82F6]" /> Datos de Control y Fiscalización
-        </h3>
-        <p className="text-[16px] text-[#A0AEC0] leading-[1.6]">
-          Este módulo está diseñado para la fiscalización del cumplimiento de regulaciones viales de superación de trabajadores independientes en Perú.
+        <h1 className="text-3xl md:text-4xl font-black text-[#F7FAFC] tracking-tight">Panel de Control</h1>
+        <p className="text-[16px] text-[#A0AEC0] mt-2 max-w-3xl leading-relaxed">
+          Inspección de operatividad, estadísticas fiscales y salud del ecosistema EnRuta en tiempo real.
         </p>
-        <div className="bg-[#F6AD55]/10 border border-[#F6AD55]/20 rounded-xl p-4 text-[13px] text-[#F6AD55] font-mono leading-relaxed">
-          <strong>Tip de Administración:</strong> Usa el generador dinámico `npx tsx scripts/mvc_crud_boilerplate_generator.ts &lt;Entidad&gt;` para automatizar nuevas tablas y pegarlas directamente aquí.
+      </div>
+
+      {/* Status cards */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+          <span className="text-[11px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.15em]">Estado del Sistema</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
         </div>
-      </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card className="flex flex-col justify-between p-6">
+            <span className="text-[12px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.08em]">Backend API</span>
+            <span className="mt-4 text-[28px] font-bold text-[#48BB78] flex items-center gap-3">
+              <span className="h-3 w-3 rounded-full bg-[#48BB78] animate-pulse" /> Activo
+            </span>
+          </Card>
+          <Card className="flex flex-col justify-between p-6">
+            <span className="text-[12px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.08em]">Base de Datos Supabase</span>
+            <span className="mt-4 text-[28px] font-bold text-[#3B82F6] flex items-center gap-3">
+              <span className="h-3 w-3 rounded-full bg-[#3B82F6] animate-pulse" /> Conectada
+            </span>
+          </Card>
+          <Card className="flex flex-col justify-between p-6 sm:col-span-2 lg:col-span-1">
+            <span className="text-[12px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.08em]">Monitoreo SRE</span>
+            <span className="mt-4 text-[28px] font-bold text-[#F7FAFC]">100% Saludable</span>
+          </Card>
+        </div>
+      </section>
+
+      {/* Metrics */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+          <span className="text-[11px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.15em]">Indicadores Clave</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <MetricCard icon={<UsersIcon size="lg" className="text-blue-400" />} value="350+" label="Trabajadores Activos" />
+          <MetricCard icon={<ShieldCheckIcon size="lg" className="text-emerald-400" />} value="0%" label="Trabajo Infantil" className="border-emerald-500/10" />
+          <MetricCard icon={<GraduationCapIcon size="lg" className="text-purple-400" />} value="4,200+" label="Cursos Completados" />
+          <MetricCard icon={<CreditCardIcon size="lg" className="text-cyan-400" />} value="S/. 12.5K" label="Procesado POS" />
+        </div>
+      </section>
+
+      {/* Control section */}
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Card className="lg:col-span-2 space-y-6 p-6 md:p-8">
+          <h3 className="text-xl font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-4 flex items-center gap-2">
+            <ShieldIcon size="md" className="text-[#3B82F6]" /> Datos de Control y Fiscalización
+          </h3>
+          <p className="text-[15px] text-[#A0AEC0] leading-relaxed">
+            Este módulo está diseñado para la fiscalización del cumplimiento de regulaciones viales de superación de trabajadores independientes en Perú.
+          </p>
+          <div className="bg-[#F6AD55]/10 border border-[#F6AD55]/20 rounded-xl p-5 text-[13px] text-[#F6AD55] font-mono leading-relaxed">
+            <strong>Tip de Administración:</strong> Usa el generador dinámico <code className="bg-[#F6AD55]/10 px-1 rounded">npx tsx scripts/mvc_crud_boilerplate_generator.ts &lt;Entidad&gt;</code> para automatizar nuevas tablas y pegarlas directamente aquí.
+          </div>
+        </Card>
+
+        <Card className="p-6 md:p-8 space-y-6">
+          <h3 className="text-lg font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-4">Accesos Rápidos</h3>
+          <div className="space-y-3">
+            <Link to="/candidate" className="block w-full text-left px-4 py-3 rounded-xl bg-[#0F1117] border border-[#2D3748] hover:border-[#48BB78]/50 hover:bg-[#48BB78]/5 transition-all text-sm font-semibold text-[#F7FAFC]">
+              Coach CV para trabajadores
+            </Link>
+            <Link to="/employer" className="block w-full text-left px-4 py-3 rounded-xl bg-[#0F1117] border border-[#2D3748] hover:border-[#DD6B20]/50 hover:bg-[#DD6B20]/5 transition-all text-sm font-semibold text-[#F7FAFC]">
+              Reclutamiento RAG
+            </Link>
+            <Link to="/payments" className="block w-full text-left px-4 py-3 rounded-xl bg-[#0F1117] border border-[#2D3748] hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/5 transition-all text-sm font-semibold text-[#F7FAFC]">
+              POS & Pagos
+            </Link>
+          </div>
+        </Card>
+      </section>
     </div>
   );
 }

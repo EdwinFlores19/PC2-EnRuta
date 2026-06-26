@@ -8,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../../config/database';
 import { asyncHandler, buildResponse } from '../utils/index';
 import { generateAccessToken } from '../utils/jwt.helper';
-import { UnauthorizedError } from '../utils/AppError';
+import { UnauthorizedError, ConflictError } from '../utils/AppError';
 
 /**
  * Autentica un usuario y genera un JWT Access Token.
@@ -61,6 +61,74 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
         role: user.role,
       }
     }, 'Inicio de sesión exitoso.')
+  );
+});
+
+/**
+ * Registra un nuevo usuario en Supabase (PostgreSQL) vía Prisma.
+ * Crea automáticamente billetera y perfil de formalización.
+ * POST /api/v1/auth/register
+ */
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email, password, role = 'USER' } = req.body;
+
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (existingUser) {
+    throw new ConflictError('Ya existe una cuenta registrada con este correo electrónico.');
+  }
+
+  const bcryptRounds = Number(process.env.BCRYPT_ROUNDS) || 10;
+  const hashedPassword = await bcrypt.hash(password, bcryptRounds);
+
+  const validRoles = ['USER', 'WORKER', 'EMPLOYER', 'ADMIN'];
+  const assignedRole = validRoles.includes(role) ? role : 'USER';
+
+  const newUser = await prisma.user.create({
+    data: {
+      name: name.trim(),
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: assignedRole,
+      isActive: true,
+      wallet: {
+        create: {
+          balance: 0,
+          currency: 'PEN',
+          type: assignedRole === 'WORKER' ? 'MERCHANT' : 'PLATFORM',
+        },
+      },
+      formalizationProfile: {
+        create: {
+          score: 0,
+          semaphoreColor: 'RED',
+        },
+      },
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      isActive: true,
+    },
+  });
+
+  const accessToken = generateAccessToken({
+    userId: newUser.id,
+    email: newUser.email,
+    role: newUser.role,
+  });
+
+  res.status(201).json(
+    buildResponse({
+      accessToken,
+      user: newUser,
+    }, 'Cuenta creada exitosamente. Bienvenido a EnRuta.')
   );
 });
 

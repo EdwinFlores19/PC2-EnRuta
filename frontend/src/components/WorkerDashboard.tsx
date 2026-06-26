@@ -176,30 +176,30 @@ export default function WorkerDashboard(): React.JSX.Element {
 
   return (
     <div
-      className="space-y-8 max-w-7xl mx-auto px-4"
+      className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6"
       data-testid="worker-dashboard-container"
     >
       {/* HEADER SECTION */}
-      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-[12px] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <span className="text-[#48BB78] uppercase text-[13px] tracking-[0.05em] font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-2xl p-6 md:p-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex-1">
+          <span className="text-[#48BB78] uppercase text-[12px] tracking-[0.1em] font-mono font-bold inline-flex items-center gap-1.5 mb-2">
             <SparklesIcon size="sm" /> METAS Y AUTOSUPERACIÓN PERSONAL (ROL TRABAJADOR)
           </span>
-          <h1 className="text-[36px] font-bold text-[#F7FAFC] tracking-tight">
+          <h1 className="text-3xl md:text-4xl font-black text-[#F7FAFC] tracking-tight">
             Chambea Ahora! — <span className="text-[#48BB78]">Mi Progreso</span>
           </h1>
-          <p className="text-[#A0AEC0] text-[16px] mt-2 leading-[1.6]">
+          <p className="text-[#A0AEC0] text-base mt-3 leading-relaxed max-w-3xl">
             Esta sección es 100% privada. Tu semáforo interno te ayuda a capacitarte, organizar tus finanzas y acceder a mejores beneficios económicos.
           </p>
         </div>
-        <div className="bg-[#171923] border border-[#2D3748] px-4 py-3 rounded-xl flex items-center gap-3 self-start md:self-center">
+        <div className="bg-[#171923] border border-[#2D3748] px-5 py-3 rounded-xl flex items-center gap-3 self-start md:self-center shadow-md">
           <Badge status={badgeStatus} />
         </div>
       </div>
 
       {/* SECCIÓN DEL SEMÁFORO PRINCIPAL */}
-      <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+      <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 items-center">
           
           {/* Luz de Semáforo */}
           <div className="flex flex-col items-center justify-center text-center md:border-r md:border-[#2D3748] py-4 md:pr-8">
@@ -222,8 +222,8 @@ export default function WorkerDashboard(): React.JSX.Element {
           </div>
 
           {/* Barra de Progreso y Puntaje */}
-          <div className="md:col-span-2 space-y-6">
-            <div className="space-y-3">
+          <div className="md:col-span-2 space-y-8">
+            <div className="space-y-4">
               <div className="flex justify-between items-end">
                 <div>
                   <span className="text-[13px] text-[#A0AEC0] font-bold uppercase tracking-wide font-mono">Meta de Formalización</span>
@@ -239,22 +239,22 @@ export default function WorkerDashboard(): React.JSX.Element {
             </div>
 
             {/* Tres Pilares Resumen */}
-            <div className="grid grid-cols-3 gap-4 pt-4">
-              <div className="bg-[#0F1117] p-4 rounded-xl border border-[#2D3748] text-center">
+            <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="bg-[#0F1117] p-5 rounded-xl border border-[#2D3748] text-center">
                 <span className="text-[11px] text-[#A0AEC0] block font-bold uppercase tracking-wider font-mono">Validación Legal</span>
-                <span className="text-base font-bold font-mono mt-1 block text-[#F7FAFC]" data-testid="meta-legal-progress">
+                <span className="text-lg font-bold font-mono mt-2 block text-[#F7FAFC]" data-testid="meta-legal-progress">
                   {legalScore}/30 pts
                 </span>
               </div>
-              <div className="bg-[#0F1117] p-4 rounded-xl border border-[#2D3748] text-center">
+              <div className="bg-[#0F1117] p-5 rounded-xl border border-[#2D3748] text-center">
                 <span className="text-[11px] text-[#A0AEC0] block font-bold uppercase tracking-wider font-mono">Capacitación</span>
-                <span className="text-base font-bold font-mono mt-1 block text-purple-400" data-testid="meta-capacitacion-progress">
+                <span className="text-lg font-bold font-mono mt-2 block text-purple-400" data-testid="meta-capacitacion-progress">
                   {capScore}/40 pts
                 </span>
               </div>
-              <div className="bg-[#0F1117] p-4 rounded-xl border border-[#2D3748] text-center">
+              <div className="bg-[#0F1117] p-5 rounded-xl border border-[#2D3748] text-center">
                 <span className="text-[11px] text-[#A0AEC0] block font-bold uppercase tracking-wider font-mono">Salud Financiera</span>
-                <span className="text-base font-bold font-mono mt-1 block text-cyan-400" data-testid="meta-finanzas-progress">
+                <span className="text-lg font-bold font-mono mt-2 block text-cyan-400" data-testid="meta-finanzas-progress">
                   {finScore}/30 pts
                 </span>
               </div>
@@ -264,13 +264,13 @@ export default function WorkerDashboard(): React.JSX.Element {
       </Card>
 
       {/* RADAR DE CRUCE SEGURO - E2E CONTRACT REQUIRED */}
-      <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-8">
-        <div className="border-b border-[#2D3748] pb-4 mb-6">
-          <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+      <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-10">
+        <div className="border-b border-[#2D3748] pb-5 mb-8">
+          <span className="text-[#3B82F6] uppercase text-[12px] tracking-[0.1em] font-mono font-bold inline-flex items-center gap-1.5 mb-2">
             <RadarIcon size="sm" /> RADAR DE ASIGNACIÓN VIAL EN TIEMPO REAL
           </span>
-          <h2 className="text-[24px] font-semibold text-[#F7FAFC]">Intersecciones Seguras Cercanas</h2>
-          <p className="text-[16px] text-[#A0AEC0] mt-1">El sistema busca alertas de cruces peatonales. El cruce seguro solo puede aceptarse cuando la luz está en rojo.</p>
+          <h2 className="text-2xl font-bold text-[#F7FAFC]">Intersecciones Seguras Cercanas</h2>
+          <p className="text-base text-[#A0AEC0] mt-2">El sistema busca alertas de cruces peatonales. El cruce seguro solo puede aceptarse cuando la luz está en rojo.</p>
         </div>
 
         {loadingRadar ? (
@@ -308,7 +308,7 @@ export default function WorkerDashboard(): React.JSX.Element {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {/* List of intersections and requests */}
             {intersections.map((intersection) => {
               // Find request matching this intersection
@@ -318,43 +318,43 @@ export default function WorkerDashboard(): React.JSX.Element {
               return (
                 <div
                   key={intersection.id}
-                  className="bg-[#0F1117] border border-[#2D3748] rounded-xl p-5 flex flex-col justify-between space-y-4 hover:border-[#3B82F6] transition-colors"
+                  className="bg-[#0F1117] border border-[#2D3748] rounded-xl p-5 flex flex-col justify-between space-y-5 hover:border-[#3B82F6] transition-colors"
                 >
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-3">
                     <div>
                       <h4 className="font-bold text-white text-base leading-tight">{intersection.name}</h4>
-                      <p className="text-xs text-[#A0AEC0] mt-1 font-mono">Coord: {intersection.latitude}, {intersection.longitude}</p>
+                      <p className="text-xs text-[#A0AEC0] mt-1.5 font-mono">Coord: {intersection.latitude}, {intersection.longitude}</p>
                     </div>
-                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold uppercase ${
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold uppercase whitespace-nowrap ${
                       isGreen ? 'bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20' : 'bg-[#E53E3E]/10 text-[#E53E3E] border border-[#E53E3E]/20'
                     }`}>
-                      SEMAFORO VEHICULAR: {intersection.lightColor}
+                      {intersection.lightColor}
                     </span>
                   </div>
 
                   {matchingRequest ? (
-                    <div className="bg-[#171923] p-4 rounded-xl border border-[#2D3748] flex justify-between items-center">
+                    <div className="bg-[#171923] p-4 rounded-xl border border-[#2D3748] flex justify-between items-center gap-3">
                       <div>
                         <span className="text-[10px] text-[#A0AEC0] font-mono font-bold block">PEATÓN ESPERANDO</span>
                         <span className="text-sm font-semibold text-white">Solicitud de cruce seguro</span>
                       </div>
-                      
+
                       {/* btn-accept-service: HIDDEN OR DISABLED if vehicular light is GREEN */}
                       {!isGreen ? (
                         <button
                           data-testid="btn-accept-service"
                           onClick={() => handleAcceptService(matchingRequest, intersection)}
-                          className="min-h-[44px] bg-[#3B82F6] hover:bg-[#2563EB] text-[#F7FAFC] px-5 py-2 rounded-xl text-xs uppercase font-mono font-bold tracking-wider active:scale-[0.98] transition-all flex items-center gap-2"
+                          className="min-h-[44px] bg-[#3B82F6] hover:bg-[#2563EB] text-[#F7FAFC] px-4 py-2 rounded-xl text-xs uppercase font-mono font-bold tracking-wider active:scale-[0.98] transition-all flex items-center gap-2 whitespace-nowrap"
                         >
-                          <ShieldIcon size="sm" /> Aceptar Cruce
+                          <ShieldIcon size="sm" /> Aceptar
                         </button>
                       ) : (
                         <button
                           data-testid="btn-accept-service"
                           disabled
-                          className="min-h-[44px] bg-slate-800 text-slate-500 border border-slate-700/60 px-5 py-2 rounded-xl text-xs uppercase font-mono font-bold tracking-wider cursor-not-allowed"
+                          className="min-h-[44px] bg-slate-800 text-slate-500 border border-slate-700/60 px-4 py-2 rounded-xl text-xs uppercase font-mono font-bold tracking-wider cursor-not-allowed whitespace-nowrap"
                         >
-                          Semáforo Verde (Bloqueado)
+                          Verde
                         </button>
                       )}
                     </div>
@@ -369,12 +369,12 @@ export default function WorkerDashboard(): React.JSX.Element {
       </Card>
 
       {/* DOS COLUMNAS DETALLES */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 auto-rows-fr">
+
         {/* COLUMNA IZQUIERDA: CURSOS Y CAPACITACIONES */}
         <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-8 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between border-b border-[#2D3748] pb-4 mb-5">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-[#2D3748] pb-5">
               <h3 className="text-xl font-bold flex items-center gap-2 text-purple-400">
                 <AcademicCapIcon size="md" /> Cursos de Capacitación (40%)
               </h3>
@@ -387,13 +387,13 @@ export default function WorkerDashboard(): React.JSX.Element {
               {capMetrics.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[#0F1117] rounded-xl border border-[#2D3748] p-4 flex items-center justify-between hover:border-[#3B82F6] transition-colors"
+                  className="bg-[#0F1117] rounded-xl border border-[#2D3748] p-5 flex items-center justify-between hover:border-[#3B82F6] transition-colors"
                   data-testid={item.completed ? 'course-card-completed' : 'course-card-active'}
                 >
                   <div className="pr-4">
                     <h4 className="text-sm font-semibold text-white leading-tight">{item.name}</h4>
-                    <div className="flex items-center gap-2.5 mt-2">
-                      <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded ${
+                    <div className="flex items-center gap-2.5 mt-2.5">
+                      <span className={`text-[10px] font-bold font-mono px-2.5 py-1 rounded ${
                         item.completed ? 'bg-[#48BB78]/10 text-[#48BB78]' : 'bg-[#F6AD55]/10 text-[#F6AD55]'
                       }`}>
                         {item.completed ? 'COMPLETO (+8 pts)' : 'PENDIENTE (+8 pts)'}
@@ -416,8 +416,8 @@ export default function WorkerDashboard(): React.JSX.Element {
 
         {/* COLUMNA DERECHA: METAS FINANCIERAS Y CRÉDITO */}
         <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-8 flex flex-col justify-between space-y-6">
-          <div>
-            <div className="flex items-center justify-between border-b border-[#2D3748] pb-4 mb-5">
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-[#2D3748] pb-5">
               <h3 className="text-xl font-bold flex items-center gap-2 text-cyan-400">
                 <CurrencyDollarIcon size="md" /> Salud Financiera & Crédito (30%)
               </h3>
@@ -427,12 +427,12 @@ export default function WorkerDashboard(): React.JSX.Element {
             </div>
 
             {/* Ahorros */}
-            <div className="bg-[#0F1117] p-5 rounded-xl border border-[#2D3748] mb-6" data-testid="saving-goal-progress">
+            <div className="bg-[#0F1117] p-6 rounded-xl border border-[#2D3748]" data-testid="saving-goal-progress">
               <div className="flex justify-between text-[11px] font-mono font-bold mb-2 text-[#A0AEC0] uppercase tracking-wider">
                 <span>META DE AHORRO ACTIVA</span>
                 <span className="text-cyan-400">60%</span>
               </div>
-              <div className="flex justify-between items-end mb-3">
+              <div className="flex justify-between items-end mb-4">
                 <span className="text-sm font-semibold text-white">Comprar herramientas eléctricas</span>
                 <span className="text-sm font-mono font-bold text-cyan-400">S/. 120 / S/. 200</span>
               </div>
@@ -446,11 +446,11 @@ export default function WorkerDashboard(): React.JSX.Element {
               {finMetrics.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[#0F1117] rounded-xl border border-[#2D3748] p-4 flex items-center justify-between hover:border-[#3B82F6] transition-colors"
+                  className="bg-[#0F1117] rounded-xl border border-[#2D3748] p-5 flex items-center justify-between hover:border-[#3B82F6] transition-colors"
                 >
                   <div className="pr-4">
                     <h4 className="text-sm font-semibold text-white leading-tight">{item.name}</h4>
-                    <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-[#171923] text-[#A0AEC0] mt-2 inline-block">
+                    <span className="text-[10px] font-bold font-mono px-2.5 py-1 rounded bg-[#171923] text-[#A0AEC0] mt-2 inline-block">
                       {item.completed ? 'COMPLETO (+10 pts)' : 'PENDIENTE DE PAGO (+10 pts)'}
                     </span>
                   </div>

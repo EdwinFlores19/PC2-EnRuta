@@ -455,7 +455,7 @@ export default function SemiChatbot({ role, isFloating }: SemiChatbotProps): Rea
 
       {/* Floating Chat window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[520px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] shadow-2xl glass-panel flex flex-col rounded-3xl border border-gray-800/80 overflow-hidden animate-slideUp">
+        <div className="fixed bottom-24 right-6 z-50 w-[420px] h-[580px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-8rem)] shadow-2xl glass-panel flex flex-col rounded-3xl border border-gray-800/80 overflow-hidden animate-slideUp">
           {/* HEADER DE LA VENTANA */}
           <div
             className="px-6 py-4 flex items-center justify-between border-b border-gray-800/60 transition-all"

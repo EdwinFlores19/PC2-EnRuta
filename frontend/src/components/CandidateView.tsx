@@ -113,61 +113,61 @@ export default function CandidateView(): React.JSX.Element {
   ];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto px-4">
+    <div className="space-y-10 max-w-7xl mx-auto px-4 sm:px-6">
       {/* HEADER SECTION */}
-      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-[12px] p-6 md:p-8 text-white shadow-xl">
+      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-2xl p-6 md:p-10 text-white shadow-xl">
         <span className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider font-mono inline-flex items-center gap-1.5 mb-3">
           <DocumentTextIcon size="sm" /> TRADUCCIÓN DE HABILIDADES & TUTORÍA FINANCIERA
         </span>
         <h1 className="text-3xl md:text-4xl font-black tracking-tight">Portal del Trabajador & Coach Virtual</h1>
-        <p className="mt-2 text-[#A0AEC0] max-w-2xl text-sm md:text-base leading-relaxed">
+        <p className="mt-3 text-[#A0AEC0] max-w-2xl text-sm md:text-base leading-relaxed">
           Estandariza tu experiencia informal utilizando procesamiento de lenguaje natural y aprende a organizar tus ahorros con Fito, tu tutor financiero de IA.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+
         {/* PARTE IZQUIERDA: MOTOR DE PARSEO DE CV */}
-        <Card className="flex flex-col justify-between space-y-6">
+        <Card className="flex flex-col justify-between space-y-6 p-6 md:p-8">
           <div className="space-y-6">
-            <div className="border-b border-[#2D3748] pb-4">
+            <div className="border-b border-[#2D3748] pb-5">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <DocumentTextIcon size="md" className="text-[#3B82F6]" /> Motor NLP: Estandariza tu CV Informal
               </h2>
-              <p className="text-xs text-[#A0AEC0] mt-1.5 leading-relaxed">
+              <p className="text-sm text-[#A0AEC0] mt-2 leading-relaxed">
                 Escribe detalladamente tus labores pasadas (ej. venta ambulante, cobrador, lavado de autos) y la IA estructurará tus competencias profesionales.
               </p>
             </div>
 
-            <form onSubmit={handleParseCV} className="space-y-4">
+            <form onSubmit={handleParseCV} className="space-y-5">
               <textarea
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder="Escribe aquí tu experiencia informal, ej: 'Trabajé 2 años en el paradero de buses, me encargaba de llamar pasajeros, cobrar los pasajes y dar el vuelto rápido de forma ordenada...'"
-                className="w-full h-36 bg-[#0F1117] border border-[#2D3748] rounded-xl p-4 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all resize-none leading-relaxed"
+                className="w-full h-40 bg-[#0F1117] border border-[#2D3748] rounded-xl p-4 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all resize-none leading-relaxed"
                 required
               />
 
               <Button
                 type="submit"
                 disabled={parsing || !rawText.trim()}
-                className="w-full min-h-[44px]"
+                className="w-full min-h-[48px]"
               >
                 {parsing ? 'Procesando con IA...' : <><SparklesIcon size="sm" className="inline" /> Estandarizar Mi Experiencia con IA</>}
               </Button>
             </form>
 
             {parseError && (
-              <div className="p-4 bg-[#E53E3E]/10 text-[#E53E3E] text-xs rounded-xl border border-[#E53E3E]/20 font-medium">
-                <ExclamationIcon size="sm" className="inline" /> {parseError}
+              <div className="p-4 bg-[#E53E3E]/10 text-[#E53E3E] text-sm rounded-xl border border-[#E53E3E]/20 font-medium">
+                <ExclamationIcon size="sm" className="inline mr-1" /> {parseError}
               </div>
             )}
 
             {/* LIVE PROFILE OUTPUT */}
             {profile && (
-              <div className="space-y-4 border border-[#48BB78]/20 bg-[#48BB78]/5 rounded-xl p-5 animate-fadeIn">
-                <div className="flex items-center justify-between">
-                  <span className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20 text-xs px-2.5 py-1 rounded-full font-bold inline-flex items-center gap-1">
+              <div className="space-y-5 border border-[#48BB78]/20 bg-[#48BB78]/5 rounded-xl p-6 animate-fadeIn">
+                <div className="flex items-center justify-between border-b border-[#2D3748] pb-4">
+                  <span className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20 text-xs px-3 py-1 rounded-full font-bold inline-flex items-center gap-1.5">
                     <SparklesIcon size="xs" /> Perfil Traducido por IA
                   </span>
                   <span className="text-xs text-[#A0AEC0] font-mono font-bold">{profile.location}</span>
@@ -175,17 +175,17 @@ export default function CandidateView(): React.JSX.Element {
 
                 <div>
                   <h3 className="text-lg font-bold text-white">{profile.formalTitle}</h3>
-                  <p className="text-sm text-slate-300 mt-1.5 italic leading-relaxed">"{profile.summary}"</p>
+                  <p className="text-sm text-slate-300 mt-2 italic leading-relaxed">"{profile.summary}"</p>
                 </div>
 
                 {/* SKILLS */}
-                <div className="pt-2 border-t border-[#2D3748]">
-                  <h4 className="text-xs font-bold text-[#A0AEC0] uppercase tracking-wider mb-2 font-mono">Habilidades Clasificadas</h4>
+                <div>
+                  <h4 className="text-xs font-bold text-[#A0AEC0] uppercase tracking-wider mb-3 font-mono">Habilidades Clasificadas</h4>
                   <div className="flex flex-wrap gap-2">
                     {profile.parsedData?.skills?.map((sk, idx) => (
                       <span
                         key={idx}
-                        className="bg-[#0F1117] text-slate-200 text-xs px-2.5 py-1 rounded-lg border border-[#2D3748] font-semibold"
+                        className="bg-[#0F1117] text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-[#2D3748] font-semibold"
                       >
                         {sk.name} • <span className="text-[10px] text-[#3B82F6] font-bold">{sk.category}</span>
                       </span>
@@ -194,16 +194,16 @@ export default function CandidateView(): React.JSX.Element {
                 </div>
 
                 {/* WORK EXPERIENCES */}
-                <div className="pt-2 border-t border-[#2D3748]">
-                  <h4 className="text-xs font-bold text-[#A0AEC0] uppercase tracking-wider mb-2 font-mono">Historial Estandarizado</h4>
-                  <div className="space-y-3">
+                <div>
+                  <h4 className="text-xs font-bold text-[#A0AEC0] uppercase tracking-wider mb-3 font-mono">Historial Estandarizado</h4>
+                  <div className="space-y-4">
                     {profile.parsedData?.experiences?.map((exp, idx) => (
-                      <div key={idx} className="bg-[#0F1117] p-4 rounded-xl border border-[#2D3748]">
-                        <div className="flex justify-between items-start">
+                      <div key={idx} className="bg-[#0F1117] p-5 rounded-xl border border-[#2D3748]">
+                        <div className="flex justify-between items-start gap-4">
                           <h5 className="text-sm font-bold text-white">{exp.formalRole}</h5>
-                          <span className="text-xs text-[#3B82F6] font-bold font-mono">{exp.duration}</span>
+                          <span className="text-xs text-[#3B82F6] font-bold font-mono shrink-0">{exp.duration}</span>
                         </div>
-                        <ul className="list-disc list-inside mt-2.5 text-xs text-[#A0AEC0] space-y-1.5 leading-relaxed">
+                        <ul className="list-disc list-inside mt-3 text-xs text-[#A0AEC0] space-y-1.5 leading-relaxed">
                           {exp.formalResponsibilities?.map((resp, rIdx) => (
                             <li key={rIdx}>{resp}</li>
                           ))}
@@ -215,7 +215,7 @@ export default function CandidateView(): React.JSX.Element {
               </div>
             )}
           </div>
-          
+
           {!profile && !parsing && (
             <div className="text-center border-2 border-dashed border-[#2D3748] rounded-xl p-8 text-[#A0AEC0]">
               <p className="text-sm font-semibold">Tu perfil estructurado aparecerá aquí en tiempo real.</p>
@@ -224,14 +224,14 @@ export default function CandidateView(): React.JSX.Element {
         </Card>
 
         {/* PARTE DERECHA: CHATBOT COACH FINANCIERO */}
-        <Card className="flex flex-col h-[650px] justify-between">
+        <Card className="flex flex-col h-[700px] justify-between p-6 md:p-8">
           <div className="flex flex-col h-full justify-between">
-            <div className="border-b border-[#2D3748] pb-4 flex items-center justify-between">
+            <div className="border-b border-[#2D3748] pb-5 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <ChatIcon size="md" className="text-[#3B82F6]" /> Habla con Fito, tu Coach
                 </h2>
-                <p className="text-xs text-[#A0AEC0] mt-1">
+                <p className="text-sm text-[#A0AEC0] mt-2">
                   Aprende finanzas sencillas, cómo cobrar y cómo armar tu presupuesto personal.
                 </p>
               </div>
@@ -242,7 +242,7 @@ export default function CandidateView(): React.JSX.Element {
             </div>
 
             {/* MESSAGES LIST */}
-            <div className="flex-grow overflow-y-auto space-y-4 pr-1 my-4">
+            <div className="flex-grow overflow-y-auto space-y-5 p-2 my-5">
               {messages.length === 0 && (
                 <div className="text-center text-[#A0AEC0] my-12 space-y-2">
                   <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-[#1A202C] text-[#3B82F6]">
@@ -293,15 +293,15 @@ export default function CandidateView(): React.JSX.Element {
             </div>
 
             {/* SUGGESTED QUESTIONS */}
-            <div className="space-y-2 border-t border-[#2D3748] pt-4">
+            <div className="space-y-3 border-t border-[#2D3748] pt-5">
               <p className="text-[10px] font-bold text-[#A0AEC0] uppercase tracking-wide font-mono">Preguntas recomendadas:</p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5">
                 {suggestedQuestions.map((q, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(q)}
                     disabled={sendingChat}
-                    className="bg-[#0F1117] hover:bg-[#1A202C]/60 text-[#A0AEC0] text-xs px-3 py-2 border border-[#2D3748] rounded-xl transition-colors disabled:opacity-50 font-medium min-h-[36px]"
+                    className="bg-[#0F1117] hover:bg-[#1A202C]/60 hover:text-[#F7FAFC] text-[#A0AEC0] text-xs px-3.5 py-2 border border-[#2D3748] rounded-xl transition-colors disabled:opacity-50 font-medium min-h-[40px]"
                   >
                     {q}
                   </button>
@@ -310,21 +310,21 @@ export default function CandidateView(): React.JSX.Element {
             </div>
 
             {/* INPUT FORM */}
-            <div className="pt-4">
-              <div className="flex gap-2">
+            <div className="pt-5">
+              <div className="flex gap-3">
                 <input
                   type="text"
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputMessage)}
                   placeholder="Pregúntale a Fito sobre ahorro, créditos..."
-                  className="flex-grow bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
+                  className="flex-grow bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3.5 text-sm text-white placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
                   disabled={sendingChat}
                 />
                 <Button
                   onClick={() => handleSendMessage(inputMessage)}
                   disabled={!inputMessage.trim() || sendingChat}
-                  className="min-h-[44px] shrink-0"
+                  className="min-h-[48px] shrink-0"
                 >
                   <SendIcon size="sm" /> Enviar
                 </Button>

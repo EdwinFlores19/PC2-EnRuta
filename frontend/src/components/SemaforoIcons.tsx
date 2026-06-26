@@ -313,3 +313,22 @@ export const LightbulbIcon: React.FC<IconBaseProps> = (props) => (
     <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
   </IconBase>
 );
+
+export const MailIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </IconBase>
+);
+
+export const EyeIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+    <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+  </IconBase>
+);
+
+export const EyeOffIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a10.059 10.059 0 013.997-4.912m3.444-1.674A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.059 10.059 0 01-2.107 3.532M9 9l3 3m-3 3l6-6" />
+  </IconBase>
+);

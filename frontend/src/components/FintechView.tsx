@@ -309,8 +309,7 @@ export default function FintechView(): React.JSX.Element {
   };
 
   return (
-    <div className="space-y-8 text-[#F7FAFC] bg-[#0F1117] min-h-screen p-8 rounded-3xl border border-[#2D3748]">
-      
+    <div className="space-y-10 text-[#F7FAFC] max-w-7xl mx-auto px-4 sm:px-6 pb-10">
       {/* SECCIÓN DE TOKENS CSS INYECTADOS EN CALIENTE (EnRuta v1.0) */}
       <style>{`
         :root {
@@ -382,8 +381,8 @@ export default function FintechView(): React.JSX.Element {
         .enruta-card {
           background-color: var(--bg-surface);
           border: 1px solid var(--border-subtle);
-          border-radius: 12px;
-          padding: 24px;
+          border-radius: 16px;
+          padding: 28px;
           transition: all 150ms ease-in-out;
         }
 
@@ -393,8 +392,21 @@ export default function FintechView(): React.JSX.Element {
         }
       `}</style>
 
+      {/* HEADER HERO */}
+      <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-2xl p-6 md:p-10">
+        <span className="text-[#3B82F6] uppercase text-[11px] tracking-[0.1em] font-mono font-bold inline-flex items-center gap-1.5 mb-2">
+          <WalletIcon size="sm" /> FINTECH & BILLETERA DIGITAL (ROL TRABAJADOR / COMERCIO)
+        </span>
+        <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
+          EnRuta Pay — <span className="text-[#3B82F6]">Cobros, Split y Educación Financiera</span>
+        </h1>
+        <p className="text-[#A0AEC0] text-base mt-3 max-w-3xl leading-relaxed">
+          Terminal POS móvil con NFC, QR Yape/Plin y control de comisiones. Accede a tu billetera solo después de completar tu curso de inclusión financiera.
+        </p>
+      </div>
+
       {/* NAVBAR LOCAL DEL DESIGN SYSTEM */}
-      <nav className="bg-[#1A202C] rounded-2xl p-6 border border-[#2D3748] flex flex-col md:flex-row items-center justify-between gap-6">
+      <nav className="bg-[#1A202C] rounded-2xl p-5 md:p-6 border border-[#2D3748] flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           <span className="text-2xl font-extrabold text-[#3B82F6] tracking-tight">EnRuta v1.0</span>
           <div className="flex items-center gap-6 text-sm font-medium text-[#A0AEC0]">
@@ -439,7 +451,7 @@ export default function FintechView(): React.JSX.Element {
       </nav>
 
       {/* GRID DE MÉTRICAS (METRICCARD COMPONENT) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           icon={<LightningIcon size="lg" className="text-[#3B82F6]" />}
           value="S/. 12.5K"
@@ -488,35 +500,35 @@ export default function FintechView(): React.JSX.Element {
         
         {/* PARTE IZQUIERDA: ACCOUNTS SWITCHER */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="enruta-card space-y-4">
-            <h2 className="text-lg font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3">
+          <div className="enruta-card space-y-5">
+            <h2 className="text-lg font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-4">
               <KeyIcon size="md" className="inline align-text-bottom mr-1.5 text-[#3B82F6]" /> Cuentas & Roles Disponibles
             </h2>
-            <p className="text-xs text-[#A0AEC0]">
+            <p className="text-xs text-[#A0AEC0] leading-relaxed">
               Inicia sesión como un usuario simulado para probar el ciclo completo de validación y flujos financieros.
             </p>
 
             {loadingUsers ? (
               <div className="text-sm text-[#A0AEC0]">Cargando cuentas...</div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {testUsers.map((u) => {
                   const isLogged = currentUser?.email === u.email;
                   return (
                     <button
                       key={u.id}
                       onClick={() => handleLoginAs(u)}
-                      className={`w-full text-left p-3 rounded-xl border text-sm transition-all h-12 flex items-center justify-between ${
+                      className={`w-full text-left p-4 rounded-xl border text-sm transition-all min-h-[64px] flex items-center justify-between ${
                         isLogged
                           ? 'bg-[#3B82F6]/10 border-[#3B82F6] ring-2 ring-[#3B82F6]/20 font-bold text-[#3B82F6]'
                           : 'bg-[#1A202C] hover:bg-[#2D3748] border-[#2D3748] text-[#A0AEC0]'
                       }`}
                     >
-                      <div className="truncate">
+                      <div className="truncate pr-2">
                         <div className="font-bold text-[#F7FAFC] truncate">{u.name}</div>
                         <div className="text-xs text-[#A0AEC0] font-normal truncate">{u.email}</div>
                       </div>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold shrink-0 ${
+                      <span className={`text-[10px] px-2.5 py-1 rounded-full uppercase font-bold shrink-0 ${
                         u.role === 'ADMIN' ? 'bg-[#E53E3E]/20 text-[#E53E3E]' :
                         u.role === 'WORKER' ? 'bg-[#48BB78]/20 text-[#48BB78]' :
                         'bg-[#3B82F6]/20 text-[#3B82F6]'
@@ -530,14 +542,14 @@ export default function FintechView(): React.JSX.Element {
             )}
 
             {currentUser && (
-              <div className="pt-4 border-t border-[#2D3748] flex justify-between items-center text-xs text-[#A0AEC0]">
+              <div className="pt-5 border-t border-[#2D3748] flex justify-between items-center text-xs text-[#A0AEC0]">
                 <span>Rol: <strong className="text-[#F7FAFC] uppercase">{currentUser.role}</strong></span>
                 {profile && (
                   <button
                     onClick={toggleFinancialCourse}
                     className={`underline font-bold ${profile.hasCompletedFinancialCourse ? 'text-[#48BB78]' : 'text-[#E53E3E]'}`}
                   >
-                    Curso Financiero: {profile.hasCompletedFinancialCourse ? 'Completado' : 'Pendiente'}
+                    Curso: {profile.hasCompletedFinancialCourse ? 'Completado' : 'Pendiente'}
                   </button>
                 )}
               </div>
@@ -546,23 +558,23 @@ export default function FintechView(): React.JSX.Element {
 
           {/* INDICADOR DE SEMÁFORO DE EDUCACIÓN FINANCIERA (SemaforoProgress Component) */}
           {profile && (
-            <div className="enruta-card space-y-4">
+            <div className="enruta-card space-y-5">
               <h3 className="text-sm font-bold text-[#F7FAFC] inline-flex items-center gap-1.5">
                 <TrendingUpIcon size="sm" /> Progreso de Formalización del Asistente
               </h3>
-              
+
               {loadingProfile ? (
                 <div className="text-xs text-[#A0AEC0] animate-pulse">Sincronizando perfil SRE...</div>
               ) : (
                 <>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex justify-between text-xs">
                       <span className="text-[#A0AEC0]">Nivel de Aprendizaje</span>
                       <span className="font-bold text-[#F7FAFC]">{profile.score} / 100 PTS</span>
                     </div>
-                    
+
                     {/* SEMÁFORO PROGRESS */}
-                    <div className="h-2 w-full bg-[#2D3748] rounded-full overflow-hidden flex">
+                    <div className="h-2.5 w-full bg-[#2D3748] rounded-full overflow-hidden flex">
                       <div
                         className="h-full bg-gradient-to-r from-[#E53E3E] via-[#F6AD55] to-[#48BB78] transition-all duration-300"
                         style={{ width: `${profile.score}%` }}
@@ -575,8 +587,8 @@ export default function FintechView(): React.JSX.Element {
                       <span className="text-[#48BB78]">Aprobado (Verde)</span>
                     </div>
                   </div>
-                  
-                  <div className="p-3 bg-[#1A202C] rounded-xl border border-[#2D3748] text-xs text-[#A0AEC0] leading-relaxed">
+
+                  <div className="p-4 bg-[#1A202C] rounded-xl border border-[#2D3748] text-xs text-[#A0AEC0] leading-relaxed">
                     El asistente vial solo puede activar su billetera recaudadora si completa el curso obligatorio de inclusión financiera de <strong className="font-semibold text-[#F7FAFC]">5.00%</strong> de comisión.
                   </div>
                 </>
@@ -613,50 +625,54 @@ export default function FintechView(): React.JSX.Element {
             <div className="space-y-6">
               
               {/* CARD DEL BALANCE MONETARIO MAESTRO (SALDO PROMINENTE) */}
-              <div className="enruta-card bg-gradient-to-br from-[#171923] to-[#1A202C] border border-[#2D3748] p-8 space-y-4 shadow-xl">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#A0AEC0] text-[11px]">Billetera del Asistente Vial</span>
-                  <span className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20 text-[10px] px-2.5 py-0.5 rounded-full uppercase font-bold flex items-center gap-1 h-8">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#48BB78]" /> Activo
+              <div className="enruta-card bg-gradient-to-br from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] p-8 md:p-10 space-y-5 shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-40 h-40 bg-[#3B82F6]/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
+                <div className="relative flex justify-between items-center">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[#A0AEC0]">Billetera del Asistente Vial</span>
+                  <span className="bg-[#48BB78]/10 text-[#48BB78] border border-[#48BB78]/20 text-[10px] px-3 py-1 rounded-full uppercase font-bold flex items-center gap-1.5 h-8">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#48BB78] animate-pulse" /> Activo
                   </span>
                 </div>
-                
-                <div className="space-y-1">
+
+                <div className="relative space-y-2">
                   <div className="text-xs text-[#A0AEC0]">Saldo Neto Disponible</div>
-                  
+
                   {loadingWallet ? (
                     <div className="text-4xl font-extrabold text-[#F7FAFC] tracking-tight animate-pulse">Sincronizando saldo...</div>
                   ) : wallet ? (
                     <div
                       data-testid="wallet-balance"
-                      className="text-5xl font-extrabold text-[#F7FAFC] tracking-tight"
+                      className="text-5xl md:text-6xl font-extrabold text-[#F7FAFC] tracking-tight"
                     >
                       S/. {Number(wallet.balance).toFixed(2)}
                     </div>
                   ) : null}
                 </div>
 
-                <div className="pt-4 border-t border-[#2D3748] flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs text-[#A0AEC0]">
+                <div className="relative pt-5 border-t border-[#2D3748] flex flex-col md:flex-row justify-between items-start md:items-center gap-3 text-xs text-[#A0AEC0]">
                   <div>ID de Cuenta: <span className="font-mono text-[#F7FAFC]">{wallet?.id || 'none'}</span></div>
-                  <div>Moneda: <strong className="text-[#F7FAFC]">PEN (Soles)</strong></div>
+                  <div className="flex items-center gap-4">
+                    <span>Moneda: <strong className="text-[#F7FAFC]">PEN</strong></span>
+                    <span className="text-[#A0AEC0]">Comisión: <strong className="text-[#F7FAFC]">5%</strong></span>
+                  </div>
                 </div>
               </div>
 
-              {/* POS TERMINAL EMBEDDED DENTRO DE LA BILLETERA (Garantiza que ambos existan al unísono para el test de Playwright) */}
+              {/* POS TERMINAL EMBEDDIDO */}
               <div className="enruta-card space-y-6">
-                <div className="border-b border-[#2D3748] pb-3">
+                <div className="border-b border-[#2D3748] pb-4">
                   <h2 className="text-xl font-bold text-[#F7FAFC] inline-flex items-center gap-2">
                     <WifiIcon size="md" className="text-[#3B82F6]" /> POS Terminal: Procesamiento de Cobro
                   </h2>
-                  <p className="text-xs text-[#A0AEC0] mt-1">Ingresa el monto del servicio vial y selecciona el medio de cobro.</p>
+                  <p className="text-sm text-[#A0AEC0] mt-2">Ingresa el monto del servicio vial y selecciona el medio de cobro.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
                   {/* CONFIGURACIÓN DEL MONTO */}
-                  <div className="space-y-6">
+                  <div className="lg:col-span-3 space-y-6">
                     <div>
-                      <label className="block text-sm font-bold text-[#A0AEC0] mb-2 uppercase tracking-wider text-[11px]">Monto a Facturar (PEN)</label>
+                      <label className="block text-[11px] font-bold text-[#A0AEC0] mb-2 uppercase tracking-wider">Monto a Facturar (PEN)</label>
                       <div className="relative rounded-2xl shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <span className="text-[#A0AEC0] font-extrabold text-lg">S/.</span>
@@ -674,8 +690,8 @@ export default function FintechView(): React.JSX.Element {
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <label className="block text-xs font-bold text-[#A0AEC0] uppercase tracking-wider text-[11px]">Método de Pago</label>
+                    <div className="space-y-3">
+                      <label className="block text-[11px] font-bold text-[#A0AEC0] uppercase tracking-wider">Método de Pago</label>
                       <div className="grid grid-cols-3 gap-3">
                         <button
                           onClick={() => { setPaymentMethod('NFC'); setQrTx(null); }}
@@ -713,6 +729,17 @@ export default function FintechView(): React.JSX.Element {
                       </div>
                     </div>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="bg-[#0F1117] border border-[#2D3748] rounded-xl p-4">
+                        <span className="text-[10px] text-[#A0AEC0] uppercase font-bold font-mono block mb-1">Recibes neto</span>
+                        <span className="text-xl font-black text-[#F7FAFC]">S/. {(Number(amount || 0) * 0.95).toFixed(2)}</span>
+                      </div>
+                      <div className="bg-[#0F1117] border border-[#2D3748] rounded-xl p-4">
+                        <span className="text-[10px] text-[#A0AEC0] uppercase font-bold font-mono block mb-1">Comisión split</span>
+                        <span className="text-xl font-black text-[#F7FAFC]">S/. {(Number(amount || 0) * 0.05).toFixed(2)}</span>
+                      </div>
+                    </div>
+
                     {paymentMethod === 'NFC' ? (
                       <button
                         onClick={handleSimulateTapToPay}
@@ -734,7 +761,7 @@ export default function FintechView(): React.JSX.Element {
                   </div>
 
                   {/* VISOR DE PROCESO */}
-                  <div className="bg-[#1A202C] rounded-2xl border border-[#2D3748] p-6 flex flex-col justify-center items-center text-center relative min-h-[250px]">
+                  <div className="lg:col-span-2 bg-[#1A202C] rounded-2xl border border-[#2D3748] p-6 flex flex-col justify-center items-center text-center relative min-h-[280px]">
                     
                     {processingPayment && paymentMethod === 'NFC' && (
                       <div className="space-y-4 animate-pulse">
@@ -806,38 +833,40 @@ export default function FintechView(): React.JSX.Element {
               </div>
 
               {/* LISTA COMPACTA DE TRANSACCIONES (Cards based - No HTML default table) */}
-              <div className="enruta-card space-y-4">
-                <h3 className="text-md font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3 flex justify-between items-center">
+              <div className="enruta-card space-y-5">
+                <h3 className="text-md font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-4 flex justify-between items-center">
                   <span className="inline-flex items-center gap-1.5"><DocumentTextIcon size="sm" /> Historial Reciente de Cobros</span>
                   <span className="text-xs text-[#A0AEC0] font-normal">{wallet?.transactions?.length || 0} transacciones</span>
                 </h3>
 
-                <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+                <div className="space-y-3 max-h-[360px] overflow-y-auto pr-1">
                   {loadingWallet ? (
                     <div className="text-center py-8 text-xs text-[#A0AEC0] animate-pulse">Sincronizando transacciones...</div>
                   ) : !wallet || wallet.transactions.length === 0 ? (
-                    <div className="text-center py-8 text-xs text-[#A0AEC0]">No registras cobros ni splits en este periodo de S/.12.5K.</div>
+                    <div className="text-center py-10 text-xs text-[#A0AEC0] bg-[#0F1117] rounded-xl border border-dashed border-[#2D3748]">No registras cobros ni splits en este periodo de S/.12.5K.</div>
                   ) : (
                     wallet.transactions.map((t) => {
                       const isNfc = t.paymentMethod === 'NFC_TAP_TO_PAY';
                       const isSuccess = t.status === 'COMPLETED';
                       return (
-                        <div key={t.id} className="flex justify-between items-center p-4 rounded-xl bg-[#1A202C] border border-[#2D3748] hover:border-[#3B82F6]/30 transition-all duration-150">
-                          <div className="space-y-1">
+                        <div key={t.id} className="flex justify-between items-center p-5 rounded-xl bg-[#1A202C] border border-[#2D3748] hover:border-[#3B82F6]/30 transition-all duration-150">
+                          <div className="space-y-1.5">
                             <div className="font-bold text-sm text-[#F7FAFC] flex items-center gap-2">
                               <span className="inline-flex items-center gap-1.5">{isNfc ? <><WifiIcon size="xs" /> Contactless NFC</> : <><QrCodeIcon size="xs" /> {t.paymentMethod} QR</>}</span>
-                              <span className={`h-1.5 w-1.5 rounded-full ${isSuccess ? 'bg-[#48BB78]' : 'bg-[#E53E3E]'}`} />
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold ${isSuccess ? 'bg-[#48BB78]/10 text-[#48BB78]' : 'bg-[#E53E3E]/10 text-[#E53E3E]'}`}>
+                                {isSuccess ? 'Completado' : 'Fallido'}
+                              </span>
                             </div>
                             <div className="text-xs text-[#A0AEC0]">
                               {new Date(t.createdAt).toLocaleDateString()} {new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </div>
                           </div>
-                          <div className="text-right space-y-0.5">
+                          <div className="text-right space-y-1">
                             <div className="font-extrabold text-sm text-[#48BB78]">
                               + S/. {Number(wallet.type === 'PLATFORM' ? t.feeAmount : t.netAmount).toFixed(2)}
                             </div>
                             <div className="text-[10px] text-[#A0AEC0]">
-                              Monto Bruto: S/. {Number(t.amount).toFixed(2)} | Split: {Number(t.feePercentage).toFixed(0)}%
+                              Bruto: S/. {Number(t.amount).toFixed(2)} | Split: {Number(t.feePercentage).toFixed(0)}%
                             </div>
                           </div>
                         </div>
