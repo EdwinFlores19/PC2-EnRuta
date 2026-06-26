@@ -72,7 +72,7 @@ describe('Ecosistema de Pagos y Split Payments (Fintech)', () => {
       mockPrisma.$transaction.mockImplementation(async (callback: any) => {
         const txMock = {
           wallet: {
-            update: jest.fn().mockResolvedValue({}),
+            update: (jest.fn() as any).mockResolvedValue({}),
           },
           transaction: {
             create: jest.fn().mockImplementation((args: any) => ({
@@ -176,10 +176,10 @@ describe('Ecosistema de Pagos y Split Payments (Fintech)', () => {
       mockPrisma.$transaction.mockImplementation(async (callback: any) => {
         const txMock = {
           wallet: {
-            update: jest.fn().mockResolvedValue({}),
+            update: (jest.fn() as any).mockResolvedValue({}),
           },
           transaction: {
-            update: jest.fn().mockImplementation((args: any) => ({
+            update: (jest.fn() as any).mockImplementation((args: any) => ({
               ...mockPendingTransaction,
               status: args.data.status,
               metadata: args.data.metadata,

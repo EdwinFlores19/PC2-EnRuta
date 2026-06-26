@@ -734,6 +734,47 @@ Sección privada de capacitación y control de metas de superación del trabajad
 
 ---
 
+## 6. Pruebas de Interfaz Automatizadas (QA E2E - Playwright)
+
+En alineación con la metodología TDD (Test-Driven Development) y las directivas del rol SDET (Software Development Engineer in Test), se ha desarrollado la batería de pruebas de extremo a extremo (E2E) para definir los contratos de interfaz antes del diseño de la UI. 
+
+### 6.1 Contratos de Interfaz (`data-testid`)
+Para garantizar la inmunidad ante refactorizaciones estéticas y de texto en el frontend, se establecen los siguientes identificadores fijos:
+
+| Componente / Elemento | Selector `data-testid` | Tipo | Descripción |
+|---|---|---|---|
+| **Onboarding KYC** | `input-birthdate` | Input Date | Fecha de nacimiento para validación de edad. |
+| **Onboarding KYC** | `select-document-type` | Select | Tipo de documento (DNI, CE, PTP). |
+| **Onboarding KYC** | `input-document-number` | Input Text | Número del documento de identidad. |
+| **Onboarding KYC** | `upload-mintra-pdf` | Input File | Carga del PDF de autorización del MTPE (14-17 años). |
+| **Onboarding KYC** | `btn-submit-kyc` | Button | Botón para enviar la solicitud de KYC. |
+| **Onboarding KYC** | `error-age-restriction` | Element | Contenedor del mensaje de error por edad menor a 14 años. |
+| **Onboarding KYC** | `kyc-success-alert` | Element | Mensaje de éxito al completar el onboarding KYC. |
+| **Radar Vial** | `btn-accept-service` | Button | Botón para aceptar el servicio vial (bloqueado en luz verde). |
+| **Radar Vial** | `status-in-progress` | Element | Indicador de que el servicio está en ejecución. |
+| **Billetera Fintech** | `tab-wallet` | Tab/Button | Pestaña o enlace de acceso a la billetera. |
+| **Billetera Fintech** | `locked-wallet-modal` | Element | Modal de bloqueo que exige el curso financiero aprobado. |
+| **Billetera Fintech** | `wallet-balance` | Element | Muestra el saldo disponible actualizado de forma dinámica. |
+| **Billetera Fintech** | `btn-generate-yape-qr` | Button | Generación del código QR dinámico de cobro por Yape. |
+| **Billetera Fintech** | `yape-qr-container` | Element | Contenedor de visualización del código QR para escaneo. |
+| **Billetera Fintech** | `btn-simulate-webhook-success` | Button | Simulación local de webhook de éxito bancario (entornos de desarrollo). |
+
+### 6.2 Casos de Prueba Implementados en TypeScript
+
+#### 6.2.1 Validación Legal y Onboarding KYC (`tests/onboarding.spec.ts`)
+- **Caso A (Bloqueo < 14 años):** Simula el ingreso de una fecha de nacimiento que resulta en 13 años. Valida que `btn-submit-kyc` esté deshabilitado y que `error-age-restriction` sea visible en el DOM.
+- **Caso B (Permiso MINTRA 14-17):** Simula el ingreso de una edad de 16 años. Valida la visualización del cargador `upload-mintra-pdf`. Mockea la llamada `POST **/api/v1/formalization/kyc` con status `201` y verifica el envío y mensaje de éxito `kyc-success-alert`.
+
+#### 6.2.2 Motor de Asignación y Radar Uber (`tests/radar.spec.ts`)
+- **Caso A (Bloqueo por Luz Verde):** Mockea `GET **/api/v1/services/intersections` con semáforo en `GREEN`. Valida que el botón `btn-accept-service` esté oculto o deshabilitado para prevenir accidentes en cruces viales activos.
+- **Caso B (Servicio Aceptado en Rojo):** Mockea semáforo en `RED`. Al dar clic en `btn-accept-service`, intercepta la asignación `POST **/api/v1/services/request/*/assign` y la transición `PATCH **/api/v1/services/request/*/status`, validando el cambio de estado a `status-in-progress`.
+
+#### 6.2.3 Pasarela Fintech y Bloqueo Educativo (`tests/fintech.spec.ts`)
+- **Caso A (Feature Gating):** Mockea perfil formalización con `hasCompletedFinancialCourse: false`. Verifica la renderización de `locked-wallet-modal` al interactuar con `tab-wallet`.
+- **Caso B (Pago Yape Exitoso):** Con `hasCompletedFinancialCourse: true`, simula la generación del QR `btn-generate-yape-qr` y el escaneo. Mockea el webhook entrante de Yape simulando el procesamiento de split de comisiones (5% retenido por la plataforma) e incrementa el balance en `wallet-balance` de `S/. 100.00` a `S/. 114.25` de manera dinámica (neto de S/. 14.25 agregado tras retención de S/. 0.75).
+
+---
+
 ## Anexo A: Guía de Instalación Local
 
 ```bash
