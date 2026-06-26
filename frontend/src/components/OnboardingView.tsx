@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import apiClient from '../api/axios';
 import { Card, Button } from './SemaforoComponents.js';
-import { ShieldIcon, ShieldCheckIcon, UploadIcon, LockIcon, CheckIcon, SparklesIcon } from './SemaforoIcons.js';
+import { ShieldIcon, ShieldCheckIcon, ExclamationIcon, UploadIcon, LockIcon, CheckIcon, SparklesIcon } from './SemaforoIcons.js';
 
 export default function OnboardingView(): React.JSX.Element {
   const [birthdate, setBirthdate] = useState('');
@@ -74,8 +74,8 @@ export default function OnboardingView(): React.JSX.Element {
         <div className="absolute top-0 right-0 w-32 h-32 bg-[#3B82F6]/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="border-b border-[#2D3748] pb-6 mb-6">
-          <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold block mb-1">
-            🛡️ VALIDACIÓN LEGAL & ONBOARDING KYC
+          <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+            <ShieldIcon size="sm" /> VALIDACIÓN LEGAL & ONBOARDING KYC
           </span>
           <h1 className="text-[32px] font-bold text-[#F7FAFC] tracking-tight">Estatus de Formalización</h1>
           <p className="text-[#A0AEC0] text-[16px] mt-2 leading-[1.6]">
@@ -89,7 +89,9 @@ export default function OnboardingView(): React.JSX.Element {
             className="p-6 bg-[#48BB78]/10 border border-[#48BB78]/30 rounded-xl text-[#48BB78] space-y-4 animate-fadeIn"
           >
             <div className="flex items-center gap-3">
-              <span className="text-3xl">🎉</span>
+              <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-[#48BB78]/10 text-[#48BB78] shrink-0">
+                <ShieldCheckIcon size="lg" />
+              </div>
               <div>
                 <h3 className="text-[18px] font-bold text-[#F7FAFC]">KYC Recibido Exitosamente</h3>
                 <p className="text-xs text-[#A0AEC0] font-mono mt-1">Estatus: PENDIENTE DE APROBACIÓN</p>
@@ -115,7 +117,7 @@ export default function OnboardingView(): React.JSX.Element {
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
               <div className="p-4 bg-[#E53E3E]/10 text-[#E53E3E] text-xs rounded-xl border border-[#E53E3E]/20 font-medium">
-                ⚠️ {error}
+                <ExclamationIcon size="sm" className="inline" /> {error}
               </div>
             )}
 
@@ -207,7 +209,7 @@ export default function OnboardingView(): React.JSX.Element {
                 />
                 {mintraFile && (
                   <p className="text-xs text-[#48BB78] font-semibold flex items-center gap-1">
-                    <span>✓</span> Archivo seleccionado: {mintraFile.name}
+                    <CheckIcon size="xs" /> Archivo seleccionado: {mintraFile.name}
                   </p>
                 )}
               </div>
@@ -221,7 +223,7 @@ export default function OnboardingView(): React.JSX.Element {
                 disabled={!isFormValid || submitting}
                 className="w-full min-h-[44px]"
               >
-                {submitting ? 'Enviando Datos...' : 'Enviar Solicitud KYC ⚡'}
+                {submitting ? 'Enviando Datos...' : <><SparklesIcon size="sm" className="inline" /> Enviar Solicitud KYC</>}
               </Button>
             </div>
           </form>

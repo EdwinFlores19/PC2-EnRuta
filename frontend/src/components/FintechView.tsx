@@ -444,25 +444,22 @@ export default function FintechView(): React.JSX.Element {
           icon={<LightningIcon size="lg" className="text-[#3B82F6]" />}
           value="S/. 12.5K"
           label="Monto Procesado"
-          className="enruta-card"
         />
         <MetricCard
           icon={<UsersIcon size="lg" className="text-[#3B82F6]" />}
           value="350+"
           label="Asistentes Viales"
-          className="enruta-card"
         />
         <MetricCard
           icon={<ShieldCheckIcon size="lg" className="text-emerald-400" />}
           value="0%"
           label="Trabajo Infantil"
-          className="enruta-card border-emerald-500/10"
+          className="border-emerald-500/10"
         />
         <MetricCard
           icon={<TrendingUpIcon size="lg" className="text-[#3B82F6]" />}
           value="95%"
           label="Tasa de Desembolso"
-          className="enruta-card"
         />
       </div>
 

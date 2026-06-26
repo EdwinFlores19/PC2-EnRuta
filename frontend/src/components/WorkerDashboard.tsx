@@ -346,7 +346,7 @@ export default function WorkerDashboard(): React.JSX.Element {
                           onClick={() => handleAcceptService(matchingRequest, intersection)}
                           className="min-h-[44px] bg-[#3B82F6] hover:bg-[#2563EB] text-[#F7FAFC] px-5 py-2 rounded-xl text-xs uppercase font-mono font-bold tracking-wider active:scale-[0.98] transition-all flex items-center gap-2"
                         >
-                          Aceptar Cruce 🛡️
+                          <ShieldIcon size="sm" /> Aceptar Cruce
                         </button>
                       ) : (
                         <button

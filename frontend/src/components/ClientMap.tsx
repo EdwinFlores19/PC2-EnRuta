@@ -150,7 +150,9 @@ export default function ClientMap(): React.JSX.Element {
 
         {filteredWorkers.length === 0 && (
           <div className="absolute text-center bg-[#1A202C] border border-[#2D3748] rounded-xl p-8 max-w-sm shadow-xl mx-4 animate-fadeIn">
-            <span className="text-3xl block mb-2">😢</span>
+            <div className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-[#1A202C] text-[#A0AEC0] mb-2">
+              <ExclamationIcon size="lg" />
+            </div>
             <h4 className="font-bold text-white text-base">No se encontraron trabajadores</h4>
             <p className="text-xs text-[#A0AEC0] mt-2 leading-relaxed">Intenta ajustando tu búsqueda para encontrar personal calificado en otras intersecciones.</p>
           </div>
