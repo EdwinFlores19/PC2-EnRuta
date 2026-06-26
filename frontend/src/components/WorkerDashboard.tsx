@@ -182,8 +182,8 @@ export default function WorkerDashboard(): React.JSX.Element {
       {/* HEADER SECTION */}
       <div className="bg-gradient-to-r from-[#171923] via-[#1A202C] to-[#0F1117] border border-[#2D3748] rounded-[12px] p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <span className="text-[#48BB78] uppercase text-[13px] tracking-[0.05em] font-mono font-bold block mb-1">
-            ✨ METAS Y AUTOSUPERACIÓN PERSONAL (ROL TRABAJADOR)
+          <span className="text-[#48BB78] uppercase text-[13px] tracking-[0.05em] font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+            <SparklesIcon size="sm" /> METAS Y AUTOSUPERACIÓN PERSONAL (ROL TRABAJADOR)
           </span>
           <h1 className="text-[36px] font-bold text-[#F7FAFC] tracking-tight">
             Chambea Ahora! — <span className="text-[#48BB78]">Mi Progreso</span>
@@ -216,7 +216,7 @@ export default function WorkerDashboard(): React.JSX.Element {
                 Mi Nivel Actual
               </span>
               <h3 className="text-lg font-bold text-white block" data-testid="worker-traffic-light">
-                {badgeStatus === 'VERDE' ? '🟢 Confiable / Formalizado' : badgeStatus === 'AMARILLO' ? '🟡 Verificado / Capacitándose' : '🔴 Reciente / Perfil Básico'}
+                {badgeStatus === 'VERDE' ? <><span className="inline-block h-3 w-3 rounded-full bg-[#48BB78] mr-1" />Confiable / Formalizado</> : badgeStatus === 'AMARILLO' ? <><span className="inline-block h-3 w-3 rounded-full bg-[#F6AD55] mr-1" />Verificado / Capacitándose</> : <><span className="inline-block h-3 w-3 rounded-full bg-[#E53E3E] mr-1" />Reciente / Perfil Básico</>}
               </h3>
             </div>
           </div>
@@ -266,8 +266,8 @@ export default function WorkerDashboard(): React.JSX.Element {
       {/* RADAR DE CRUCE SEGURO - E2E CONTRACT REQUIRED */}
       <Card className="bg-[#171923] border border-[#2D3748] p-6 md:p-8">
         <div className="border-b border-[#2D3748] pb-4 mb-6">
-          <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold block mb-1">
-            📡 RADAR DE ASIGNACIÓN VIAL EN TIEMPO REAL
+          <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold inline-flex items-center gap-1.5 mb-1">
+            <RadarIcon size="sm" /> RADAR DE ASIGNACIÓN VIAL EN TIEMPO REAL
           </span>
           <h2 className="text-[24px] font-semibold text-[#F7FAFC]">Intersecciones Seguras Cercanas</h2>
           <p className="text-[16px] text-[#A0AEC0] mt-1">El sistema busca alertas de cruces peatonales. El cruce seguro solo puede aceptarse cuando la luz está en rojo.</p>
