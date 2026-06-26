@@ -1,5 +1,9 @@
 import React from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
+import CandidateView from './components/CandidateView';
+import EmployerView from './components/EmployerView';
+import WorkerDashboard from './components/WorkerDashboard';
+import ClientMap from './components/ClientMap';
 
 export default function App(): React.JSX.Element {
   const navigate = useNavigate();
@@ -20,8 +24,10 @@ export default function App(): React.JSX.Element {
             <span className="text-xl font-extrabold text-blue-600 tracking-tight">PC2-PFDC3</span>
             <nav className="hidden md:flex items-center gap-4 text-sm font-medium text-gray-600">
               <Link to="/dashboard" className="hover:text-blue-600 transition-colors">Dashboard</Link>
-              <Link to="/[modulo-1]" className="hover:text-blue-600 transition-colors">[Módulo 1]</Link>
-              <Link to="/[modulo-2]" className="hover:text-blue-600 transition-colors">[Módulo 2]</Link>
+              <Link to="/candidate" className="hover:text-blue-600 transition-colors">Portal Trabajador</Link>
+              <Link to="/employer" className="hover:text-blue-600 transition-colors">Portal Reclutador</Link>
+              <Link to="/chambea-ahora" className="hover:text-blue-600 transition-colors font-bold text-teal-600">💼 Chambea Ahora!</Link>
+              <Link to="/buscar" className="hover:text-blue-600 transition-colors font-bold text-amber-600">📍 Buscar Servicios</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
@@ -47,8 +53,10 @@ export default function App(): React.JSX.Element {
           <Route path="/" element={<HomeView />} />
           <Route path="/login" element={<LoginPlaceholder />} />
           <Route path="/dashboard" element={<DashboardPlaceholder />} />
-          {/* SLOT PARA RUTAS DINÁMICAS CRUD DE MAÑANA */}
-          {/* <Route path="/products" element={<ProductList />} /> */}
+          <Route path="/candidate" element={<CandidateView />} />
+          <Route path="/employer" element={<EmployerView />} />
+          <Route path="/chambea-ahora" element={<WorkerDashboard />} />
+          <Route path="/buscar" element={<ClientMap />} />
         </Routes>
       </main>
 
@@ -66,19 +74,44 @@ export default function App(): React.JSX.Element {
 
 function HomeView(): React.JSX.Element {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center max-w-2xl mx-auto my-12">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center max-w-3xl mx-auto my-12">
       <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl mb-4">
-        Práctica Calificada 2
+        Plataforma Semáforo Social
       </h1>
-      <p className="text-lg text-gray-500 mb-8">
-        Bienvenido a tu boilerplate de producción de la PC2. Todo el sistema está migrado 100% a TypeScript, conectado con Supabase y listo para agregar módulos autónomos.
+      <p className="text-lg text-gray-500 mb-6">
+        Sistema on-demand enfocado en la formalización, capacitación y salud financiera para trabajadores independientes vulnerables en el Perú.
       </p>
+
+      {/* MÓDULOS DE UX/UI & GAMIFICACIÓN */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 text-left">
+        <Link
+          to="/chambea-ahora"
+          className="p-5 bg-gradient-to-br from-teal-500/10 to-emerald-500/10 border border-teal-200 hover:border-teal-400 rounded-2xl transition-all block group"
+        >
+          <span className="text-2xl mb-1 block">💼</span>
+          <h3 className="font-bold text-teal-800 text-lg group-hover:text-teal-900">Portal "Chambea Ahora!"</h3>
+          <p className="text-xs text-teal-600/80 mt-1">
+            Panel de control privado de superación personal con Semáforo de progreso (Rojo/Amarillo/Verde) y capacitaciones.
+          </p>
+        </Link>
+        <Link
+          to="/buscar"
+          className="p-5 bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-200 hover:border-amber-400 rounded-2xl transition-all block group"
+        >
+          <span className="text-2xl mb-1 block">📍</span>
+          <h3 className="font-bold text-amber-800 text-lg group-hover:text-amber-900">Buscar Servicios (Clientes)</h3>
+          <p className="text-xs text-amber-600/80 mt-1">
+            Mapa de geolocalización pública con pines de los trabajadores de micro-empleo y reputación de 1 a 5 estrellas.
+          </p>
+        </Link>
+      </div>
+
       <div className="flex justify-center gap-4">
         <Link
           to="/dashboard"
           className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold shadow-sm hover:bg-blue-700 transition-colors"
         >
-          Ir al Panel de Control
+          Ir al Panel de Control (Admin)
         </Link>
         <a
           href="https://github.com/EdwinFlores19/PC2-Boilerplate-Puente"

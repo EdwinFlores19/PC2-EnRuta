@@ -52,40 +52,244 @@ Ver documento completo: [docs/sustento_arquitectura.md](sustento_arquitectura.md
 ### 2.1 Diagrama de Casos de Uso
 
 ```mermaid
-%% [AGENTE ARQUITECTO: Inyectar diagrama de Casos de Uso aquí]
-%% Activar el agente con: "Genera el diagrama de casos de uso para [CASO_DEL_EXAMEN]"
+graph LR
+    subgraph Actores
+        P([👤 Peatón / Usuario])
+        W([👤 Trabajador Vial])
+        A([👤 Administrador])
+        Y([🤖 API Yape / Plin])
+        G([🤖 Pasarela Tap-to-Pay])
+    end
+
+    subgraph Sistema "Asignación Vial & Fintech POS"
+        UC1(Solicitar Cruce Seguro)
+        UC2(Aceptar Solicitud de Cruce)
+        UC3(Iniciar y Completar Cruce)
+        UC4(Pagar Cruce - NFC Tap-to-Pay)
+        UC5(Pagar Cruce - Yape/Plin QR)
+        UC6(Recibir Pago y Split de Comisión)
+        UC7(Consultar Billetera y Saldo)
+        UC8(Gestionar Intersecciones y Tarifas)
+    end
+
+    P --> UC1
+    P --> UC4
+    P --> UC5
+    W --> UC2
+    W --> UC3
+    W --> UC4
+    W --> UC5
+    W --> UC7
+    A --> UC8
+    A --> UC7
+    
+    UC4 -.->|"<<include>>"| UC6
+    UC5 -.->|"<<include>>"| UC6
+    UC6 -.-> G
+    UC6 -.-> Y
 ```
 
-**Descripción:** [COMPLETAR: Descripción textual de actores y casos de uso principales]
+**Descripción:** Representa los actores y casos de uso del sistema. El **Peatón** (Usuario) puede solicitar cruces seguros y pagar la tarifa a través de **NFC Tap-to-Pay** o **Yape/Plin QR**. El **Trabajador Vial** acepta solicitudes de cruce, las ejecuta y actúa como un POS virtual recibiendo los pagos del peatón. El **Administrador** gestiona las intersecciones y consulta balances de comisiones. Las APIs externas de **Yape/Plin** y la **Pasarela Tap-to-Pay** procesan los cargos e interactúan con el motor de split de comisiones (`<<include>>`).
 
 ### 2.2 Diagrama de Arquitectura Lógica
 
 ```mermaid
-%% [AGENTE ARQUITECTO: Inyectar diagrama de Arquitectura Lógica aquí]
-%% El diagrama debe mostrar: Presentación → Aplicación → Datos con todos los componentes reales
+graph TB
+    subgraph "Capa de Presentación — React + Vite"
+        SPA[React SPA]
+        ROUTER[React Router]
+        AXIOS[Axios Client + Interceptores JWT]
+        CAP_PLUG[Capacitor Native NFC Plugin]
+    end
+
+    subgraph "Capa de Aplicación — Node.js + Express"
+        SERVER[Express Server]
+        MW[Middlewares: CORS · Helmet · Rate Limit · Auth · Validation]
+        ROUTES[REST API Routes /api/v1]
+        CTRL[Controllers: PaymentController · ServiceRequestController]
+        SVC[Services: PaymentService · SplitPaymentEngine]
+        REPO[Repositories: Prisma ORM Clients]
+    end
+
+    subgraph "Capa de Datos — PostgreSQL"
+        DB[(PostgreSQL\nSupabase)]
+    end
+
+    SPA --> AXIOS
+    SPA --> CAP_PLUG
+    CAP_PLUG -->|"Card Tokenization"| AXIOS
+    AXIOS -->|"HTTPS REST"| SERVER
+    SERVER --> MW --> ROUTES --> CTRL --> SVC --> REPO
+    REPO -->|"Prisma Query"| DB
 ```
 
-**Descripción:** [COMPLETAR: Descripción del flujo de datos entre capas]
+**Descripción:** Representa las tres capas del sistema. En la **Capa de Presentación**, el cliente React SPA envía peticiones HTTP seguras vía Axios. Para el pago sin contacto, se integra un plugin nativo de Capacitor que lee la tarjeta NFC y obtiene el token seguro. En la **Capa de Aplicación**, el servidor Express ejecuta middlewares globales de seguridad (CORS, Helmet, Rate Limit, Auth, Validation) y enruta las peticiones hacia controladores, servicios y repositorios. La **Capa de Datos** aloja PostgreSQL gestionado por Supabase, donde Prisma ORM ejecuta transacciones robustas para balances y transferencias.
 
 ### 2.3 Diagrama de Arquitectura Física en Nube
 
 ```mermaid
-%% [AGENTE ARQUITECTO: Inyectar diagrama de Arquitectura Física aquí]
-%% Mostrar: Vercel (Frontend) → Render (Backend Express) → Supabase (PostgreSQL)
-%% Incluir: GitHub Actions CI/CD pipeline, Usuario Final, Internet
+graph TB
+    subgraph Internet
+        USER[🌐 Usuario Final]
+    end
+
+    subgraph "GitHub"
+        REPO[📁 Repositorio PC2-PFDC3]
+        ACTIONS[⚙️ GitHub Actions CI/CD]
+    end
+
+    subgraph "Render Cloud — Backend"
+        BE[🖥️ Node.js Express\nWeb Service]
+    end
+
+    subgraph "Vercel Cloud — Frontend"
+        FE[🌍 React Build\nCDN Global]
+    end
+
+    subgraph "Supabase Cloud — Base de Datos"
+        DB[(🐘 PostgreSQL 15)]
+    end
+
+    USER -->|HTTPS| FE
+    FE -->|REST API HTTPS| BE
+    BE -->|SSL/TLS Port 5432/6543| DB
+    REPO --> ACTIONS
+    ACTIONS -->|Deploy Hook| BE
+    ACTIONS -->|Deploy| FE
 ```
 
-**Descripción:** [COMPLETAR: Descripción de los servicios cloud y sus interacciones]
+**Descripción:** Representa el despliegue físico del sistema en la nube. El **Usuario Final** accede al frontend alojado en la red global de distribución de contenido (CDN) de **Vercel** usando HTTPS. Las solicitudes de la API se dirigen al backend alojado como un servicio web de larga duración en **Render**. El backend de Render se conecta de forma segura mediante SSL/TLS en el puerto 5432 (o 6543 de pooling) a la base de datos PostgreSQL gestionada en **Supabase**. Todo el ciclo de vida está automatizado mediante un pipeline CI/CD en **GitHub Actions** que valida el código y desencadena los deploys en Render y Vercel en cada fusión a las ramas principales.
 
 ### 2.4 Modelo Entidad-Relación
 
 ```mermaid
-%% [AGENTE ARQUITECTO: Inyectar diagrama ER en 3FN aquí]
-%% Basado en el schema de Prisma generado por el Agente Backend DBA
-%% Incluir todas las entidades del caso de negocio con sus relaciones y cardinalidades
+erDiagram
+    User {
+        uuid id PK
+        string email UK
+        string password
+        string name
+        enum role
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    WorkerProfile {
+        uuid id PK
+        uuid user_id FK "UK"
+        boolean is_available
+        double latitude
+        double longitude
+        timestamp updated_at
+    }
+
+    Intersection {
+        uuid id PK
+        string name
+        double latitude
+        double longitude
+        enum light_color
+        timestamp updated_at
+    }
+
+    ServiceRequest {
+        uuid id PK
+        uuid pedestrian_id FK
+        uuid worker_id FK
+        uuid intersection_id FK
+        enum status
+        double start_latitude
+        double start_longitude
+        enum light_color_snapshot
+        boolean is_deleted
+        timestamp created_at
+        timestamp updated_at
+        timestamp assigned_at
+        timestamp started_at
+        timestamp executed_at
+        timestamp completed_at
+        timestamp cancelled_at
+    }
+
+    Wallet {
+        uuid id PK
+        uuid user_id FK "UK"
+        decimal balance
+        string currency
+        enum type
+        boolean is_active
+        boolean is_deleted
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    Transaction {
+        uuid id PK
+        uuid wallet_id FK
+        decimal amount
+        decimal net_amount
+        decimal fee_amount
+        decimal fee_percentage
+        enum payment_method
+        enum status
+        string provider_transaction_id UK
+        string qr_code_url
+        json metadata
+        boolean is_deleted
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    User ||--o| WorkerProfile : "has"
+    User ||--o| Wallet : "owns"
+    User ||--o{ ServiceRequest : "requests as pedestrian"
+    User ||--o{ ServiceRequest : "assists as worker"
+    Intersection ||--o{ ServiceRequest : "belongs to"
+    Wallet ||--o{ Transaction : "records"
 ```
 
-**Descripción del Modelo de Datos:** [COMPLETAR: Explicar las entidades, relaciones y decisiones de normalización]
+### 2.5 Diagrama de Estados del Viaje (ServiceRequest)
+
+El siguiente diagrama de estados representa el ciclo de vida completo de un servicio vial, desde la solicitud inicial del peatón hasta su finalización, garantizando que el cruce solo opere cuando el semáforo vehicular de la intersección esté en rojo.
+
+```mermaid
+stateDiagram-v2
+    [*] --> BUSCANDO : Peatón solicita asistencia
+    
+    BUSCANDO --> CANCELADO : Peatón cancela solicitud
+    BUSCANDO --> ASIGNADO : Trabajador disponible acepta servicio
+
+    ASIGNADO --> CANCELADO : Peatón o Trabajador cancela
+    ASIGNADO --> EN_CAMINO : Trabajador inicia traslado a la intersección
+
+    EN_CAMINO --> CANCELADO : Peatón o Trabajador cancela
+    
+    state "EN_EJECUCION" as en_ejecucion
+    note right of en_ejecucion
+        RESTRICCIÓN DE SEGURIDAD:
+        Solo se activa si semáforo = ROJO
+    end note
+    
+    EN_CAMINO --> en_ejecucion : Trabajador inicia cruce asistido (Valida Semáforo Rojo)
+    
+    en_ejecucion --> FINALIZADO : Cruce terminado exitosamente
+```
+
+**Descripción del Ciclo de Vida:**
+1. **BUSCANDO:** El peatón inicia una solicitud ingresando las coordenadas de origen y la intersección. El sistema calcula los asistentes viales más cercanos en tiempo real usando un algoritmo de Haversine optimizado.
+2. **ASIGNADO:** Un asistente vial acepta la solicitud desde su panel. Su estado en `WorkerProfile` pasa a `isAvailable = false`.
+3. **EN_CAMINO:** El asistente vial inicia su marcha hacia el encuentro del peatón.
+4. **EN_EJECUCION:** Para iniciar el cruce de la pista, el backend de la API verifica de forma transaccional y en tiempo real que el semáforo vehicular de la intersección esté en **ROJO** (`RED`). Si se cumple, se autoriza la transición, se toma una instantánea del color del semáforo para fines de auditoría y cumplimiento normativo (`lightColorSnapshot = 'RED'`) y se inicia el cruce.
+5. **FINALIZADO:** El peatón es guiado con seguridad a la otra acera. El asistente vial vuelve a estar disponible (`isAvailable = true`) para recibir nuevas solicitudes de proximidad.
+6. **CANCELADO:** Se permite la cancelación en cualquier momento previo a la fase de ejecución, liberando al asistente vial de forma inmediata.
+
+---
+
+**Descripción del Modelo de Datos:** El modelo relacional ha sido diseñado aplicando la **Tercera Forma Normal (3FN)** para garantizar la integridad referencial y eliminar la redundancia de datos.
+1.  **Entidades de Core Vial:** Se modelan `User`, `WorkerProfile`, `Intersection` y `ServiceRequest` para orquestar la asignación en tiempo real y el ciclo de vida del cruce seguro (SLA Tracking).
+2.  **Entidades Fintech:** Se introducen `Wallet` (asociado en relación de 1:1 estricta con `User` para resguardar balances monetarios precisos con el tipo de dato `Decimal` de alta precisión) y `Transaction` (que registra transferencias, comisiones de mantenimiento del 5% e información para idempotencia en pagos por NFC o Yape/Plin).
+3.  **Mejores Prácticas Postgres (Supabase):** Se declaran claves primarias de tipo UUID para escalabilidad y seguridad. Todas las claves foráneas tienen índices `@@index` declarados de forma explícita para evitar sequential scans en PostgreSQL. Se implementa borrado lógico con la bandera `isDeleted` en `ServiceRequest`, `Wallet` y `Transaction` para garantizar la integridad histórica y de auditoría.
 
 ---
 
@@ -159,7 +363,13 @@ Una Historia de Usuario se considera **TERMINADA** cuando:
 
 ### 4.1 Modelo Entidad-Relación y Schema de Base de Datos
 
-[COMPLETAR: Descripción del schema de Prisma, decisiones de normalización y configuración de Supabase]
+El esquema de base de datos ha sido diseñado para cumplir con los estándares de ingeniería y SRE más exigentes, alineados con el Postgres Best Practices de Supabase (2026):
+
+1. **Normalización en 3FN:** Las entidades de negocio fundamentales (`User`, `WorkerProfile`, `Intersection`, `ServiceRequest`) se encuentran desacopladas para garantizar que cada tabla represente una única entidad lógica, eliminando redundancias de almacenamiento y evitando anomalías de actualización.
+2. **Índices Geoespaciales y de Búsqueda:** Para el motor de asignación por proximidad, se ha indexado de forma explícita la tupla `(latitude, longitude)` en la tabla `WorkerProfile` e `Intersection`. Esto nos permite realizar consultas espaciales basadas en la fórmula de Haversine con un pre-filtro de *Bounding Box*, reduciendo la complejidad del motor de $O(N)$ a un rango acotado $O(\log N)$ sumamente ágil.
+3. **Optimización de Claves Foráneas (SRE):** PostgreSQL no indexa automáticamente las llaves foráneas. Para evitar sequential scans masivos y costosos, se han declarado índices explícitos `@@index` para las relaciones en `ServiceRequest` (`pedestrianId`, `workerId`, `intersectionId`).
+4. **Resguardo de Historial Operativo (Soft Delete):** Se implementa borrado lógico con la bandera `isDeleted` en `ServiceRequest` para no perder métricas críticas de auditoría e integridad histórica de los servicios realizados.
+5. **Configuración de Connection Pooling:** El backend Express utiliza el pooler de Supabase (Supavisor) a través del puerto `6543` en modo transacción (`?pgbouncer=true`), previniendo el agotamiento del pool de conexiones del servidor de base de datos.
 
 **Schema de Prisma:** [Ver `/backend/prisma/schema.prisma`](../backend/prisma/schema.prisma)
 
@@ -221,6 +431,271 @@ Variables configuradas en Render (sin valores reales):
 | `JWT_SECRET` | Secreto de 64 bytes para firma JWT |
 | `FRONTEND_URL` | URL del frontend en Vercel |
 | `PORT` | Configurado automáticamente por Render |
+
+### 4.6 Módulo de Inteligencia Artificial (IA) y Procesamiento de Lenguaje Natural (NLP)
+
+Para resolver de manera estratégica la brecha de inclusión laboral, se ha diseñado e implementado una arquitectura cognitiva avanzada impulsada por **Google Gemini 3.5 Flash** e integrada de forma nativa en el backend Express y la base de datos PostgreSQL (Supabase).
+
+El módulo consta de tres componentes clave con propósitos específicos:
+
+#### 4.6.1 Motor de Parseo de CVs Informales a Perfiles Estructurados
+
+La mayoría de los trabajadores en el sector operativo cuenta únicamente con historiales de trabajo informal y un vocabulario alejado de los estándares corporativos. El Motor NLP de Parseo de CVs resuelve esto:
+
+*   **Flujo del Pipeline:**
+    1.  **Ingesta:** El candidato describe su experiencia previa de forma coloquial e informal en una caja de texto del frontend.
+    2.  **Inferencia Estructurada:** El backend envía el texto crudo a Gemini 3.5 Flash solicitando un formato estricto JSON mediante `responseMimeType: 'application/json'` y una estructura tipada.
+    3.  **Traducción de Taxonomía:** La IA estandariza los cargos informales (ej: "ayudante de combi" -> "Asistente de Recaudación y Caja Chica", "limpieza de casas" -> "Auxiliar de Operaciones y Mantenimiento") y extrae habilidades clave, redactando un resumen profesional pulido.
+    4.  **Persistencia Transaccional (ACID):** El servicio procesa el JSON recibido en una transacción de base de datos (`prisma.$transaction`), asegurando que:
+        *   Las habilidades nuevas se creen en la tabla maestra `skills`.
+        *   Se inserte/actualice la tabla `candidate_profiles`.
+        *   Se vinculen los registros relacionales en la tabla puente `candidate_skills`.
+
+*   **JSON Schema Utilizado para la Inferencia:**
+    ```json
+    {
+      "type": "object",
+      "properties": {
+        "formalTitle": { "type": "string" },
+        "summary": { "type": "string" },
+        "location": { "type": "string" },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "category": { "type": "string", "enum": ["Operativo", "Ventas", "Atención al Cliente", "Logística", "Administrativo"] }
+            },
+            "required": ["name", "category"]
+          }
+        },
+        "experiences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rawInformalText": { "type": "string" },
+              "formalRole": { "type": "string" },
+              "duration": { "type": "string" },
+              "formalResponsibilities": { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["rawInformalText", "formalRole", "duration", "formalResponsibilities"]
+          }
+        }
+      },
+      "required": ["formalTitle", "summary", "skills", "experiences"]
+    }
+    ```
+
+#### 4.6.2 Chatbot Financiero "Fito, tu Coach de Confianza" (Portal del Trabajador)
+
+Tiene como propósito educar e incentivar la inclusión financiera del candidato. Su personalidad, vocabulario y reglas inmutables de Prompt Engineering residen en el backend:
+
+*   **Tono y Personalidad:** Empático, cercano, paciente, utilizando modismos y términos peruanos ("platita", "ahorrito", "dar una mano", "Yapear") para disolver la barrera de timidez tecnológica.
+*   **Formato de Educación en Micro-Cápsulas:** Respuestas ultra-cortas (máx. 150 palabras) en pasos numerados simples (máx. 4 pasos) para facilitar el aprendizaje en pantallas móviles.
+*   **Persistencia de Conversación:** El backend crea una `ChatSession` vinculada al `User` de tipo `CANDIDATE_COACH` y recupera el historial de chat persistido en `ChatMessage` en cada iteración para garantizar un hilo continuo y contextual de conversación multi-ronda.
+
+#### 4.6.3 Chatbot de Reclutamiento "Ramiro, tu Asesor de Selección" (Portal del Reclutador - RAG)
+
+Diseñado para ayudar al empleador a buscar personal calificado en base a lenguaje conversacional natural y evaluar candidatos directamente de la base de datos PostgreSQL.
+
+*   **Arquitectura RAG (Retrieval-Augmented Generation):**
+    1.  **Retrieval (Recuperación):** Cuando el empleador solicita personal (ej. *"Busco operarios para car wash con experiencia en Breña"*), el Express Backend ejecuta consultas SQL semánticas a la base de datos para recuperar perfiles de candidatos reales con sus distritos, experiencia formal e informal y habilidades asociadas.
+    2.  **Augmentation (Aumentación):** La lista de candidatos recuperados se serializa en una estructura JSON contextual.
+    3.  **Generation (Generación):** Se inyecta la consulta del reclutador, el historial de mensajes de la sesión `EMPLOYER_MATCHER` y los candidatos reales recuperados dentro del *System Prompt* de Ramiro. El LLM calcula de forma transparente la compatibilidad (Match %), justifica su elección vinculando experiencia informal a necesidades formales y redacta 2 preguntas clave personalizadas de entrevista para cada candidato sugerido.
+
+---
+
+## 5. Diseño UX/UI & Gamificación — El Semáforo Personal (Chambea Ahora!)
+
+Esta sección detalla el diseño de la experiencia del usuario (UX), los lineamientos de la interfaz visual (UI) y el sistema de reputación/gamificación diseñado bajo un enfoque de superación personal e inclusión financiera para trabajadores de servicios rápidos.
+
+### 5.1 Filosofía y Separación de Responsabilidades: Semáforo vs. Reputación Pública
+
+Con el fin de evitar sesgos discriminatorios hacia los trabajadores de reciente incorporación y fomentar un circuito virtuoso de crecimiento, el sistema se divide en dos capas de reputación:
+
+1. **El Semáforo Personal (Meta Interna y Privada - "Chambea Ahora!"):** Es un indicador de progreso privado visible **únicamente** para el trabajador en su sección de capacitación y finanzas. Funciona como un "Personal Growth Loop" en base a sus capacitaciones, salud financiera y validaciones legales. No es visible para clientes.
+2. **La Calificación Pública (Estrellitas de 1 a 5):** Es un indicador público y visible para todos los clientes en el catálogo de búsqueda. Representa la valoración directa del cliente final respecto a la calidad del servicio, la puntualidad y el buen trato del trabajador.
+
+---
+
+### 5.2 Lógica de Cálculo del Semáforo Personal
+
+El Semáforo se alimenta de un algoritmo de puntuación acumulativa de 0 a 100 puntos, estructurado en tres pilares estratégicos:
+
+$$\text{Puntaje Total} = ID_{\text{verif}} + Ant_{\text{ok}} + Dom_{\text{verif}} + Cap_{\text{fin1}} + Cap_{\text{fin2}} + Cap_{\text{tec}} + Reg_{\text{fin}} + Met_{\text{ahorro}} + Hist_{\text{credit}}$$
+
+#### A. Pilar Legal y Validación de Identidad (Peso: 30% — Máx 30 puntos)
+Otorga el marco de confianza inicial de que el trabajador cumple con los requisitos mínimos de identidad y seguridad.
+* **Identidad Verificada ($ID_{\text{verif}}$ - 12 pts):** Carga correcta de DNI (anverso/reverso) y autenticación facial biométrica en tiempo real.
+* **Antecedentes Verificados ($Ant_{\text{ok}}$ - 12 pts):** Validación en línea o declaración jurada de no contar con antecedentes policiales o judiciales.
+* **Domicilio Verificado ($Dom_{\text{verif}}$ - 6 pts):** Carga de recibo de servicios de agua/luz o verificación por georreferenciación residencial.
+
+#### B. Pilar de Capacitación y Aprendizaje (Peso: 40% — Máx 40 puntos)
+Premia activamente el tiempo invertido en la adquisición de competencias clave.
+* **Curso de Finanzas Personales Básico ($Cap_{\text{fin1}}$ - 12 pts):** Ahorro, armado de presupuestos y control de gastos hormiga.
+* **Curso de Crédito Responsable ($Cap_{\text{fin2}}$ - 12 pts):** Manejo de deudas, tasas de interés y construcción de récord crediticio.
+* **Cursos Técnicos de Especialidad ($Cap_{\text{tec}}$ - 16 pts en total):**
+  * Curso de Seguridad y Salud en el Trabajo (8 pts).
+  * Curso de Atención al Cliente e Imagen Profesional (8 pts).
+
+#### C. Pilar de Hábitos y Salud Financiera (Peso: 30% — Máx 30 puntos)
+Valora el uso de la aplicación como una herramienta de formalización diaria.
+* **Registro de Flujo de Caja Activo ($Reg_{\text{fin}}$ - 10 pts):** Registro de al menos 3 transacciones de ingresos/gastos por semana durante 4 semanas consecutivas.
+* **Cumplimiento de Metas de Ahorro ($Met_{\text{ahorro}}$ - 10 pts):** Mantener activa una meta de ahorro mensual con depósitos periódicos.
+* **Historial de Pago Limpio ($Hist_{\text{credit}}$ - 10 pts):** Cancelación en fecha de micro-créditos asignados o récord impecable en la plataforma.
+
+#### Rango de Colores y Beneficios Desbloqueados
+
+| Color | Rango | Nivel de Progreso | Beneficios e Incentivos de Gamificación |
+| :---: | :---: | :--- | :--- |
+| **🔴 Rojo** | 0 a 39 pts | **Reciente / Perfil Básico** | Acceso a trabajos de tarifa base. Notificaciones de invitación a capacitaciones. |
+| **🟡 Amarillo** | 40 a 74 pts | **Verificado / Capacitándose** | Prioridad media en algoritmo de búsqueda. Desbloqueo de micro-créditos a tasas estándar. Insignia interna "Estudiante Activo". |
+| **🟢 Verde** | 75 a 100 pts | **Confiable / Formalizado** | Prioridad VIP en emparejamiento. Acceso a micro-seguros y micro-créditos con tasa preferencial (4.5%). Curso técnico premium gratis. |
+
+---
+
+### 5.3 Sistema de Reputación Público (Calificación de 1 a 5 Estrellas)
+
+La reputación pública se construye a partir del promedio ponderado móvil de las valoraciones de los clientes al culminar una orden de servicio.
+
+#### Mecánica de Puntuación
+Al finalizar el servicio, el cliente califica al trabajador con:
+1. **Puntaje numérico:** De 1.0 a 5.0 estrellas doradas.
+2. **Etiquetas de desempeño:** Selección rápida de etiquetas positivas (p. ej., "Puntual", "Amable", "Trabajo Pulcro") o negativas (p. ej., "Llegó Tarde", "Falta Herramienta").
+3. **Comentarios de Reseña (Opcional):** Texto libre con límite de 300 caracteres.
+
+#### Algoritmo de Atenuación de Antigüedad (Decay Rate)
+Para que las opiniones reflejen fielmente el desempeño actual, las calificaciones recientes pesan más que las antiguas (calculando las últimas 50 evaluaciones):
+
+$$\text{Reputación Pública (R)} = \frac{\sum_{i=1}^{N} (P_i \times w_i)}{\sum_{i=1}^{N} w_i}$$
+
+Donde:
+* $P_i$ es el puntaje de estrellas de la calificación $i$.
+* $w_i$ es el peso del tiempo de la calificación:
+  * Últimos 30 días: $w_i = 1.0$
+  * De 31 a 180 días: $w_i = 0.7$
+  * Más de 180 días: $w_i = 0.4$
+
+#### Transparencia y Protección (Antifraude)
+* **Vinculación Transaccional Única:** Solo los clientes con transacciones pagadas y finalizadas pueden calificar, impidiendo campañas de desprestigio o inflación artificial de estrellas.
+* **Derecho a Réplica:** El trabajador tiene el derecho de responder de forma pública a cualquier reseña menor o igual a 3 estrellas, garantizando equidad comercial.
+
+---
+
+### 5.4 Lineamientos Visuales "Ultra-Tech" (Tailwind CSS)
+
+La app adopta la estética **"Digital Neon Glass"**: fondos oscuros de alta profundidad, capas flotantes de cristal esmerilado translúcido (*glassmorphism*) y contrastes de acentos en neón de alta saturación para las micro-interacciones.
+
+#### A. Paleta de Colores de Interfaz (Tailwind Extensión)
+* **Fondos Profundos:** `bg-[#020617]` (Slate 950) y `bg-[#0f172a]` (Slate 900) para tarjetas principales.
+* **Acentos Neón:**
+  * Primario / Info / Links: `text-[#06b6d4]` (Cyan 500)
+  * Educación / Progreso: `text-[#8b5cf6]` (Purple 500)
+  * Estrellas de Reputación: `text-[#fbbf24]` (Amber 400)
+* **Colores del Semáforo:**
+  * Verde: `text-[#10b981]` (Emerald 500)
+  * Amarillo: `text-[#f59e0b]` (Amber 500)
+  * Rojo: `text-[#ef4444]` (Red 500)
+
+#### B. Componentes Glassmorphism Sólidos
+Para crear contenedores con aspecto de cristal biselado flotante:
+```html
+<div class="bg-[#0f172a]/45 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.50)]">
+  <!-- Contenido -->
+</div>
+```
+
+#### C. Micro-interacciones y Efectos Glow (Brillo)
+* **Botón de Acción Primario Flotante:**
+  `bg-[#06b6d4] text-[#020617] font-semibold px-6 py-3 rounded-xl shadow-[0_0_15px_rgba(6,182,212,0.3)] hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] active:scale-[0.97] transition-all duration-200`
+* **Pulsador de Alerta de Semáforo (Breathing Light):**
+  ```html
+  <div class="relative flex h-3.5 w-3.5">
+    <div class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981]/40 opacity-75"></div>
+    <div class="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#10b981] shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+  </div>
+  ```
+
+---
+
+### 5.5 Wireframes Descriptivos de las Pantallas Principales
+
+#### Pantalla 1: Mapa de Usuario (Home / Búsqueda para Clientes y Trabajadores)
+Geolocalización en tiempo real de la oferta de servicios rápidos. Emplea un mapa en tonos grises/oscuros con acentos dorados para el promedio de estrellas. El semáforo es interno y por ende invisible aquí.
+
+```
++---------------------------------------------------------------------------------+
+|  [🔍 Buscar electricista, gasfitero...]                       [⚙️ FILTROS]      |
++---------------------------------------------------------------------------------+
+|                                                                                 |
+|                      📍 [Electricista • ⭐ 4.9]                                  |
+|                                                                                 |
+|                                                                                 |
+|                                                                                 |
+|         📍 [Plomero • ⭐ 4.7]                                                    |
+|                                                                                 |
+|                                                                                 |
+|                                👤 TÚ (📍 Miraflores, Lima)                      |
+|                                                                                 |
+|                                                                                 |
+|                                                     📍 [Carpintero • ⭐ 4.5]     |
+|                                                                                 |
++---------------------------------------------------------------------------------+
+|  PANEL DETALLADO (Deslizar hacia arriba ↑ - Glassmorphism)                      |
+|                                                                                 |
+|  +---------------------------------------------------------------------------+  |
+|  |  👤 Pedro Gómez • Electricista Certificado                                |  |
+|  |  ⭐ 4.9 (42 Recomendaciones)  •  📍 A 150m de distancia (Tiempo: 3 min)     |  |
+|  |  ───────────────────────────────────────────────────────────────────────  |  |
+|  |  [ Ver Perfil Público ]                                [ ⚡ Contratar Ahora ]  |  |
+|  +---------------------------------------------------------------------------+  |
+|                                                                                 |
+|  🏠 Mapa             💼 Chambea Ahora! (Panel Interno)          👤 Mi Perfil    |
++---------------------------------------------------------------------------------+
+```
+
+#### Pantalla 2: Panel Interno "Chambea Ahora!" (Dashboard de Capacitación y Metas)
+Sección privada de capacitación y control de metas de superación del trabajador. Es el centro operativo de la gamificación.
+
+```
++---------------------------------------------------------------------------------+
+|  [⬅️ Volver]                          CHAMBEA AHORA!             [📈 MI REPORTE]  |
++---------------------------------------------------------------------------------+
+|  ¡Hola, Pedro! Sigue capacitándote para desbloquear mejores herramientas.       |
+|                                                                                 |
+|  +---------------------------------------------------------------------------+  |
+|  |  🚦 TU SEMÁFORO DE METAS: 🟢 [CONFIABLE / FORMALIZADO]                    |  |
+|  |  Tu Puntaje: 82 / 100 puntos                                              |  |
+|  |  [░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░██████] 82% |  |
+|  |  • ¡Felicidades! Estás en nivel Verde. Beneficios premium activos.        |  |
+|  +---------------------------------------------------------------------------+  |
+|                                                                                 |
+|  📊 DETALLE DE TUS METAS PERSONALES:                                            |
+|  +───────────────────────────────┬────────────────────────────┬──────────────+  |
+|  |  💼 Validación Legal: 30/30   |  🎓 Capacitaciones: 36/40  |  💰 Finanzas |  |
+|  |  [ Completado ✅ ]            |  [ Pendiente: 1 curso ]    |  16/30       |  |
+|  +───────────────────────────────┴────────────────────────────┴──────────────+  |
+|                                                                                 |
+|  🎓 MIS CURSOS DE CAPACITACIÓN:                                                 |
+|  +---------------------------------------------------------------------------+  |
+|  |  📘 Finanzas Personales 2: Inversión y Presupuesto        [▶️ RETOMAR CURSO]  |
+|  |  • Progreso: 75% completado (Faltan 2 módulos)                            |  |
+|  +---------------------------------------------------------------------------+  |
+|  |  ⚡ Técnicas de Plomería Avanzada                         [🔓 DESBLOQUEADO] |  |
+|  |  • Curso gratuito por tu buen nivel de semáforo                           |  |
+|  +---------------------------------------------------------------------------+  |
+|                                                                                 |
+|  💰 SALUD FINANCIERA Y CRÉDITO:                                                 |
+|  +---------------------------------------------------------------------------+  |
+|  |  🏦 Mi Récord de Ahorro: [ $120.00 ahorrados de una meta de $200.00 ]     |  |
+|  |  💳 Tasa de Micro-crédito Desbloqueada: 4.5% (Tasa Preferencial Verde)     |  |
+|  +---------------------------------------------------------------------------+  |
+|                                                                                 |
+|  🏠 Mapa             💼 Chambea Ahora! (Panel Interno)          👤 Mi Perfil    |
++---------------------------------------------------------------------------------+
+```
 
 ---
 

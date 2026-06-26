@@ -8,68 +8,504 @@
 //   npx prisma migrate deploy                → Aplicar migraciones en producción
 //   npx prisma generate                      → Regenerar el Prisma Client
 //   npx prisma studio                        → GUI para explorar la BBDD
-//   npx prisma db pull                       → Introspección: generar schema desde BBDD existente
 
 generator client {
   provider      = "prisma-client-js"
-  // Opcional: habilitar query engine nativo para mejor rendimiento en producción
-  // engineType = "binary"
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  // Para Supabase con pgBouncer (connection pooler), usar directUrl para migraciones:
-  // directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────────────────────────
-// MODELO DE USUARIO (Ejemplo Base — Adaptar al caso de negocio)
+// MODELOS DEL SISTEMA DE ASIGNACIÓN VIAL Y USUARIOS
 // ─────────────────────────────────────────────
+
 model User {
-  id        String   @id @default(uuid())          // UUID como PK (mejor que entero autoincremental en sistemas distribuidos)
+  id        String   @id @default(uuid())
   email     String   @unique
-  password  String                                  // Hash bcrypt — nunca texto plano
+  password  String   // Hash bcrypt
   name      String
-  role      Role     @default(USER)
+  role      Role     @default(USER) // ADMIN, USER (Peatón), WORKER (Trabajador)
   isActive  Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relaciones (descomentar según el modelo de negocio)
-  // sessions  Session[]
-  // posts     Post[]
+  // Relaciones originales
+  pedestrianRequests ServiceRequest[] @relation("PedestrianRequests")
+  workerRequests     ServiceRequest[] @relation("WorkerRequests")
+  workerProfile      WorkerProfile?
+  wallet             Wallet?
 
-  @@index([email])                                  // Índice para consultas de autenticación
-  @@map("users")                                    // Nombre de la tabla en PostgreSQL
+  // Nuevas relaciones para el Chatbot Coach, Reclutamiento e IA
+  candidateProfile CandidateProfile?
+  employerProfile  EmployerProfile?
+  chatSessions     ChatSession[]
+
+  // Nuevas relaciones de Formalización, KYC y Educación
+  identityVerification IdentityVerification?
+  educationalProgress  EducationalProgress[]
+  formalizationProfile FormalizationProfile?
+  sunatAuditLogs       SUNATAuditLog[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model WorkerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  isAvailable Boolean  @default(true)
+  latitude    Float    // Coordenada Y
+  longitude   Float    // Coordenada X
+  updatedAt   DateTime @updatedAt
+
+  // Relaciones
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Índices para optimización de consultas y Haversine
+  @@index([userId])
+  @@index([latitude, longitude])
+  @@map("worker_profiles")
+}
+
+model Intersection {
+  id         String            @id @default(uuid())
+  name       String
+  latitude   Float
+  longitude  Float
+  lightColor TrafficLightColor @default(GREEN)
+  updatedAt  DateTime          @updatedAt
+
+  // Relaciones
+  requests ServiceRequest[]
+
+  @@index([latitude, longitude])
+  @@map("intersections")
+}
+
+model ServiceRequest {
+  id             String        @id @default(uuid())
+  pedestrianId   String
+  workerId       String?
+  intersectionId String
+  status         RequestStatus @default(BUSCANDO)
+  
+  // Coordenadas donde se solicitó originalmente el servicio
+  startLatitude  Float
+  startLongitude Float
+
+  // Auditoría e integridad operativa
+  lightColorSnapshot TrafficLightColor? // Captura el color del semáforo al entrar en EN_EJECUCION
+
+  // Implementación obligatoria de Soft Delete (SRE Best Practices)
+  isDeleted Boolean @default(false)
+
+  // Ciclo de Vida y Tiempos de Auditoría (SLA Tracking)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  assignedAt  DateTime? // Cuándo aceptó el trabajador
+  startedAt   DateTime? // Cuándo inició el traslado (EN_CAMINO)
+  executedAt  DateTime? // Cuándo el semáforo se puso en rojo y se inició el cruce (EN_EJECUCION)
+  completedAt DateTime? // Cuándo finalizó el cruce seguro (FINALIZADO)
+  cancelledAt DateTime? // Cuándo se canceló la solicitud (CANCELADO)
+
+  // Relaciones con eliminación restringida para asegurar integridad histórica
+  pedestrian User         @relation("PedestrianRequests", fields: [pedestrianId], references: [id], onDelete: Restrict)
+  worker     User?        @relation("WorkerRequests", fields: [workerId], references: [id], onDelete: SetNull)
+  intersection Intersection @relation(fields: [intersectionId], references: [id], onDelete: Restrict)
+
+  // Índices explícitos para claves foráneas (Previene Sequential Scans en Supabase)
+  @@index([pedestrianId])
+  @@index([workerId])
+  @@index([intersectionId])
+  @@index([status])
+  @@index([createdAt])
+  
+  @@map("service_requests")
 }
 
 // ─────────────────────────────────────────────
 // ENUMERACIONES
 // ─────────────────────────────────────────────
+
 enum Role {
   ADMIN
   USER
-  MODERATOR
+  WORKER
+  CANDIDATE
+  EMPLOYER
+  DISTRICT_ADMIN
+  MACRO_ADMIN
 
   @@map("role")
 }
 
+enum RequestStatus {
+  BUSCANDO
+  ASIGNADO
+  EN_CAMINO
+  EN_EJECUCION
+  FINALIZADO
+  CANCELADO
+
+  @@map("request_status")
+}
+
+enum TrafficLightColor {
+  RED
+  YELLOW
+  GREEN
+
+  @@map("traffic_light_color")
+}
+
 // ─────────────────────────────────────────────
-// [ESPACIO PARA MODELOS DE NEGOCIO]
+// MODELOS FINTECH: WALLET & TRANSACTION
 // ─────────────────────────────────────────────
-// Aquí se añadirán los modelos específicos del proyecto una vez
-// se defina el caso de negocio. Ejemplos genéricos:
-//
-// model Product { ... }
-// model Order { ... }
-// model Category { ... }
-//
-// Principios de diseño de schema a seguir:
-//   1. NORMALIZACIÓN: Cada tabla representa una sola entidad
-//   2. INTEGRIDAD REFERENCIAL: Usar relaciones con @relation y onDelete
-//   3. ÍNDICES: Añadir @@index en campos frecuentemente consultados
-//   4. UUID vs AUTOINCREMENT: Preferir UUID para IDs expuestos externamente
-//   5. TIMESTAMPS: Siempre incluir createdAt/updatedAt con @default(now()) y @updatedAt
-//   6. SOFT DELETE: Considerar isDeleted Boolean @default(false) en lugar de DELETE físico
+
+model Wallet {
+  id           String        @id @default(uuid())
+  userId       String        @unique @map("user_id")
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  balance      Decimal       @default(0.00) @db.Decimal(12, 2)
+  currency     String        @default("PEN")
+  type         WalletType    @default(MERCHANT)
+  isActive     Boolean       @default(true) @map("is_active")
+  isDeleted    Boolean       @default(false) @map("is_deleted")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  
+  transactions Transaction[] @relation("WalletTransactions")
+
+  @@index([userId])
+  @@map("wallets")
+}
+
+model Transaction {
+  id                    String            @id @default(uuid())
+  walletId              String            @map("wallet_id")
+  wallet                Wallet            @relation("WalletTransactions", fields: [walletId], references: [id], onDelete: Cascade)
+  amount                Decimal           @db.Decimal(12, 2)
+  netAmount             Decimal           @db.Decimal(12, 2)
+  feeAmount             Decimal           @db.Decimal(12, 2)
+  feePercentage         Decimal           @db.Decimal(5, 2)
+  paymentMethod         PaymentMethod     @map("payment_method")
+  status                TransactionStatus @default(PENDING)
+  providerTransactionId String?           @unique @map("provider_transaction_id")
+  qrCodeUrl             String?           @map("qr_code_url")
+  metadata              Json?
+  isDeleted             Boolean           @default(false) @map("is_deleted")
+  createdAt             DateTime          @default(now()) @map("created_at")
+  updatedAt             DateTime          @updatedAt @map("updated_at")
+
+  @@index([walletId])
+  @@index([status])
+  @@index([paymentMethod])
+  @@map("transactions")
+}
+
+enum WalletType {
+  MERCHANT
+  PLATFORM
+  
+  @@map("wallet_type")
+}
+
+enum PaymentMethod {
+  NFC_TAP_TO_PAY
+  YAPE
+  PLIN
+
+  @@map("payment_method")
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+
+  @@map("transaction_status")
+}
+
+// ─────────────────────────────────────────────
+// PERFIL DEL CANDIDATO (TRABAJADOR)
+// ─────────────────────────────────────────────
+model CandidateProfile {
+  id             String           @id @default(uuid())
+  userId         String           @unique
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  rawText        String?          // Texto crudo del CV original
+  formalTitle    String           // Cargo formalizado por IA (ej. "Asistente de Logística")
+  summary        String           // Resumen profesional pulido por IA
+  location       String           // Ubicación (Distrito / Ciudad)
+
+  experienceJson Json             // Experiencias estructuradas en JSON: [{ company, role, duration, formalResponsibilities }]
+  educationJson  Json             // Educación estructurada en JSON: [{ institution, degree, year }]
+
+  skills         CandidateSkill[]
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([formalTitle])
+  @@map("candidate_profiles")
+}
+
+// Tabla intermedia Muchos a Muchos para Habilidades del Candidato
+model CandidateSkill {
+  id                 String           @id @default(uuid())
+  candidateProfileId String
+  candidateProfile   CandidateProfile @relation(fields: [candidateProfileId], references: [id], onDelete: Cascade)
+  skillId            String
+  skill              Skill            @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateProfileId, skillId])
+  @@index([candidateProfileId])
+  @@index([skillId])
+  @@map("candidate_skills")
+}
+
+// Habilidades Maestras Estandarizadas
+model Skill {
+  id         String           @id @default(uuid())
+  name       String           @unique // ej. "Control de Caja", "Manejo de Hidrolavadora"
+  category   String           // ej. "Operativo", "Atención al Cliente"
+  candidates CandidateSkill[]
+
+  @@index([name])
+  @@map("skills")
+}
+
+// ─────────────────────────────────────────────
+// PERFIL DEL EMPLEADOR (CONTRATANTE)
+// ─────────────────────────────────────────────
+model EmployerProfile {
+  id          String     @id @default(uuid())
+  userId      String     @unique
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyName String     // Nombre de la empresa o local comercial
+  industry    String     // Rubro (ej. "Car Wash", "Restaurantes")
+  
+  jobOffers   JobOffer[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([userId])
+  @@map("employer_profiles")
+}
+
+// Ofertas de Trabajo
+model JobOffer {
+  id                String          @id @default(uuid())
+  employerProfileId String
+  employerProfile   EmployerProfile @relation(fields: [employerProfileId], references: [id], onDelete: Cascade)
+  
+  title             String          // Cargo que se busca
+  description       String          // Detalle del trabajo
+  location          String          // Distrito o zona
+  requiredSkills    Json            // Array de habilidades deseadas
+  salary            Decimal?        // Remuneración ofrecida
+  isActive          Boolean         @default(true)
+  isDeleted         Boolean         @default(false) // Soft delete
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([employerProfileId])
+  @@map("job_offers")
+}
+
+// ─────────────────────────────────────────────
+// CHATBOT PERSISTENCIA DE CONVERSACIONES
+// ─────────────────────────────────────────────
+model ChatSession {
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ChatBotType
+  messages  ChatMessage[]
+  
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+enum ChatBotType {
+  CANDIDATE_COACH
+  EMPLOYER_MATCHER
+}
+
+model ChatMessage {
+  id            String      @id @default(uuid())
+  chatSessionId String
+  chatSession   ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+  role          String      // "user" | "model"
+  text          String
+  createdAt     DateTime    @default(now())
+
+  @@index([chatSessionId])
+  @@map("chat_messages")
+}
+
+// ─────────────────────────────────────────────
+// MODELOS LEGALTECH: KYC, CAPACITACIÓN Y TRANSICIÓN FORMAL
+// ─────────────────────────────────────────────
+
+model IdentityVerification {
+  id              String             @id @default(uuid())
+  userId          String             @unique @map("user_id")
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  documentType    DocumentType       @map("document_type")
+  documentNumber  String             @unique @map("document_number")
+  birthDate       DateTime           @map("birth_date")
+  age             Int
+  
+  status          VerificationStatus @default(PENDING_DOCUMENT)
+  
+  // Requisito MINTRA para menores de edad (14 - 17 años)
+  mintraAuthUrl   String?            @map("mintra_auth_url") // URL del PDF/Foto de la autorización de MINTRA
+  approvedBy      String?            @map("approved_by")     // ID del Administrador (User) que aprobó la solicitud
+  rejectionReason String?            @map("rejection_reason")
+  
+  // Biometría y Auditoría de Seguridad
+  selfieUrl       String?            @map("selfie_url")      // Para Liveness check
+  biometricScore  Decimal?           @db.Decimal(5, 2)       @map("biometric_score") // Score de similitud (0.00 - 100.00)
+  
+  verifiedAt      DateTime?          @map("verified_at")
+  createdAt       DateTime           @default(now())         @map("created_at")
+  updatedAt       DateTime           @updatedAt              @map("updated_at")
+
+  @@index([documentNumber])
+  @@index([status])
+  @@map("identity_verifications")
+}
+
+enum DocumentType {
+  DNI
+  CE   // Carné de Extranjería
+  PTP  // Permiso Temporal de Permanencia
+
+  @@map("document_type")
+}
+
+enum VerificationStatus {
+  PENDING_DOCUMENT   // Esperando subir el documento o selfie biométrico
+  PENDING_APPROVAL   // Para adolescentes (14-17) esperando validación manual de la autorización MTPE
+  APPROVED           // Verificado y aprobado para operar
+  REJECTED           // Rechazado (documento ilegible, biometría no concuerda)
+  BLOCKED_UNDERAGE   // Bloqueado por ser menor de 14 años (alerta DEMUNA emitida)
+
+  @@map("verification_status")
+}
+
+model Course {
+  id          String   @id @default(uuid())
+  title       String   // Ej: "RUC 10 / RUC 20 para Emprendedores", "Habilidades Blandas"
+  description String
+  category    CourseCategory
+  totalUnits  Int      @default(1) @map("total_units")
+  
+  progress    EducationalProgress[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  @@map("courses")
+}
+
+model EducationalProgress {
+  id              String    @id @default(uuid())
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String    @map("course_id")
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  completedUnits  Int       @default(0) @map("completed_units")
+  isCompleted     Boolean   @default(false) @map("is_completed")
+  lastAccessedAt  DateTime  @default(now()) @map("last_accessed_at")
+  completedAt     DateTime? @map("completed_at")
+
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt      @map("updated_at")
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@map("educational_progress")
+}
+
+model FormalizationProfile {
+  id             String            @id @default(uuid())
+  userId         String            @unique @map("user_id")
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Ruta A (Independiente)
+  rucNumber      String?           @unique @map("ruc_number")
+  rucStatus      String?           @map("ruc_status")      // "ACTIVO", "HABIDO"
+  taxRegime      String?           @map("tax_regime")      // "NRUS" (Nuevo RUS), "RER"
+  isRucValidated Boolean           @default(false)         @map("is_ruc_validated")
+  
+  // Ruta B (B2B Corporativo)
+  isHiredB2B     Boolean           @default(false)         @map("is_hired_b2b")
+  currentCompany String?           @map("current_company") // Empresa contratante actual si la hay
+  
+  // Estado del Semáforo Social (Gamificación)
+  semaphoreColor TrafficLightColor @default(RED)           @map("semaphore_color")
+  score          Int               @default(0)             // 0 a 100 puntos
+
+  createdAt      DateTime          @default(now())         @map("created_at")
+  updatedAt      DateTime          @updatedAt              @map("updated_at")
+
+  @@index([userId])
+  @@map("formalization_profiles")
+}
+
+enum CourseCategory {
+  FINANCIAL
+  TAX_LEGAL
+  SOFT_SKILLS
+  CORPORATE_ETHICS
+
+  @@map("course_category")
+}
+
+model SUNATAuditLog {
+  id              String      @id @default(uuid())
+  userId          String      @map("user_id") // El trabajador auditado o reportado
+  user            User        @relation(fields: [userId], references: [id], onDelete: Restrict)
+  
+  fiscalPeriod    String      @map("fiscal_period")    // Ej: "2026-06"
+  declaredRevenue Decimal     @db.Decimal(12, 2)       @map("declared_revenue")
+  taxPaid         Decimal     @db.Decimal(12, 2)       @map("tax_paid") // S/ 20 o S/ 50 de acuerdo al NRUS
+  transactionId   String?     @unique @map("transaction_id") // Referencia al pago del impuesto en la billetera
+  
+  sunatTicket     String?     @map("sunat_ticket")     // Número de operación devuelto por SUNAT
+  status          AuditStatus @default(PENDING_DECLARATION)
+  
+  createdAt       DateTime    @default(now())          @map("created_at")
+  updatedAt       DateTime    @updatedAt               @map("updated_at")
+
+  @@index([userId])
+  @@index([fiscalPeriod])
+  @@map("sunat_audit_logs")
+}
+
+enum AuditStatus {
+  PENDING_DECLARATION
+  DECLARED
+  FAILED
+  EXCEEDED_LIMIT       // Si superó el límite del RUS y requiere regularización
+
+  @@map("audit_status")
+}

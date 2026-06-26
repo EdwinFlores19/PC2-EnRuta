@@ -20,15 +20,29 @@ jest.mock('../src/middlewares/auth.middleware', () => ({
     req.user = { id: 'test-user-id', email: 'test@example.com', role: 'USER' };
     next();
   },
+  authorize: (...roles: string[]) => (req: any, res: any, next: any) => {
+    next();
+  },
 }));
 
-// Mockear el servicio de IA para probar el controlador y rutas de forma aislada
+// Mockear el servicio de IA general para probar el controlador de forma aislada
 const mockGenerateText = jest.fn() as any;
 const mockGenerateChat = jest.fn() as any;
 
 jest.mock('../src/services/ai.service', () => ({
   generateText: mockGenerateText,
   generateChat: mockGenerateChat,
+}));
+
+// Mockear el servicio de IA especializada para probar los nuevos controladores
+const mockParseCV = jest.fn() as any;
+const mockHandleCandidateCoachChat = jest.fn() as any;
+const mockHandleEmployerMatcherChat = jest.fn() as any;
+
+jest.mock('../src/services/ai_models.service', () => ({
+  parseCV: mockParseCV,
+  handleCandidateCoachChat: mockHandleCandidateCoachChat,
+  handleEmployerMatcherChat: mockHandleEmployerMatcherChat,
 }));
 
 import request from 'supertest';
@@ -103,6 +117,72 @@ describe('AI Module Endpoints', () => {
       expect(res.body).toHaveProperty('status', 'success');
       expect(res.body.data).toHaveProperty('text', 'Respuesta conversacional.');
       expect(res.body.data.updatedHistory).toHaveLength(2);
+    });
+  });
+
+  describe('POST /api/v1/ai/cv/parse', () => {
+    it('debería retornar 422 si rawText está vacío', async () => {
+      const res = await request(app)
+        .post('/api/v1/ai/cv/parse')
+        .send({ rawText: '' });
+
+      expect(res.status).toBe(422);
+      expect(res.body).toHaveProperty('status', 'error');
+    });
+
+    it('debería retornar 201 en éxito con el perfil formalizado', async () => {
+      const mockProfile = {
+        formalTitle: 'Técnico de Detallado Vehicular',
+        summary: 'Resumen profesional...',
+        location: 'Breña',
+      };
+      mockParseCV.mockResolvedValueOnce(mockProfile);
+
+      const res = await request(app)
+        .post('/api/v1/ai/cv/parse')
+        .send({ rawText: 'Hola, trabajé lavando carros...' });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toHaveProperty('status', 'success');
+      expect(res.body.data).toHaveProperty('formalTitle', 'Técnico de Detallado Vehicular');
+    });
+  });
+
+  describe('POST /api/v1/ai/chat/candidate', () => {
+    it('debería responder con éxito e incluir la respuesta de Fito', async () => {
+      const mockResult = {
+        sessionId: 'session-123',
+        text: 'Hola, soy Fito...',
+        history: [{ role: 'user', text: 'Hola' }, { role: 'model', text: 'Hola, soy Fito...' }],
+      };
+      mockHandleCandidateCoachChat.mockResolvedValueOnce(mockResult);
+
+      const res = await request(app)
+        .post('/api/v1/ai/chat/candidate')
+        .send({ message: 'Hola' });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('status', 'success');
+      expect(res.body.data).toHaveProperty('text', 'Hola, soy Fito...');
+    });
+  });
+
+  describe('POST /api/v1/ai/chat/employer', () => {
+    it('debería responder con éxito e incluir las recomendaciones de Ramiro', async () => {
+      const mockResult = {
+        sessionId: 'session-456',
+        text: 'Recomiendo a los siguientes candidatos...',
+        history: [{ role: 'user', text: 'Busco personal' }, { role: 'model', text: 'Recomiendo...' }],
+      };
+      mockHandleEmployerMatcherChat.mockResolvedValueOnce(mockResult);
+
+      const res = await request(app)
+        .post('/api/v1/ai/chat/employer')
+        .send({ message: 'Busco personal' });
+
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('status', 'success');
+      expect(res.body.data).toHaveProperty('text', 'Recomiendo a los siguientes candidatos...');
     });
   });
 });

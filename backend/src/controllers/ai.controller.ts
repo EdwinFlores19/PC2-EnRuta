@@ -5,6 +5,7 @@
 import { Request, Response } from 'express';
 import { asyncHandler, buildResponse } from '../utils/index';
 import * as aiService from '../services/ai.service';
+import * as aiModelsService from '../services/ai_models.service';
 
 /**
  * Endpoint para generación de contenido puntual (Single Turn).
@@ -77,4 +78,70 @@ export const testConnection = asyncHandler(async (req: Request, res: Response) =
       message: `No se pudo conectar con el servicio de IA de Google Cloud: ${error.message}`
     });
   }
+});
+
+/**
+ * 1. MOTOR DE CVs: Parsea el CV informal del candidato y crea su perfil estructurado
+ * POST /api/v1/ai/cv/parse
+ */
+export const parseCV = asyncHandler(async (req: Request, res: Response) => {
+  const { rawText } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Usuario no autenticado en la petición.',
+    });
+  }
+
+  const parsedProfile = await aiModelsService.parseCV(userId, rawText);
+
+  res.status(201).json(
+    buildResponse(parsedProfile, 'CV informal parseado y guardado como perfil formal en la BD.')
+  );
+});
+
+/**
+ * 2. COACH FINANCIERO: Chatbot con persistencia en BD para educación financiera del candidato
+ * POST /api/v1/ai/chat/candidate
+ */
+export const chatCandidate = asyncHandler(async (req: Request, res: Response) => {
+  const { message } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Usuario no autenticado en la petición.',
+    });
+  }
+
+  const chatResult = await aiModelsService.handleCandidateCoachChat(userId, message);
+
+  res.status(200).json(
+    buildResponse(chatResult, 'Respuesta del Coach Financiero generada y guardada con éxito.')
+  );
+});
+
+/**
+ * 3. RECOMENDADOR DE TALENTO: Chatbot RAG para reclutadores que busca en la base de datos
+ * POST /api/v1/ai/chat/employer
+ */
+export const chatEmployer = asyncHandler(async (req: Request, res: Response) => {
+  const { message } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Usuario no autenticado en la petición.',
+    });
+  }
+
+  const recommendationResult = await aiModelsService.handleEmployerMatcherChat(userId, message);
+
+  res.status(200).json(
+    buildResponse(recommendationResult, 'Recomendaciones de candidatos generadas con éxito.')
+  );
 });

@@ -42,4 +42,40 @@ router.post('/chat',
   aiController.chat
 );
 
+/**
+ * @route   POST /api/v1/ai/cv/parse
+ * @desc    Extraer información de CV informal y mapearla a perfil formal en la BD
+ * @access  Privado (Candidato autenticado)
+ */
+router.post('/cv/parse',
+  authenticate,
+  body('rawText').trim().notEmpty().withMessage('El texto crudo de tu CV es requerido.'),
+  validate,
+  aiController.parseCV
+);
+
+/**
+ * @route   POST /api/v1/ai/chat/candidate
+ * @desc    Conversación interactiva persistente con el Coach Financiero (Fito)
+ * @access  Privado (Candidato autenticado)
+ */
+router.post('/chat/candidate',
+  authenticate,
+  body('message').trim().notEmpty().withMessage('El mensaje para el coach es requerido.'),
+  validate,
+  aiController.chatCandidate
+);
+
+/**
+ * @route   POST /api/v1/ai/chat/employer
+ * @desc    Conversación interactiva RAG con el Recomendador de Talento (Ramiro)
+ * @access  Privado (Empleador autenticado)
+ */
+router.post('/chat/employer',
+  authenticate,
+  body('message').trim().notEmpty().withMessage('El requerimiento de personal es requerido.'),
+  validate,
+  aiController.chatEmployer
+);
+
 export default router;

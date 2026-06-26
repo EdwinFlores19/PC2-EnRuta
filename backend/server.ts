@@ -14,6 +14,10 @@ import dotenv from 'dotenv';
 import logger from './src/utils/logger';
 import { connectDatabase, disconnectDatabase } from './config/database';
 import aiRouter from './src/routes/ai.routes';
+import serviceRouter from './src/routes/service.routes';
+import paymentRouter from './src/routes/payment.routes';
+import authRouter from './src/routes/auth.routes';
+import formalizationRouter from './src/routes/formalization.routes';
 
 // Carga de variables de entorno
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -103,6 +107,18 @@ app.get('/api/health', (req: Request, res: Response) => {
 
 // Rutas de Inteligencia Artificial
 app.use('/api/v1/ai', aiRouter);
+
+// Rutas de Asignación por Proximidad y Flujo Vial
+app.use('/api/v1/services', serviceRouter);
+
+// Rutas Fintech, POS NFC y Billeteras Digitales
+app.use('/api/v1/payments', paymentRouter);
+
+// Rutas de Autenticación y Cuentas de Pruebas
+app.use('/api/v1/auth', authRouter);
+
+// Rutas de Transición Formal, KYC y Gobernanza (B2G/LegalTech)
+app.use('/api/v1/formalization', formalizationRouter);
 
 // Manejo de rutas no encontradas (404)
 app.use((req: Request, res: Response, _next: NextFunction) => {
