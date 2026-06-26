@@ -253,7 +253,128 @@ Se selecciona **PostgreSQL** sobre NoSQL (como MongoDB) para "EnRuta" debido a:
 *   **Consistencia Transaccional (ACID):** Las operaciones de billeteras virtuales (baleance, retiro, split de comisiones) no permiten estados parciales o inconsistencias de lectura.
 *   **Integridad Referencial Estricta:** Las llaves foráneas con restricciones estrictas de cascada impiden la existencia de transacciones huérfanas o servicios asignados a usuarios inexistentes.
 
-### 4.2 Diccionario de Datos
+### 4.2 Modelo Entidad-Relación (MER)
+
+El modelo de datos relacional de la plataforma está diseñado en la **Tercera Forma Normal (3FN)** para garantizar la integridad referencial y prevenir anomalías transaccionales. A continuación se presenta el diagrama de entidad-relación (ERD) detallado con las claves primarias (PK), foráneas (FK), tipos de datos y relaciones de cardinalidad:
+
+```mermaid
+erDiagram
+    USER ||--|| WORKER_PROFILE : "1:1 owns"
+    USER ||--|| WALLET : "1:1 has"
+    USER ||--|| IDENTITY_VERIFICATION : "1:1 verifies"
+    USER ||--|| FORMALIZATION_PROFILE : "1:1 tracks"
+    USER ||--|| CANDIDATE_PROFILE : "1:1 registers"
+    USER ||--|| EMPLOYER_PROFILE : "1:1 registers"
+    
+    USER ||--o{ SERVICE_REQUEST : "1:N requests"
+    USER ||--o{ SERVICE_REQUEST : "1:N performs"
+    USER ||--o{ CHAT_SESSION : "1:N initiates"
+    USER ||--o{ EDUCATIONAL_PROGRESS : "1:N completes"
+    USER ||--o{ SUNAT_AUDIT_LOG : "1:N audits"
+    
+    INTERSECTION ||--o{ SERVICE_REQUEST : "1:N hosts"
+    WALLET ||--o{ TRANSACTION : "1:N contains"
+    
+    CANDIDATE_PROFILE ||--o{ CANDIDATE_SKILL : "1:N possesses"
+    SKILL ||--o{ CANDIDATE_SKILL : "1:N classifies"
+    EMPLOYER_PROFILE ||--o{ JOB_OFFER : "1:N publishes"
+    CHAT_SESSION ||--o{ CHAT_MESSAGE : "1:N logs"
+    COURSE ||--o{ EDUCATIONAL_PROGRESS : "1:N teaches"
+
+    USER {
+        string id PK
+        string email UK
+        string password
+        string name
+        Role role
+        boolean isActive
+    }
+    WORKER_PROFILE {
+        string id PK
+        string userId FK
+        boolean isAvailable
+        float latitude
+        float longitude
+    }
+    INTERSECTION {
+        string id PK
+        string name
+        float latitude
+        float longitude
+        TrafficLightColor lightColor
+    }
+    SERVICE_REQUEST {
+        string id PK
+        string pedestrianId FK
+        string workerId FK
+        string intersectionId FK
+        RequestStatus status
+        float startLatitude
+        float startLongitude
+        TrafficLightColor lightColorSnapshot
+        boolean isDeleted
+    }
+    WALLET {
+        string id PK
+        string userId FK
+        decimal balance
+        string currency
+        WalletType type
+    }
+    TRANSACTION {
+        string id PK
+        string walletId FK
+        decimal amount
+        decimal netAmount
+        decimal feeAmount
+        PaymentMethod paymentMethod
+        TransactionStatus status
+        string providerTransactionId
+    }
+    IDENTITY_VERIFICATION {
+        string id PK
+        string userId FK
+        DocumentType documentType
+        string documentNumber
+        date birthDate
+        int age
+        VerificationStatus status
+        string mintraAuthUrl
+    }
+    FORMALIZATION_PROFILE {
+        string id PK
+        string userId FK
+        string rucNumber
+        string rucStatus
+        string taxRegime
+        TrafficLightColor semaphoreColor
+        int score
+    }
+    COURSE {
+        string id PK
+        string title
+        CourseCategory category
+        int totalUnits
+    }
+    EDUCATIONAL_PROGRESS {
+        string id PK
+        string userId FK
+        string courseId FK
+        int completedUnits
+        boolean isCompleted
+    }
+    SUNAT_AUDIT_LOG {
+        string id PK
+        string userId FK
+        string fiscalPeriod
+        decimal declaredRevenue
+        decimal taxPaid
+        string sunatTicket
+        AuditStatus status
+    }
+```
+
+### 4.3 Diccionario de Datos
 
 **Tabla 5**  
 *Estructura de la Tabla "users" (PostgreSQL)*  
@@ -270,7 +391,7 @@ Se selecciona **PostgreSQL** sobre NoSQL (como MongoDB) para "EnRuta" debido a:
 
 *Nota: Elaboración propia.*
 
-### 4.3 Módulo de Inteligencia Artificial (IA) y NLP
+### 4.4 Módulo de Inteligencia Artificial (IA) y NLP
 Se ha integrado el motor cognitivo **Gemini 3.5 Flash** en el backend de Node.js, implementando tres flujos estratégicos:
 
 1.  **Sami, el Coach Financiero:** Chatbot en el portal del trabajador que enseña micro-cápsulas de bancarización y finanzas en base a un system prompt empático en español peruano, manteniendo el historial conversacional persistido.

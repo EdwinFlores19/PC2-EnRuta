@@ -104,24 +104,28 @@ router.patch('/request/:id/status',
 
 /**
  * @route   POST /api/v1/services/sos
- * @desc    Registrar una alerta SOS silenciosa de un trabajador
- * @access  Privado (Cualquier usuario autenticado - Rol WORKER)
+ * @desc    Registrar una alerta SOS silenciosa de un trabajador o peatón en peligro
+ * @access  Privado (Rol WORKER / USER)
  */
 router.post('/sos',
   authenticate,
-  body('latitude').isFloat().withMessage('La latitud es obligatoria y debe ser un número decimal.'),
-  body('longitude').isFloat().withMessage('La longitud es obligatoria y debe ser un número decimal.'),
+  body('requestId').isUUID().withMessage('El ID de solicitud de servicio debe ser un UUID válido.'),
+  body('latitude').isFloat().withMessage('La latitud de peligro es obligatoria y debe ser un número decimal.'),
+  body('longitude').isFloat().withMessage('La longitud de peligro es obligatoria y debe ser un número decimal.'),
   validate,
-  serviceController.reportSOSAlert
+  serviceController.triggerSOS
 );
 
 /**
- * @route   GET /api/v1/services/sos/events
- * @desc    Canal de Server-Sent Events (SSE) para notificaciones de alertas SOS en tiempo real
- * @access  Público / Privado (Gobernanza Municipal / Admin)
+ * @route   POST /api/v1/services/sync
+ * @desc    Sincronización masiva transaccional de operaciones acumuladas offline
+ * @access  Privado (Cualquier usuario autenticado)
  */
-router.get('/sos/events',
-  serviceController.registerSOSEventStream
+router.post('/sync',
+  authenticate,
+  body('operations').isArray().withMessage('El campo "operations" es obligatorio y debe ser un arreglo.'),
+  validate,
+  serviceController.syncOfflineOperations
 );
 
 export default router;
