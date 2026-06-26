@@ -32,10 +32,9 @@ router.post('/generate',
 /**
  * @route   POST /api/v1/ai/chat
  * @desc    Conversación conversacional interactiva con historial
- * @access  Privado (requiere autenticación JWT)
+ * @access  Público (para asistentes, conductores e invitados)
  */
 router.post('/chat',
-  authenticate,
   body('message').trim().notEmpty().withMessage('El mensaje es requerido para chatear.'),
   body('history').optional().isArray().withMessage('El historial debe ser un arreglo de mensajes.'),
   validate,

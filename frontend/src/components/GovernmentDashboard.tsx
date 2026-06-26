@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { SemaforoBadge } from './SemaforoComponents.js';
+import {
+  AlertOctagonIcon,
+  MapPinIcon,
+  ShieldIcon,
+  UsersIcon,
+  DocumentTextIcon,
+  CheckIcon,
+  ScaleIcon,
+} from './SemaforoIcons.js';
 
 interface SOSAlert {
   id: string;
@@ -197,9 +206,10 @@ export default function GovernmentDashboard(): React.JSX.Element {
         <div className="flex items-center gap-3">
           <button
             onClick={simulateSOS}
-            className="bg-[#E53E3E] hover:bg-[#E53E3E]/90 text-white font-extrabold text-xs py-3 px-5 rounded-xl shadow-[0_4px_20px_rgba(229,62,62,0.2)] hover:scale-[1.02] active:scale-95 transition-all"
+            className="bg-[#E53E3E] hover:bg-[#E53E3E]/90 text-white font-extrabold text-xs py-3 px-5 rounded-xl shadow-[0_4px_20px_rgba(229,62,62,0.2)] hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2"
           >
-            🚨 Simular Alerta SOS
+            <AlertOctagonIcon size="sm" />
+            Simular Alerta SOS
           </button>
 
           <div className="bg-[#171923] border border-[#2D3748] px-4 py-2.5 rounded-xl flex items-center gap-3 shadow-md">
@@ -219,16 +229,16 @@ export default function GovernmentDashboard(): React.JSX.Element {
         <div className="bg-[#E53E3E]/10 border border-[#E53E3E] rounded-2xl p-6 shadow-[0_0_30px_rgba(229,62,62,0.15)] mb-8 animate-pulse" data-testid="sos-active-panel">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-start gap-4">
-              <span className="text-4xl">🚨</span>
+              <AlertOctagonIcon size="2xl" className="text-[#E53E3E] shrink-0 mt-1" />
               <div>
                 <h2 className="text-xl font-black text-[#E53E3E] tracking-tight">ALERTA DE SEGURIDAD VIAL VIVO</h2>
                 <p className="text-[#F7FAFC] font-semibold mt-1">
                   Trabajador en peligro inminente: <span className="underline font-bold text-white">{activeSOS.user?.name || 'Asistente Vial Autorizado'}</span>
                 </p>
                 <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-[#A0AEC0] mt-2.5">
-                  <span>🛰️ Latitud: {activeSOS.latitude.toFixed(6)}</span>
-                  <span>🛰️ Longitud: {activeSOS.longitude.toFixed(6)}</span>
-                  <span>⏰ Hora: {new Date(activeSOS.createdAt).toLocaleTimeString()}</span>
+                  <span className="flex items-center gap-1"><MapPinIcon size="xs" /> Latitud: {activeSOS.latitude.toFixed(6)}</span>
+                  <span className="flex items-center gap-1"><MapPinIcon size="xs" /> Longitud: {activeSOS.longitude.toFixed(6)}</span>
+                  <span>Hora: {new Date(activeSOS.createdAt).toLocaleTimeString()}</span>
                 </div>
               </div>
             </div>
@@ -239,7 +249,8 @@ export default function GovernmentDashboard(): React.JSX.Element {
                 rel="noopener noreferrer"
                 className="bg-[#171923] hover:bg-[#1A202C] text-white font-extrabold px-5 py-3 rounded-xl border border-[#2D3748] text-xs flex items-center justify-center gap-2"
               >
-                🗺️ Localizar en Google Maps
+                <MapPinIcon size="sm" />
+                Localizar en Google Maps
               </a>
               <button
                 onClick={() => handleResolveSOS(activeSOS.id)}
@@ -308,7 +319,8 @@ export default function GovernmentDashboard(): React.JSX.Element {
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-[#171923] border border-[#2D3748] rounded-2xl p-6 shadow-xl">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-[#2D3748] pb-3">
-              🛡️ Alertas de Seguridad Infantil (MIMP/DEMUNA)
+              <ShieldIcon size="md" />
+              Alertas de Seguridad Infantil (MIMP/DEMUNA)
             </h3>
 
             <div className="space-y-4">
@@ -341,19 +353,21 @@ export default function GovernmentDashboard(): React.JSX.Element {
 
                   {worker.status === 'PENDING_APPROVAL' && worker.mintraDocUrl && (
                     <div className="flex gap-2 mt-1">
-                      <a 
-                        href={worker.mintraDocUrl} 
-                        target="_blank" 
+                      <a
+                        href={worker.mintraDocUrl}
+                        target="_blank"
                         rel="noreferrer"
-                        className="bg-[#171923] hover:bg-[#1A202C] border border-[#2D3748] text-xs font-bold text-slate-300 px-3 py-2 rounded-lg flex-grow text-center"
+                        className="bg-[#171923] hover:bg-[#1A202C] border border-[#2D3748] text-xs font-bold text-slate-300 px-3 py-2 rounded-lg flex-grow text-center flex items-center justify-center gap-1"
                       >
-                        📂 Ver PDF MINTRA
+                        <DocumentTextIcon size="xs" />
+                        Ver PDF MINTRA
                       </a>
-                      <button 
+                      <button
                         onClick={() => handleApproveMintra(worker.id)}
-                        className="bg-[#6B46C1] hover:bg-[#6B46C1]/90 text-white text-xs font-extrabold px-3 py-2 rounded-lg"
+                        className="bg-[#6B46C1] hover:bg-[#6B46C1]/90 text-white text-xs font-extrabold px-3 py-2 rounded-lg flex items-center gap-1"
                       >
-                        Aprobar ✔️
+                        Aprobar
+                        <CheckIcon size="xs" />
                       </button>
                     </div>
                   )}
@@ -372,7 +386,8 @@ export default function GovernmentDashboard(): React.JSX.Element {
           {/* HISTORIAL SOS COMPARTIDO */}
           <div className="bg-[#171923] border border-[#2D3748] rounded-2xl p-6 shadow-xl">
             <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 border-b border-[#2D3748] pb-3">
-              📋 Incidentes SOS en el Distrito
+              <DocumentTextIcon size="md" />
+              Incidentes SOS en el Distrito
             </h3>
             <div className="space-y-3 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin">
               {alerts.length === 0 ? (
@@ -404,7 +419,8 @@ export default function GovernmentDashboard(): React.JSX.Element {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 border-b border-[#2D3748] pb-4">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  👥 Padrón de Fiscalización de Trabajadores
+                  <UsersIcon size="md" />
+                  Padrón de Fiscalización de Trabajadores
                 </h3>
                 <p className="text-xs text-[#A0AEC0] mt-1">
                   Listado nominal de operarios registrados para control de edad, licencias e identidad.
@@ -489,7 +505,10 @@ export default function GovernmentDashboard(): React.JSX.Element {
 
           {/* MENSAJE DE AUTORIZACIÓN LEGAL */}
           <div className="mt-6 p-4 bg-[#6B46C1]/5 border border-[#6B46C1]/20 rounded-xl flex items-center justify-between text-xs text-slate-300 leading-relaxed font-mono">
-            <span>🛡️ Auditoría legal regulada por MINTRA, MIMP y Defensoría de Miraflores.</span>
+            <span className="flex items-center gap-1.5">
+              <ScaleIcon size="sm" />
+              Auditoría legal regulada por MINTRA, MIMP y Defensoría de Miraflores.
+            </span>
             <span className="text-[#6B46C1] font-bold">LEY N° 27337</span>
           </div>
         </div>

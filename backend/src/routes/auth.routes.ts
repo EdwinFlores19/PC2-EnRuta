@@ -30,4 +30,13 @@ router.get('/debug/users',
   authController.getDebugUsers
 );
 
+/**
+ * @route   POST /api/v1/auth/refresh-token
+ * @desc    Refrescar el token de acceso JWT de forma segura
+ * @access  Público
+ */
+router.post('/refresh-token',
+  authController.refreshToken
+);
+
 export default router;

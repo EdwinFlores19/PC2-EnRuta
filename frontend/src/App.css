@@ -1,6 +1,40 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-semaforo-bg: #0F1117;
+  --color-semaforo-card: #171923;
+  --color-semaforo-red: #E53E3E;
+  --color-semaforo-red-bg: rgba(229, 62, 62, 0.1);
+  --color-semaforo-yellow: #F6AD55;
+  --color-semaforo-yellow-bg: rgba(246, 173, 85, 0.1);
+  --color-semaforo-green: #48BB78;
+  --color-semaforo-green-bg: rgba(72, 187, 120, 0.1);
+  --color-brand-blue: #3B82F6;
+  --color-brand-purple: #8B5CF6;
+  
+  /* Animations */
+  --animate-fadeIn: fadeIn 0.3s ease-out forwards;
+  --animate-slideUp: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-bounce-slow: bounceSlow 3s infinite ease-in-out;
+  --animate-pulse-slow: pulseSlow 2s infinite ease-in-out;
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes bounceSlow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  @keyframes pulseSlow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+  }
+}
 
 * {
   margin: 0;
@@ -11,13 +45,30 @@
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background-color: #0B0F19; /* Fondo dark de marca global */
-  color: #F8FAFC;
+  background-color: #0F1117; /* Fondo dark de marca global */
+  color: #F7FAFC;
 }
 
 /* Transiciones globales suaves para hovers */
 a, button, input {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism premium helper */
+.glass-panel {
+  background-color: rgba(23, 25, 35, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(45, 55, 72, 0.6);
+}
+
+/* Quitar focus outline default del navegador */
+*:focus {
+  outline: none !important;
+}
+*:focus-visible {
+  outline: 2px solid #3B82F6 !important;
+  outline-offset: 2px !important;
 }
 
 /* Scrollbar personalizado para chats y listas */
@@ -27,14 +78,31 @@ a, button, input {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #0F1117;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: #2D3748;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #4A5568;
+}
+
+/* Clases animadas específicas */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-bounce-slow {
+  animation: bounceSlow 3s infinite ease-in-out;
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 2s infinite ease-in-out;
 }

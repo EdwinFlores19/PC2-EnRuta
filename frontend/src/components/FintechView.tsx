@@ -72,7 +72,7 @@ export default function FintechView(): React.JSX.Element {
 
   // Formulario de cobro
   const [amount, setAmount] = useState('15.00');
-  const [paymentMethod, setPaymentMethod] = useState<'NFC' | 'YAPE' | 'PLIN'>('NFC');
+  const [paymentMethod, setPaymentMethod] = useState<'NFC' | 'YAPE' | 'PLIN'>('YAPE');
   const [processingPayment, setProcessingPayment] = useState(false);
 
   // Estado para Yape/Plin QR

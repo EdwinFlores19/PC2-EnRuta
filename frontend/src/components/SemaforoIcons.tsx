@@ -11,7 +11,7 @@ const sizeMap: Record<IconSize, string> = {
   '2xl': 'h-10 w-10',
 };
 
-interface IconBaseProps {
+export interface IconBaseProps {
   size?: IconSize;
   className?: string;
 }
@@ -270,5 +270,46 @@ export const CurrencyDollarIcon: React.FC<IconBaseProps> = (props) => (
 export const HeartIcon: React.FC<IconBaseProps> = (props) => (
   <IconBase {...props}>
     <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+  </IconBase>
+);
+
+export const TrafficLightIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <rect x="6" y="3" width="12" height="18" rx="2" ry="2" stroke="currentColor" />
+    <circle cx="12" cy="7" r="2" fill="currentColor" />
+    <circle cx="12" cy="12" r="2" fill="currentColor" />
+    <circle cx="12" cy="17" r="2" fill="currentColor" />
+  </IconBase>
+);
+
+export const CarIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M5 16h14M6 16l-1.5-4M18 16l1.5-4M6 12h12M7 16v2m10-2v2M9 12V9h6v3" />
+    <circle cx="7.5" cy="18" r="1.5" fill="currentColor" />
+    <circle cx="16.5" cy="18" r="1.5" fill="currentColor" />
+  </IconBase>
+);
+
+export const ScaleIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M3 6h18M12 22V6M7 3l-4 9h8L7 3zM17 3l-4 9h8L17 3z" />
+  </IconBase>
+);
+
+export const MapIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4" />
+  </IconBase>
+);
+
+export const AlertOctagonIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M12 9v2m0 4h.01m-6.364 6.364L2.636 16.95A2 2 0 012 15.556V8.444a2 2 0 01.636-1.394L5.636 4.05A2 2 0 017.03 3.414h9.94a2 2 0 011.394.636l2.636 2.636A2 2 0 0122 8.444v7.112a2 2 0 01-.636 1.394l-2.636 2.636a2 2 0 01-1.394.636H7.03a2 2 0 01-1.394-.636z" />
+  </IconBase>
+);
+
+export const LightbulbIcon: React.FC<IconBaseProps> = (props) => (
+  <IconBase {...props}>
+    <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
   </IconBase>
 );

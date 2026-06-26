@@ -1,35 +1,42 @@
 import React, { useState } from 'react';
 import SemiChatbot, { ChatbotRole } from './SemiChatbot';
+import {
+  TrafficLightIcon,
+  CarIcon,
+  ScaleIcon,
+  BriefcaseIcon,
+  type IconBaseProps,
+} from './SemaforoIcons.js';
 
 export default function ShowcaseChatView(): React.JSX.Element {
   const [activeRole, setActiveRole] = useState<ChatbotRole>('trabajador');
 
-  const rolesList: Array<{ id: ChatbotRole; label: string; icon: string; desc: string; color: string }> = [
+  const rolesList: Array<{ id: ChatbotRole; label: string; icon: React.FC<IconBaseProps>; desc: string; color: string }> = [
     {
       id: 'trabajador',
       label: 'Trabajador Vial',
-      icon: '🚦',
+      icon: TrafficLightIcon,
       desc: 'Coach financiero "Fito". Tono empático, cercano y de confianza con Ruti.',
       color: 'border-emerald-500 hover:bg-emerald-950/20 text-emerald-400'
     },
     {
       id: 'cliente',
       label: 'Conductor / Cliente',
-      icon: '🚗',
+      icon: CarIcon,
       desc: 'Asistente de servicios rápidos. Ayuda y soporte de Car Wash.',
       color: 'border-blue-500 hover:bg-blue-950/20 text-blue-400'
     },
     {
       id: 'fiscalizador',
       label: 'Fiscalizador MINTRA',
-      icon: '⚖️',
+      icon: ScaleIcon,
       desc: 'Inspección gubernamental. Tono formal, serio e institucional.',
       color: 'border-purple-500 hover:bg-purple-950/20 text-purple-400'
     },
     {
       id: 'employer',
       label: 'Car Wash / RRHH',
-      icon: '💼',
+      icon: BriefcaseIcon,
       desc: 'Recomendador RAG "Ramiro". Evalúa y empareja perfiles de la BD.',
       color: 'border-orange-500 hover:bg-orange-950/20 text-orange-400'
     }
@@ -49,12 +56,14 @@ export default function ShowcaseChatView(): React.JSX.Element {
         {/* PANEL DE SELECCIÓN DE ROL */}
         <div className="md:col-span-1 space-y-4">
           <div className="bg-[#0f121d] border border-gray-800 rounded-3xl p-6 shadow-lg">
-            <h2 className="text-lg font-bold text-slate-100 mb-4 border-b border-gray-800 pb-2">
-              🎭 Seleccionar Perfil de Chat
+            <h2 className="text-lg font-bold text-slate-100 mb-4 border-b border-gray-800 pb-2 flex items-center gap-2">
+              <TrafficLightIcon size="md" />
+              Seleccionar Perfil de Chat
             </h2>
             <div className="space-y-3">
               {rolesList.map((r) => {
                 const isActive = activeRole === r.id;
+                const RoleIcon = r.icon;
                 return (
                   <button
                     key={r.id}
@@ -66,7 +75,7 @@ export default function ShowcaseChatView(): React.JSX.Element {
                     } ${r.color.split(' ').slice(1).join(' ')}`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{r.icon}</span>
+                      <RoleIcon size="2xl" />
                       <div>
                         <div className="text-sm font-bold text-slate-100">{r.label}</div>
                         <div className="text-xs text-slate-400 mt-1 leading-relaxed font-normal">{r.desc}</div>

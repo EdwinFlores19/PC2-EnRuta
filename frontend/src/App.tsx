@@ -25,17 +25,36 @@ import {
   ChartBarIcon,
   MenuIcon,
   XIcon,
+  TrafficLightIcon,
 } from './components/SemaforoIcons.js';
 
 export default function App(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem('user');
+      setUser(stored ? JSON.parse(stored) : null);
+    } catch {
+      setUser(null);
+    }
+  }, [location.pathname]);
 
   // Simulación rápida de logout para mantener la consistencia
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    setUser(null);
     navigate('/login');
   };
 
@@ -52,31 +71,25 @@ export default function App(): React.JSX.Element {
 
   // Detectar el rol del usuario logueado en caliente para Ruti
   let detectedRole: ChatbotRole = 'cliente'; // Por defecto es conductor/cliente (invitado)
-  try {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      const parsed = JSON.parse(storedUser);
-      if (parsed.role === 'CANDIDATE' || parsed.role === 'WORKER') {
-        detectedRole = 'trabajador';
-      } else if (parsed.role === 'EMPLOYER') {
-        detectedRole = 'employer';
-      } else if (parsed.role === 'ADMIN') {
-        detectedRole = 'fiscalizador';
-      }
+  if (user) {
+    if (user.role === 'CANDIDATE' || user.role === 'WORKER') {
+      detectedRole = 'trabajador';
+    } else if (user.role === 'EMPLOYER') {
+      detectedRole = 'employer';
+    } else if (user.role === 'ADMIN') {
+      detectedRole = 'fiscalizador';
     }
-  } catch (err) {
-    console.warn('Error al parsear el rol del usuario para Ruti:', err);
   }
 
   return (
     <div className="min-h-screen bg-[#0F1117] text-[#F7FAFC] flex flex-col font-sans antialiased relative">
       {/* 1. MANDATORY Navbar COMPONENT (Reconstructed with 24px/gap-6 Spacing) */}
-      <header className="bg-[#1A202C] border-b border-[#2D3748] sticky top-0 z-50 shadow-md">
+      <header className="glass-panel bg-[#171923]/80 backdrop-blur-md border-b border-[#2D3748] sticky top-0 z-50 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="bg-[#3B82F6] hover:bg-[#2563EB] p-2.5 rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.25)] transition-all">
-                <span className="text-xl">🚦</span>
+              <div className="bg-[#3B82F6] hover:bg-[#2563EB] p-2.5 rounded-xl shadow-[0_0_15px_rgba(59,130,246,0.25)] transition-all text-white">
+                <TrafficLightIcon size="md" />
               </div>
               <span className="text-2xl font-black text-[#F7FAFC] tracking-tight">
                 En<span className="text-[#3B82F6]">Ruta</span>
@@ -84,8 +97,8 @@ export default function App(): React.JSX.Element {
               </span>
             </Link>
             
-            {/* Center navigation with EXACT gap-6 (24px spacing between items) */}
-            <nav className="hidden xl:flex items-center gap-6">
+            {/* Center navigation with optimized spacing to prevent wrapping on medium desktops */}
+            <nav className="hidden xl:flex items-center gap-4 xl:gap-5">
               <Link to="/dashboard" className={getLinkClass('/dashboard', 'border-[#3B82F6]/40 text-[#3B82F6]')}>
                 <HomeIcon size="sm" className="text-[#3B82F6]" /> Dashboard
               </Link>
@@ -95,7 +108,7 @@ export default function App(): React.JSX.Element {
               <Link to="/employer" className={getLinkClass('/employer', 'border-indigo-500/40 text-indigo-400')}>
                 <SearchIcon size="sm" className="text-indigo-400" /> Buscar RAG
               </Link>
-              <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'border-[#48BB78]/40 text-[#48BB78] border-l border-[#2D3748] pl-6')}>
+              <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'border-[#48BB78]/40 text-[#48BB78] border-l border-[#2D3748] pl-5')}>
                 <SparklesIcon size="sm" className="text-[#48BB78]" /> Chambea Ahora!
               </Link>
               <Link to="/buscar" className={getLinkClass('/buscar', 'border-[#F6AD55]/40 text-[#F6AD55]')}>
@@ -110,22 +123,30 @@ export default function App(): React.JSX.Element {
             </nav>
           </div>
 
-          {/* Action buttons with minimum 44px height */}
+          {/* Action buttons with minimum 44px height and conditional rendering */}
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-3">
-              <button
-                onClick={() => navigate('/login')}
-                className="min-h-[44px] text-[13px] font-semibold uppercase tracking-wider text-[#A0AEC0] hover:text-[#F7FAFC] px-4 rounded-xl transition-all"
-              >
-                Ingresar
-              </button>
-              <Button
-                variant="secondary"
-                onClick={handleLogout}
-                className="text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 min-h-[44px]"
-              >
-                Salir
-              </Button>
+              {user ? (
+                <>
+                  <span className="text-[12px] font-mono font-bold text-[#A0AEC0] uppercase tracking-wider max-w-[120px] truncate">
+                    {user.name}
+                  </span>
+                  <Button
+                    variant="secondary"
+                    onClick={handleLogout}
+                    className="text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 min-h-[44px] cursor-pointer"
+                  >
+                    Salir
+                  </Button>
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate('/login')}
+                  className="min-h-[44px] text-[13px] font-semibold uppercase tracking-wider text-[#A0AEC0] hover:text-[#F7FAFC] px-4 rounded-xl transition-all cursor-pointer"
+                >
+                  Ingresar
+                </button>
+              )}
             </div>
 
             {/* HAMBURGER MENU BUTTON COLLAPSIBLE FOR MOBILE */}
@@ -164,26 +185,34 @@ export default function App(): React.JSX.Element {
               <ShieldIcon size="sm" className="text-purple-400" /> KYC Registro
             </Link>
             <div className="flex flex-col gap-2 pt-3 border-t border-[#2D3748]/50">
-              <Button
-                variant="secondary"
-                onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}
-                className="w-full h-11"
-              >
-                Ingresar
-              </Button>
-              <button
-                onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
-                className="bg-[#E53E3E]/10 text-[#E53E3E] hover:bg-[#E53E3E]/20 border border-[#E53E3E]/20 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all h-11"
-              >
-                Salir
-              </button>
+              {user ? (
+                <>
+                  <div className="text-[11px] font-mono font-bold text-[#A0AEC0] uppercase tracking-wider px-3 py-1">
+                    Usuario: {user.name}
+                  </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+                    className="bg-[#E53E3E]/10 text-[#E53E3E] hover:bg-[#E53E3E]/20 border border-[#E53E3E]/20 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all h-11 cursor-pointer w-full"
+                  >
+                    Salir
+                  </button>
+                </>
+              ) : (
+                <Button
+                  variant="secondary"
+                  onClick={() => { setMobileMenuOpen(false); navigate('/login'); }}
+                  className="w-full h-11 cursor-pointer"
+                >
+                  Ingresar
+                </Button>
+              )}
             </div>
           </div>
         )}
       </header>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full flex flex-col justify-center">
+      <main className="flex-grow w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <Routes>
           <Route path="/" element={<HomeView />} />
           <Route path="/login" element={<LoginPlaceholder />} />
@@ -200,8 +229,9 @@ export default function App(): React.JSX.Element {
       {/* FOOTER GLOBAL - Jerarquía tipográfica real, sin copy duplicado */}
       <footer className="bg-[#171923] border-t border-[#2D3748] py-8 text-center text-sm text-[#A0AEC0]">
         <div className="max-w-7xl mx-auto px-6 space-y-4">
-          <p className="font-extrabold text-[#F7FAFC] text-base tracking-wider uppercase font-mono">
-            🚦 EnRuta — Transformación Social Vial con IA & Fintech
+          <p className="font-extrabold text-[#F7FAFC] text-base tracking-wider uppercase font-mono flex items-center justify-center gap-2">
+            <TrafficLightIcon size="md" />
+            EnRuta — Transformación Social Vial con IA & Fintech
           </p>
           <p className="text-xs text-[#A0AEC0] max-w-xl mx-auto leading-relaxed">
             Plataforma digital para la formalización laboral y bancarización de asistentes independientes en Perú. Respaldado y fiscalizado bajo las normativas de MINTRA y MIMP contra la erradicación del trabajo infantil.
@@ -227,37 +257,38 @@ function HomeView(): React.JSX.Element {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
+    <div className="max-w-7xl mx-auto space-y-16 animate-slideUp">
       {/* HERO SECTION */}
-      <div className="text-center space-y-6 relative py-4">
+      <div className="text-center space-y-8 relative py-10 md:py-14">
         {/* Route glowing effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-[#3B82F6]/10 to-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-[#3B82F6]/10 via-[#8B5CF6]/10 to-[#48BB78]/10 rounded-full blur-3xl pointer-events-none" />
         
         {/* Real Badge using DS standards */}
         <div className="inline-block transform hover:scale-105 transition-all">
           <Badge status="VERDE" text="TECNOLOGÍA CON IMPACTO SOCIAL REAL" />
         </div>
 
-        <h1 className="text-[48px] font-extrabold text-[#F7FAFC] tracking-tight leading-none">
-          Plataforma <span className="text-[#3B82F6]">EnRuta</span>
+        <h1 className="text-4xl sm:text-5xl md:text-[56px] font-black text-[#F7FAFC] tracking-tight leading-none">
+          Plataforma <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#3B82F6] via-indigo-400 to-[#48BB78] drop-shadow-[0_2px_15px_rgba(59,130,246,0.25)]">EnRuta</span>
         </h1>
         
         {/* Markdown Asterisks Bug Solved: rendering with strong JSX tags instead of unparsed markdown */}
-        <p className="text-[16px] text-[#A0AEC0] max-w-3xl mx-auto leading-[1.6]">
+        <p className="text-[16px] md:text-[18px] text-[#A0AEC0] max-w-3xl mx-auto leading-relaxed">
           Un sistema inteligente on-demand de micro-empleo y fintech enfocado en la <strong>formalización, capacitación y salud financiera</strong> de trabajadores independientes en Perú, con control estricto contra el trabajo infantil.
         </p>
 
-        <div className="flex justify-center gap-6 pt-4">
+        <div className="flex flex-wrap justify-center gap-4 pt-4">
           <Button
             onClick={() => navigate('/chambea-ahora')}
-            className="font-bold min-h-[44px]"
+            className="font-bold min-h-[44px] cursor-pointer shadow-[0_4px_20px_rgba(72,187,120,0.2)]"
+            style={{ backgroundColor: '#48BB78', hoverBg: '#38A169' } as any}
           >
             <BriefcaseIcon size="sm" /> ¡Chambea Ahora!
           </Button>
           <Button
             variant="secondary"
             onClick={() => navigate('/buscar')}
-            className="min-h-[44px]"
+            className="min-h-[44px] cursor-pointer"
           >
             <MapPinIcon size="sm" /> Buscar Servicios
           </Button>
@@ -265,8 +296,14 @@ function HomeView(): React.JSX.Element {
       </div>
 
       {/* 3. MANDATORY MetricCard GRID (No HTML Table, Real SVG Vector Icons) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <MetricCard
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+          <span className="text-[11px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.15em]">Impacto en Cifras</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+          <MetricCard
           icon={<UsersIcon size="lg" className="text-blue-400" />}
           value="350+"
           label="Trabajadores Activos"
@@ -287,10 +324,17 @@ function HomeView(): React.JSX.Element {
           value="S/. 12.5K"
           label="Procesado POS"
         />
-      </div>
+        </div>
+      </section>
 
       {/* 4. MANDATORY RoleCard GRID with Real SVG Vector Icons and CTA Arrow Ghosts */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+          <span className="text-[11px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.15em]">¿Cómo Participas?</span>
+          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-[#2D3748] to-transparent" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-fr">
         <RoleCard
           icon={<WorkerIcon size="lg" />}
           title="Soy Trabajador Vial"
@@ -315,7 +359,8 @@ function HomeView(): React.JSX.Element {
           ctaText="Abrir POS & Billetera"
           accentColor="#3B82F6"
         />
-      </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -11,7 +11,7 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Card: React.FC<CardProps> = ({ children, className = '', ...props }) => {
   return (
     <div
-      className={`bg-[#171923] border border-[#2D3748] rounded-[12px] p-6 shadow-md transition-all duration-150 hover:-translate-y-0.5 hover:shadow-lg ${className}`}
+      className={`glass-panel rounded-2xl p-6 shadow-2xl transition-all duration-300 hover:-translate-y-1 hover:border-[#3B82F6]/50 hover:shadow-[0_10px_30px_rgba(59,130,246,0.08)] ${className}`}
       {...props}
     >
       {children}
@@ -30,16 +30,16 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({ variant = 'primary', children, className = '', ...props }) => {
   let styleClass = '';
   if (variant === 'primary') {
-    styleClass = 'bg-[#3B82F6] hover:bg-[#2563EB] text-[#F7FAFC] shadow-sm font-semibold';
+    styleClass = 'bg-[#3B82F6] hover:bg-[#2563EB] text-[#F7FAFC] shadow-[0_4px_20px_rgba(59,130,246,0.25)] hover:shadow-[0_6px_25px_rgba(59,130,246,0.35)] font-bold';
   } else if (variant === 'secondary') {
-    styleClass = 'bg-transparent border border-[#2D3748] text-[#F7FAFC] hover:bg-[#1A202C]/60 hover:text-white font-medium';
+    styleClass = 'bg-[#1A202C]/60 border border-[#2D3748] text-[#F7FAFC] hover:bg-[#1A202C]/90 hover:border-[#3B82F6]/30 font-semibold';
   } else if (variant === 'ghost') {
-    styleClass = 'bg-transparent text-[#3B82F6] hover:underline px-0 py-0 flex items-center gap-1 font-semibold';
+    styleClass = 'bg-transparent text-[#3B82F6] hover:text-[#2563EB] hover:underline px-0 py-0 flex items-center gap-1 font-bold';
   }
 
   return (
     <button
-      className={`min-h-[44px] px-6 py-2.5 rounded-xl text-[14px] transition-all flex items-center justify-center gap-2 active:scale-[0.98] ${styleClass} ${className}`}
+      className={`min-h-[44px] px-6 py-2.5 rounded-xl text-[14px] transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98] cursor-pointer ${styleClass} ${className}`}
       {...props}
     >
       {children}
@@ -63,20 +63,20 @@ export const Badge: React.FC<BadgeProps> = ({ status, text, size = 'md' }) => {
   let textColor = 'text-[#E53E3E]';
   let bgColor = 'bg-[#E53E3E]/10';
   let borderClass = 'border-[#E53E3E]/20';
-  let label = 'Pendiente / Riesgo';
+  let label = '🔴 Pendiente / Riesgo';
 
   if (normStatus === 'AMARILLO' || normStatus === 'YELLOW') {
     dotColor = 'bg-[#F6AD55]';
     textColor = 'text-[#F6AD55]';
     bgColor = 'bg-[#F6AD55]/10';
     borderClass = 'border-[#F6AD55]/20';
-    label = 'En Proceso';
+    label = '🟡 En Proceso';
   } else if (normStatus === 'VERDE' || normStatus === 'GREEN') {
     dotColor = 'bg-[#48BB78]';
     textColor = 'text-[#48BB78]';
     bgColor = 'bg-[#48BB78]/10';
     borderClass = 'border-[#48BB78]/20';
-    label = 'Verificado / Completo';
+    label = '🟢 Verificado / Completo';
   }
 
   const displayText = text || label;
@@ -159,22 +159,23 @@ export const SemaforoProgressBar = ({ score, maxScore = 100 }: { score: number; 
 );
 
 // ==========================================
-// 5. MetricCard Component (icon accepts ReactNode)
+// 5. MetricCard Component
 // ==========================================
 interface MetricCardProps {
   icon: React.ReactNode;
   value: string;
   label: string;
   className?: string;
-  iconClassName?: string;
 }
 
-export const MetricCard: React.FC<MetricCardProps> = ({ icon, value, label, className = '', iconClassName = '' }) => {
+export const MetricCard: React.FC<MetricCardProps> = ({ icon, value, label, className = '' }) => {
   return (
-    <Card className={`flex flex-col items-center justify-center text-center p-6 bg-[#171923] ${className}`}>
-      <div className={`mb-3 inline-flex items-center justify-center ${iconClassName}`}>{icon}</div>
-      <span className="text-[32px] font-bold text-[#F7FAFC] font-mono leading-none">{value}</span>
-      <span className="text-[13px] font-semibold text-[#A0AEC0] uppercase tracking-[0.05em] font-mono mt-2.5 text-center">
+    <Card className={`flex flex-col items-center justify-center text-center p-6 bg-[#171923]/60 hover:border-[#3B82F6]/30 transition-all duration-300 ${className}`}>
+      <div className="mb-4 bg-[#1A202C] h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner border border-[#2D3748]/30">
+        {icon}
+      </div>
+      <span className="text-[34px] font-black text-[#F7FAFC] font-mono leading-none tracking-tight drop-shadow-[0_0_10px_rgba(247,250,252,0.1)]">{value}</span>
+      <span className="text-[12px] font-bold text-[#A0AEC0] uppercase tracking-[0.08em] font-mono mt-3 text-center">
         {label}
       </span>
     </Card>
@@ -182,7 +183,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({ icon, value, label, clas
 };
 
 // ==========================================
-// 6. RoleCard Component (icon accepts ReactNode)
+// 6. RoleCard Component
 // ==========================================
 interface RoleCardProps {
   icon: React.ReactNode;
@@ -194,27 +195,53 @@ interface RoleCardProps {
 }
 
 export const RoleCard: React.FC<RoleCardProps> = ({ icon, title, description, onClick, ctaText, accentColor = '#3B82F6' }) => {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
     <Card
       onClick={onClick}
-      className="flex flex-col justify-between h-[280px] bg-[#171923] border border-[#2D3748] cursor-pointer hover:border-[#3B82F6] hover:-translate-y-1 hover:shadow-lg transition-all duration-150"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex flex-col justify-between h-full min-h-[280px] cursor-pointer transition-all duration-300 relative overflow-hidden"
+      style={{
+        borderColor: hovered ? accentColor : 'rgba(45, 55, 72, 0.6)',
+        boxShadow: hovered ? `0 15px 35px ${accentColor}10, 0 0 20px ${accentColor}05` : 'none'
+      }}
     >
+      {/* Subtle backglow gradient on hover */}
+      <div 
+        className="absolute top-0 right-0 w-32 h-32 rounded-full blur-3xl pointer-events-none transition-opacity duration-500" 
+        style={{ 
+          background: `${accentColor}15`,
+          opacity: hovered ? 1 : 0 
+        }} 
+      />
+
       <div>
-        <div
-          className="h-12 w-12 rounded-xl flex items-center justify-center mb-4"
-          style={{ backgroundColor: `${accentColor}15`, color: accentColor }}
+        <div 
+          className="h-12 w-12 rounded-2xl flex items-center justify-center text-2xl mb-5 border transition-all duration-300"
+          style={{
+            backgroundColor: hovered ? `${accentColor}15` : '#1A202C',
+            borderColor: hovered ? `${accentColor}40` : 'rgba(45, 55, 72, 0.3)',
+            color: hovered ? accentColor : '#F7FAFC'
+          }}
         >
           {icon}
         </div>
-        <h2 className="text-[24px] font-semibold text-[#F7FAFC] leading-[1.3] mb-2">
+        <h2 className="text-[22px] font-black text-[#F7FAFC] leading-[1.3] mb-2 tracking-tight">
           {title}
         </h2>
-        <p className="text-[16px] text-[#A0AEC0] leading-[1.6]">
+        <p className="text-[14px] text-[#A0AEC0] leading-[1.6]">
           {description}
         </p>
       </div>
-      <Button variant="ghost" onClick={(e) => { e.stopPropagation(); onClick(); }} className="mt-4 shrink-0 self-start">
-        {ctaText} <span className="text-lg leading-none">&rarr;</span>
+      <Button 
+        variant="ghost" 
+        onClick={(e) => { e.stopPropagation(); onClick(); }} 
+        className="mt-4 shrink-0 self-start transition-all duration-300 hover:translate-x-1"
+        style={{ color: hovered ? accentColor : '#3B82F6' }}
+      >
+        {ctaText} &rarr;
       </Button>
     </Card>
   );

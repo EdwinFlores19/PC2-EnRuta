@@ -4,6 +4,7 @@
 
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { prisma } from '../../config/database';
 import { asyncHandler, buildResponse } from '../utils/index';
 import { generateAccessToken } from '../utils/jwt.helper';
@@ -82,4 +83,61 @@ export const getDebugUsers = asyncHandler(async (req: Request, res: Response) =>
   res.status(200).json(
     buildResponse(users, 'Usuarios de prueba obtenidos correctamente.')
   );
+});
+
+/**
+ * Refresca el Token de Acceso JWT de forma segura descodificando el token expirado.
+ * POST /api/v1/auth/refresh-token
+ */
+export const refreshToken = asyncHandler(async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({
+      status: 'error',
+      message: 'Se requiere token para refrescar la sesión.',
+    });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    if (!process.env.JWT_SECRET) {
+      throw new Error('JWT_SECRET no está definido.');
+    }
+
+    // Decodificar el token ignorando la expiración para comprobar la firma
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      ignoreExpiration: true,
+      issuer: 'pc2-pfdc3-api',
+      audience: 'pc2-pfdc3-client',
+    }) as any;
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Usuario inválido o cuenta suspendida.',
+      });
+    }
+
+    // Generar un nuevo accessToken válido
+    const newAccessToken = generateAccessToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    });
+
+    res.status(200).json(
+      buildResponse({ accessToken: newAccessToken }, 'Token refrescado con éxito.')
+    );
+  } catch (error: any) {
+    res.status(401).json({
+      status: 'error',
+      message: 'Token de refresh inválido o malformado.',
+    });
+  }
 });
