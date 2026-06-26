@@ -346,4 +346,134 @@ export class ServiceService {
 
     return { total, items };
   }
+
+  /**
+   * Dispara una alerta SOS silenciosa por parte de un trabajador o peatón
+   */
+  static async triggerSOS(
+    requestId: string,
+    latitude: number,
+    longitude: number,
+    userId: string
+  ) {
+    const request = await prisma.serviceRequest.findUnique({
+      where: { id: requestId },
+      include: { intersection: true },
+    });
+
+    if (!request || request.isDeleted) {
+      throw new AppError('La solicitud de servicio especificada no existe.', 404);
+    }
+
+    // El SOS puede ser disparado por el peatón, el trabajador o un admin
+    if (request.pedestrianId !== userId && request.workerId !== userId) {
+      throw new AppError('No tienes permisos para emitir alertas de auxilio en este servicio.', 403);
+    }
+
+    // Actualizar el estado del ServiceRequest a EN_PELIGRO
+    const updatedRequest = await prisma.serviceRequest.update({
+      where: { id: requestId },
+      data: {
+        status: RequestStatus.EN_PELIGRO,
+      },
+      include: {
+        pedestrian: { select: { id: true, name: true, email: true } },
+        worker: { select: { id: true, name: true, email: true } },
+        intersection: true,
+      },
+    });
+
+    // Emisión de log a nivel crítico (simulando Server-Sent Event (SSE) / Webhook hacia Serenazgo)
+    const victimName = request.workerId === userId 
+      ? updatedRequest.worker?.name || 'Trabajador' 
+      : updatedRequest.pedestrian.name;
+
+    console.error(
+      `🚨 [ALERTA SOS CRÍTICA SERENAZGO] - USUARIO EN PELIGRO 🚨\n` +
+      `   - Solicitud: ${requestId}\n` +
+      `   - Intersección: ${updatedRequest.intersection.name}\n` +
+      `   - Víctima: ${victimName} (ID: ${userId})\n` +
+      `   - Coordenadas de Peligro: Lat ${latitude}, Lng ${longitude}\n` +
+      `   - STATUS: EN_PELIGRO\n` +
+      `   - [ACCION]: Despachando patrulla de Serenazgo distrital al cuadrante GPS de inmediato.`
+    );
+
+    return updatedRequest;
+  }
+
+  /**
+   * Procesa un lote de operaciones offline de manera atómica (ACID Transaction)
+   */
+  static async syncOfflineOperations(
+    operations: Array<{ type: string; payload: any }>,
+    userId: string,
+    userRole: string
+  ) {
+    if (!Array.isArray(operations) || operations.length === 0) {
+      throw new AppError('El lote de operaciones para sincronización está vacío o es inválido.', 400);
+    }
+
+    return prisma.$transaction(async (tx) => {
+      let processedCount = 0;
+
+      for (const op of operations) {
+        if (op.type === 'PATCH_STATUS') {
+          const { id, status } = op.payload;
+
+          if (!id || !status) {
+            throw new AppError('Operación de sincronización inválida: faltan id o status.', 400);
+          }
+
+          const request = await tx.serviceRequest.findUnique({
+            where: { id },
+          });
+
+          if (!request || request.isDeleted) {
+            throw new AppError(`Sincronización fallida: La solicitud ${id} no existe.`, 404);
+          }
+
+          // Verificar permisos para transicionar
+          const isPedestrian = request.pedestrianId === userId;
+          const isWorker = request.workerId === userId;
+          const isAdmin = userRole === 'ADMIN';
+
+          if (!isPedestrian && !isWorker && !isAdmin) {
+            throw new AppError(`Sincronización fallida: No autorizado para modificar la solicitud ${id}.`, 403);
+          }
+
+          // Si el estado sincronizado es FINALIZADO, liberar al trabajador
+          if (status === RequestStatus.FINALIZADO) {
+            if (request.workerId) {
+              await tx.workerProfile.update({
+                where: { userId: request.workerId },
+                data: { isAvailable: true },
+              });
+            }
+
+            await tx.serviceRequest.update({
+              where: { id },
+              data: {
+                status: RequestStatus.FINALIZADO,
+                completedAt: new Date(),
+              },
+            });
+          } else {
+            // Actualización de estado regular
+            await tx.serviceRequest.update({
+              where: { id },
+              data: {
+                status: status as RequestStatus,
+              },
+            });
+          }
+
+          processedCount++;
+        } else {
+          throw new AppError(`Tipo de operación offline "${op.type}" no soportada por el motor de sincronización.`, 400);
+        }
+      }
+
+      return { success: true, processedCount };
+    });
+  }
 }

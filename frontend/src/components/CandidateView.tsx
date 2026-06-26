@@ -1,10 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import apiClient from '../api/axios';
-
-interface Message {
-  role: 'user' | 'model';
-  text: string;
-}
+import SemiChatbot from './SemiChatbot';
 
 interface ParsedProfile {
   formalTitle: string;
@@ -27,35 +23,6 @@ export default function CandidateView(): React.JSX.Element {
   const [parsing, setParsing] = useState(false);
   const [profile, setProfile] = useState<ParsedProfile | null>(null);
   const [parseError, setParseError] = useState('');
-
-  // Estado para el Chat Coach Financiero
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [sendingChat, setSendingChat] = useState(false);
-  const [chatError, setChatError] = useState('');
-
-  const chatEndRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll chat al final
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Cargar historial inicial del Coach (si existe) al montar
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const { data } = await apiClient.post('/ai/chat/candidate', { message: 'Hola' });
-        if (data?.data?.history) {
-          // Filtramos el mensaje "Hola" inicial del historial para no duplicar si es vacío
-          setMessages(data.data.history);
-        }
-      } catch (err) {
-        console.warn('No se pudo precargar historial de chat:', err);
-      }
-    };
-    fetchHistory();
-  }, []);
 
   // Manejar Parseo de CV
   const handleParseCV = async (e: React.FormEvent) => {
@@ -80,40 +47,6 @@ export default function CandidateView(): React.JSX.Element {
     }
   };
 
-  // Manejar envío de Mensaje al Coach
-  const handleSendMessage = async (messageText: string) => {
-    const textToSend = messageText.trim();
-    if (!textToSend || sendingChat) return;
-
-    setInputMessage('');
-    setChatError('');
-    setSendingChat(true);
-
-    // Optimistic update
-    setMessages((prev) => [...prev, { role: 'user', text: textToSend }]);
-
-    try {
-      const { data } = await apiClient.post('/ai/chat/candidate', { message: textToSend });
-      if (data?.status === 'success' && data?.data) {
-        setMessages(data.data.history);
-      } else {
-        setChatError('Error al generar respuesta.');
-      }
-    } catch (err: any) {
-      setChatError(err.response?.data?.message || 'No se pudo conectar con Fito.');
-    } finally {
-      setSendingChat(false);
-    }
-  };
-
-  // Preguntas sugeridas para el Coach Financiero
-  const suggestedQuestions = [
-    '¿Fito, cómo abro mi Yape sin tarjeta?',
-    '¿Qué es un colchón de emergencia y cuánto debo ahorrar?',
-    '¿Cómo hago para presupuestar mi dinero diario?',
-    '¿Me conviene Plin o Yape para mi negocio?'
-  ];
-
   return (
     <div className="space-y-8">
       {/* SECCIÓN DE TÍTULO */}
@@ -126,13 +59,13 @@ export default function CandidateView(): React.JSX.Element {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* PARTE IZQUIERDA: MOTOR DE PARSEO DE CV */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col justify-between">
+        <div className="bg-[#0f121d] border border-gray-800 rounded-3xl p-6 flex flex-col justify-between shadow-lg">
           <div>
-            <div className="border-b border-gray-100 pb-3 mb-4">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <div className="border-b border-gray-800 pb-3 mb-4">
+              <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
                 📝 Motor NLP: Estandariza tu CV Informal
               </h2>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-400 mt-1">
                 Escribe a qué te dedicabas (ej. limpieza de casas, cobrador, ayudante) y la IA creará tu perfil formal.
               </p>
             </div>
@@ -142,14 +75,14 @@ export default function CandidateView(): React.JSX.Element {
                 value={rawText}
                 onChange={(e) => setRawText(e.target.value)}
                 placeholder="Escribe aquí tu experiencia informal, ej: 'Hola, trabajé 2 años vendiendo comida en la calle, llevaba las cuentas del dinero diario y compraba los insumos en el mercado del distrito. También sé atender amablemente a la gente.'"
-                className="w-full h-32 border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
+                className="w-full h-32 bg-[#161a26] border border-gray-800 text-slate-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all resize-none"
                 required
               />
 
               <button
                 type="submit"
                 disabled={parsing || !rawText.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 disabled:bg-blue-300"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-4 rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 disabled:bg-blue-300 disabled:opacity-50 select-none"
               >
                 {parsing ? (
                   <>
@@ -166,34 +99,34 @@ export default function CandidateView(): React.JSX.Element {
             </form>
 
             {parseError && (
-              <div className="mt-4 p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+              <div className="mt-4 p-3 bg-red-950/40 border border-red-800 text-red-400 text-xs rounded-xl">
                 {parseError}
               </div>
             )}
 
             {/* PERFIL GENERADO EN VIVO */}
             {profile && (
-              <div className="mt-6 space-y-4 border-2 border-green-200 bg-green-50/30 rounded-2xl p-5 animate-fadeIn">
+              <div className="mt-6 space-y-4 border-2 border-emerald-900 bg-emerald-950/20 rounded-2xl p-5 animate-fadeIn">
                 <div className="flex items-center justify-between">
-                  <span className="bg-green-100 text-green-800 text-xs px-2.5 py-1 rounded-full font-bold">
+                  <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-800/30 text-xs px-2.5 py-1 rounded-full font-bold">
                     ✨ Perfil Formalizado por IA
                   </span>
-                  <span className="text-xs text-gray-500">{profile.location}</span>
+                  <span className="text-xs text-slate-400">{profile.location}</span>
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-gray-900">{profile.formalTitle}</h3>
-                  <p className="text-sm text-gray-600 mt-1 italic">"{profile.summary}"</p>
+                  <h3 className="text-lg font-bold text-slate-100">{profile.formalTitle}</h3>
+                  <p className="text-sm text-slate-400 mt-1 italic">"{profile.summary}"</p>
                 </div>
 
                 {/* SKILLS */}
                 <div>
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Habilidades Estandarizadas</h4>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Habilidades Estandarizadas</h4>
                   <div className="flex flex-wrap gap-2">
                     {profile.parsedData?.skills?.map((sk, idx) => (
                       <span
                         key={idx}
-                        className="bg-blue-100 text-blue-800 text-xs px-2.5 py-1 rounded-lg font-medium"
+                        className="bg-blue-950/40 text-blue-400 border border-blue-900/30 text-xs px-2.5 py-1 rounded-lg font-medium"
                       >
                         {sk.name} • <span className="text-[10px] text-blue-500">{sk.category}</span>
                       </span>
@@ -203,15 +136,15 @@ export default function CandidateView(): React.JSX.Element {
 
                 {/* EXPERIENCIAS TRADUCIDAS */}
                 <div>
-                  <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Experiencia Reestructurada</h4>
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Experiencia Reestructurada</h4>
                   <div className="space-y-3">
                     {profile.parsedData?.experiences?.map((exp, idx) => (
-                      <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100">
+                      <div key={idx} className="bg-[#121522] p-4 rounded-xl border border-gray-800">
                         <div className="flex justify-between items-start">
-                          <h5 className="text-sm font-bold text-gray-900">{exp.formalRole}</h5>
-                          <span className="text-xs text-gray-500 font-medium">{exp.duration}</span>
+                          <h5 className="text-sm font-bold text-slate-200">{exp.formalRole}</h5>
+                          <span className="text-xs text-slate-400 font-medium">{exp.duration}</span>
                         </div>
-                        <ul className="list-disc list-inside mt-1 text-xs text-gray-600 space-y-1">
+                        <ul className="list-disc list-inside mt-2 text-xs text-slate-400 space-y-1">
                           {exp.formalResponsibilities?.map((resp, rIdx) => (
                             <li key={rIdx}>{resp}</li>
                           ))}
@@ -225,8 +158,8 @@ export default function CandidateView(): React.JSX.Element {
           </div>
           
           {!profile && !parsing && (
-            <div className="mt-8 text-center border border-dashed border-gray-200 rounded-xl p-6 text-gray-400">
-              <svg className="mx-auto h-12 w-12 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mt-8 text-center border border-dashed border-gray-800 rounded-2xl p-8 text-gray-500">
+              <svg className="mx-auto h-12 w-12 text-gray-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               <p className="text-sm">Tu perfil formalizado aparecerá aquí una vez completes tu experiencia.</p>
@@ -235,105 +168,8 @@ export default function CandidateView(): React.JSX.Element {
         </div>
 
         {/* PARTE DERECHA: CHATBOT COACH FINANCIERO */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col h-[550px]">
-          <div className="border-b border-gray-100 pb-3 mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                💬 Habla con Fito, tu Coach
-              </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                Aprende finanzas fáciles, cómo cobrar con Yape y ahorrar para tus metas.
-              </p>
-            </div>
-            <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-            </span>
-          </div>
-
-          {/* MENSAJES */}
-          <div className="flex-grow overflow-y-auto space-y-4 pr-2 mb-4 scrollbar-thin">
-            {messages.length === 0 && (
-              <div className="text-center text-gray-400 my-8">
-                <p className="text-sm">No hay mensajes anteriores.</p>
-                <p className="text-xs">¡Saluda a Fito para empezar a aprender!</p>
-              </div>
-            )}
-
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fadeIn`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm shadow-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-blue-600 text-white rounded-br-none'
-                      : 'bg-indigo-50 text-gray-800 rounded-bl-none border border-indigo-100/50'
-                  }`}
-                  style={{ whiteSpace: 'pre-line' }}
-                >
-                  {msg.text}
-                </div>
-              </div>
-            ))}
-
-            {sendingChat && (
-              <div className="flex justify-start">
-                <div className="bg-indigo-50 border border-indigo-100 text-gray-500 rounded-2xl rounded-bl-none px-4 py-3 text-sm flex items-center gap-2">
-                  <div className="flex gap-1">
-                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="h-2 w-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
-                  Fito está escribiendo...
-                </div>
-              </div>
-            )}
-
-            {chatError && (
-              <div className="p-2.5 bg-red-50 text-red-700 text-xs rounded-xl border border-red-100 text-center">
-                {chatError}
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* SUGGESTED QUESTIONS */}
-          <div className="flex flex-wrap gap-2 mb-3">
-            {suggestedQuestions.map((q, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleSendMessage(q)}
-                disabled={sendingChat}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-2.5 py-1.5 rounded-lg transition-colors border border-gray-200/50 disabled:opacity-50"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-
-          {/* INPUT FORM */}
-          <div className="border-t border-gray-100 pt-3">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSendMessage(inputMessage)}
-                placeholder="Escribe tu duda a Fito aquí..."
-                className="flex-grow border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-                disabled={sendingChat}
-              />
-              <button
-                onClick={() => handleSendMessage(inputMessage)}
-                disabled={!inputMessage.trim() || sendingChat}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold shadow-sm transition-all disabled:bg-blue-300 flex items-center justify-center"
-              >
-                Enviar
-              </button>
-            </div>
-          </div>
+        <div className="h-[600px] lg:h-auto">
+          <SemiChatbot role="trabajador" />
         </div>
       </div>
     </div>

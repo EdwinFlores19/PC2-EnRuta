@@ -175,6 +175,57 @@
           "status": "Done"
         }
       ]
+    },
+    {
+      "id": "E-4",
+      "title": "ÉPICA 4: Ecosistema Fintech, POS Virtual y Split Payments",
+      "description": "Soporte de pagos sin contacto vía NFC y cobros dinámicos por QR de Yape/Plin, aplicando automáticamente un split de comisiones del 5% para soporte de la plataforma de forma transaccional.",
+      "acceptance_criteria": [
+        "Soporte para cobro Contactless mediante tokenización NFC segura.",
+        "Emisión de códigos QR dinámicos para Yape/Plin.",
+        "Retención atómica y automática de la comisión del 5.00% por cada pago completado."
+      ],
+      "story_points": 13,
+      "priority": "High",
+      "labels": ["fintech", "pagos", "split-payment", "sprint-4"],
+      "stories": [
+        {
+          "title": "US-4.1: Cobro Contactless Tap-to-Pay mediante POS Virtual (Trabajador Vial)",
+          "description": "COMO Trabajador Vial que asiste peatones\nQUIERO que mi celular actúe como un POS virtual para cobrar mediante aproximación de tarjetas NFC\nPARA recibir mis propinas o tarifas de forma rápida y sin requerir efectivo o terminales de hardware costosos.",
+          "acceptance_criteria": [
+            "DADO QUE el trabajador vial ingresa el monto en su app, CUANDO el cliente acerca la tarjeta de débito/crédito al lector NFC, ENTONCES el sistema lee y tokeniza los datos para procesar el cobro de forma segura y exitosa.",
+            "El endpoint POST /api/v1/payments/tap-to-pay devuelve status 200."
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["frontend", "backend", "nfc", "sprint-4"],
+          "status": "Done"
+        },
+        {
+          "title": "US-4.2: Cobro QR e Integración Bancaria con Yape y Plin (Trabajador Vial)",
+          "description": "COMO Trabajador Vial que asiste peatones\nQUIERO generar un código QR dinámico de Yape o Plin desde mi celular\nPARA que los clientes me yapeen o plineen montos exactos de forma rápida y el sistema confirme la transacción inmediatamente.",
+          "acceptance_criteria": [
+            "DADO QUE el trabajador selecciona la billetera Yape o Plin, CUANDO ingresa el monto, ENTONCES el sistema genera un QR dinámico con un ID único de transacción y lo muestra en pantalla.",
+            "El endpoint POST /api/v1/payments/yape-plin/qr devuelve status 201."
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["frontend", "backend", "qr", "sprint-4"],
+          "status": "Done"
+        },
+        {
+          "title": "US-4.3: Motor de Split Payment y Webhook de Idempotencia (Plataforma)",
+          "description": "COMO Administrador de la Plataforma de Asignación Vial\nQUIERO que el sistema retenga de forma automática y atómica un 5.00% de comisión por transacción y verifique idempotencia en webhooks\nPARA garantizar el financiamiento sostenible del software y evitar cobros dobles debido a reintentos bancarios.",
+          "acceptance_criteria": [
+            "DADO QUE la API bancaria de Yape/Plin envía un webhook de pago exitoso, CUANDO el sistema procesa la transacción, ENTONCES retiene automáticamente el 5% depositándolo en la billetera de la plataforma y el 95% restante en la billetera del comercio.",
+            "Si el webhook se recibe más de una vez para la misma transacción, el sistema omite el reprocesamiento de balances y responde de forma idempotente."
+          ],
+          "story_points": 3,
+          "priority": "High",
+          "labels": ["backend", "seguridad", "database", "sprint-4"],
+          "status": "Done"
+        }
+      ]
     }
   ]
 }
