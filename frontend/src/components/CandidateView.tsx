@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import apiClient from '../api/axios';
-import { Card, Button } from './SemaforoComponents';
+import { Card, Button } from './SemaforoComponents.js';
 
 interface Message {
   role: 'user' | 'model';

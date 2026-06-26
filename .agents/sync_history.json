@@ -1,10 +1,11 @@
 {
   "last_push": {
-    "timestamp": "2026-06-25T21:15:00.000Z",
+    "timestamp": "2026-06-25T22:30:00.000Z",
     "agent": "Agente 5 - Experto LegalTech y Gobierno",
     "branch": "feature/US03-legaltech-and-scoring",
     "commits": [
-      "feat(legaltech): implementar KYC, scoring de semáforo social y scraping SUNAT para validación de RUC."
+      "feat(legaltech): implementar KYC, scoring de semáforo social y scraping SUNAT para validación de RUC.",
+      "feat(frontend): refactorizar portal de trabajador, panel MINTRA y buscador RAG de candidatos con EnRuta v1.0"
     ],
     "pull_request_url": "https://github.com/EdwinFlores19/PC2-EnRuta/pull/new/feature/US03-legaltech-and-scoring",
     "api_contracts_updated": true

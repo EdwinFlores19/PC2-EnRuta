@@ -9,7 +9,7 @@ export default function ShowcaseChatView(): React.JSX.Element {
       id: 'trabajador',
       label: 'Trabajador Vial',
       icon: '🚦',
-      desc: 'Coach financiero "Fito". Tono empático, cercano y de confianza.',
+      desc: 'Coach financiero "Fito". Tono empático, cercano y de confianza con Ruti.',
       color: 'border-emerald-500 hover:bg-emerald-950/20 text-emerald-400'
     },
     {

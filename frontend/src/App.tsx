@@ -5,12 +5,14 @@ import EmployerView from './components/EmployerView';
 import WorkerDashboard from './components/WorkerDashboard';
 import ClientMap from './components/ClientMap';
 import FintechView from './components/FintechView';
+import OnboardingView from './components/OnboardingView';
+import { MetricCard, RoleCard, Button, Card } from './components/SemaforoComponents.js';
+import SemiChatbot, { ChatbotRole } from './components/SemiChatbot';
 
 export default function App(): React.JSX.Element {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Simulación rápida de logout para mantener la consistencia
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
@@ -19,80 +21,106 @@ export default function App(): React.JSX.Element {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const getLinkClass = (path: string, accentColorClass: string) => {
-    return `flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+  // Navbar link classes conforming to design system (uppercase, 13px font size equivalent to text-[13px])
+  const getLinkClass = (path: string, activeColor: string) => {
+    return `flex items-center gap-1.5 px-3 py-2 rounded-xl text-[13px] font-semibold uppercase tracking-wider transition-all duration-150 ${
       isActive(path)
-        ? `bg-slate-800 text-white shadow-sm ring-1 ring-white/10 ${accentColorClass}`
-        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+        ? `bg-[#1A202C] text-[#F7FAFC] shadow-sm border border-[#2D3748] ${activeColor}`
+        : 'text-[#A0AEC0] hover:text-[#F7FAFC]'
     }`;
   };
 
+  // Detectar el rol del usuario logueado en caliente para Ruti
+  let detectedRole: ChatbotRole = 'cliente'; // Por defecto es conductor/cliente (invitado)
+  try {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsed = JSON.parse(storedUser);
+      if (parsed.role === 'CANDIDATE' || parsed.role === 'WORKER') {
+        detectedRole = 'trabajador';
+      } else if (parsed.role === 'EMPLOYER') {
+        detectedRole = 'employer';
+      } else if (parsed.role === 'ADMIN') {
+        detectedRole = 'fiscalizador';
+      }
+    }
+  } catch (err) {
+    console.warn('Error al parsear el rol del usuario para Ruti:', err);
+  }
+
   return (
-    <div className="min-h-screen bg-[#070A13] text-slate-100 flex flex-col font-sans antialiased">
-      {/* HEADER / NAVBAR GLOBAL */}
-      <header className="bg-[#0B0F19]/90 border-b border-slate-800/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+    <div className="min-h-screen bg-[#0F1117] text-[#F7FAFC] flex flex-col font-sans antialiased relative">
+      {/* 1. MANDATORY Navbar COMPONENT */}
+      <header className="bg-[#1A202C] border-b border-[#2D3748] sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="bg-gradient-to-tr from-brand-blue to-brand-purple p-2 rounded-xl shadow-glow-green">
-                <span className="text-xl">🚦</span>
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="bg-[#3B82F6] hover:bg-[#2563EB] p-2.5 rounded-xl shadow-md transition-all">
+                <span className="text-xl">🛣️</span>
               </div>
-              <span className="text-xl font-black text-white tracking-tight group-hover:text-blue-400 transition-colors">
-                En<span className="text-blue-500">Ruta</span>
+              <span className="text-2xl font-bold text-[#F7FAFC] tracking-tight">
+                En<span className="text-[#3B82F6]">Ruta</span>
               </span>
             </Link>
             
-            <nav className="hidden xl:flex items-center gap-2">
-              <Link to="/dashboard" className={getLinkClass('/dashboard', 'text-blue-400')}>
-                🏠 Panel Admin
+            {/* Center navigation with EXACT gap-6 (24px) */}
+            <nav className="hidden xl:flex items-center gap-6">
+              <Link to="/dashboard" className={getLinkClass('/dashboard', 'border-[#3B82F6]/40 text-[#3B82F6]')}>
+                🏠 Dashboard
               </Link>
-              <Link to="/candidate" className={getLinkClass('/candidate', 'text-purple-400')}>
-                🧹 CV IA Coach
+              <Link to="/candidate" className={getLinkClass('/candidate', 'border-emerald-500/40 text-emerald-400')}>
+                🧹 Coach CV
               </Link>
-              <Link to="/employer" className={getLinkClass('/employer', 'text-indigo-400')}>
-                💼 Búsqueda RAG
+              <Link to="/employer" className={getLinkClass('/employer', 'border-indigo-500/40 text-indigo-400')}>
+                💼 Buscar RAG
               </Link>
-              <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'text-emerald-400 border-l border-slate-800 pl-4')}>
+              <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'border-[#48BB78]/40 text-[#48BB78]')}>
                 💚 Chambea Ahora!
               </Link>
-              <Link to="/buscar" className={getLinkClass('/buscar', 'text-amber-400')}>
-                📍 Buscar Servicios
+              <Link to="/buscar" className={getLinkClass('/buscar', 'border-[#F6AD55]/40 text-[#F6AD55]')}>
+                📍 Mapa Vial
               </Link>
-              <Link to="/payments" className={getLinkClass('/payments', 'text-cyan-400')}>
+              <Link to="/payments" className={getLinkClass('/payments', 'border-cyan-500/40 text-cyan-400')}>
                 📶 POS & Pagos
+              </Link>
+              <Link to="/onboarding" className={getLinkClass('/onboarding', 'border-purple-500/40 text-purple-400')}>
+                🛡️ KYC Registro
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Action buttons with minimum 44px height */}
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/login')}
-              className="text-sm font-bold text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-slate-900 transition-all"
+              className="min-h-[44px] text-[13px] font-semibold uppercase tracking-wider text-[#A0AEC0] hover:text-[#F7FAFC] px-4 rounded-xl transition-all"
             >
-              Iniciar Sesión
+              Ingresar
             </button>
-            <button
+            <Button
+              variant="secondary"
               onClick={handleLogout}
-              className="bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 px-4 py-2 rounded-xl text-sm font-bold transition-all"
+              className="text-red-400 border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 min-h-[44px]"
             >
-              Cerrar Sesión
-            </button>
+              Salir
+            </Button>
           </div>
         </div>
       </header>
 
-      {/* COMPACT MOBILE MENU DE ADVERTENCIA */}
-      <div className="xl:hidden bg-slate-900/80 border-b border-slate-800 py-2.5 px-4 overflow-x-auto whitespace-nowrap scrollbar-none flex gap-2">
-        <Link to="/dashboard" className={getLinkClass('/dashboard', 'text-blue-400')}>Panel Admin</Link>
-        <Link to="/candidate" className={getLinkClass('/candidate', 'text-purple-400')}>CV IA Coach</Link>
-        <Link to="/employer" className={getLinkClass('/employer', 'text-indigo-400')}>Búsqueda RAG</Link>
-        <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'text-emerald-400')}>Chambea Ahora!</Link>
-        <Link to="/buscar" className={getLinkClass('/buscar', 'text-amber-400')}>Buscar</Link>
+      {/* COMPACT MOBILE MENU */}
+      <div className="xl:hidden bg-[#171923] border-b border-[#2D3748] py-2 px-4 overflow-x-auto whitespace-nowrap scrollbar-none flex gap-6">
+        <Link to="/dashboard" className={getLinkClass('/dashboard', 'text-[#3B82F6]')}>Dashboard</Link>
+        <Link to="/candidate" className={getLinkClass('/candidate', 'text-emerald-400')}>Coach CV</Link>
+        <Link to="/employer" className={getLinkClass('/employer', 'text-indigo-400')}>Buscar RAG</Link>
+        <Link to="/chambea-ahora" className={getLinkClass('/chambea-ahora', 'text-[#48BB78]')}>Chambea Ahora!</Link>
+        <Link to="/buscar" className={getLinkClass('/buscar', 'text-[#F6AD55]')}>Mapa Vial</Link>
         <Link to="/payments" className={getLinkClass('/payments', 'text-cyan-400')}>POS & Pagos</Link>
+        <Link to="/onboarding" className={getLinkClass('/onboarding', 'text-purple-400')}>KYC Registro</Link>
       </div>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex flex-col justify-center">
+      <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full flex flex-col justify-center">
         <Routes>
           <Route path="/" element={<HomeView />} />
           <Route path="/login" element={<LoginPlaceholder />} />
@@ -102,16 +130,20 @@ export default function App(): React.JSX.Element {
           <Route path="/chambea-ahora" element={<WorkerDashboard />} />
           <Route path="/buscar" element={<ClientMap />} />
           <Route path="/payments" element={<FintechView />} />
+          <Route path="/onboarding" element={<OnboardingView />} />
         </Routes>
       </main>
 
       {/* FOOTER GLOBAL */}
-      <footer className="bg-[#0B0F19] border-t border-slate-950 py-8 text-center text-sm text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 space-y-3">
-          <p className="font-semibold text-slate-400">🚦 EnRuta — Transformación Social Vial con IA & Fintech</p>
+      <footer className="bg-[#1A202C] border-t border-[#2D3748] py-8 text-center text-xs text-[#A0AEC0]">
+        <div className="max-w-7xl mx-auto px-6 space-y-3">
+          <p className="font-semibold text-[#F7FAFC]">🛣️ EnRuta — Transformación Social Vial con IA & Fintech</p>
           <p>&copy; {new Date().getFullYear()} — PC2 Boilerplate Full-Stack. Ecosistema Agéntico SRE. Fiscalización MINTRA/MIMP.</p>
         </div>
       </footer>
+
+      {/* BURBUJA FLOTANTE GLOBAL DE LA MASCOTA RUTI */}
+      <SemiChatbot role={detectedRole} isFloating={true} />
     </div>
   );
 }
@@ -124,126 +156,85 @@ function HomeView(): React.JSX.Element {
   const navigate = useNavigate();
 
   return (
-    <div className="max-w-5xl mx-auto py-8">
+    <div className="max-w-6xl mx-auto space-y-12">
       {/* HERO SECTION */}
-      <div className="text-center space-y-6 mb-16">
-        <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-mono">
+      <div className="text-center space-y-6 relative py-4">
+        {/* Route glowing effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-gradient-to-r from-[#3B82F6]/10 to-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <span className="bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20 px-4 py-1.5 rounded-full text-[13px] font-semibold uppercase tracking-wider font-mono inline-block">
           🚀 TECNOLOGÍA CON IMPACTO SOCIAL REAL
         </span>
-        <h1 className="text-5xl font-black text-white tracking-tight sm:text-6xl bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-          Plataforma EnRuta
+        <h1 className="text-[48px] font-extrabold text-[#F7FAFC] tracking-tight leading-none">
+          Plataforma <span className="text-[#3B82F6]">EnRuta</span>
         </h1>
-        <p className="text-lg text-slate-400 max-w-3xl mx-auto leading-relaxed">
-          Un sistema on-demand inteligente enfocado en la **formalización, capacitación y salud financiera** para asistentes viales independientes en el Perú, garantizando la erradicación del trabajo infantil.
+        <p className="text-[16px] text-[#A0AEC0] max-w-3xl mx-auto leading-[1.6]">
+          Un sistema inteligente on-demand de micro-empleo y fintech enfocado en la **formalización, capacitación y salud financiera** de trabajadores independientes en Perú, con control estricto contra el trabajo infantil.
         </p>
-        <div className="flex justify-center gap-4 pt-2">
-          <Link
-            to="/dashboard"
-            className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3.5 rounded-xl shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all text-sm"
+        <div className="flex justify-center gap-6 pt-4">
+          <Button
+            onClick={() => navigate('/chambea-ahora')}
+            className="font-bold min-h-[44px]"
           >
-            🛡️ Ir al Panel de Control (Admin)
-          </Link>
-          <a
-            href="https://github.com/EdwinFlores19/PC2-Boilerplate-Puente"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all text-sm"
+            💼 ¡Chambea Ahora!
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/buscar')}
+            className="min-h-[44px]"
           >
-            Ver Código Fuente
-          </a>
+            📍 Buscar Servicios
+          </Button>
         </div>
       </div>
 
-      {/* METRICAS DE CONFIANZA / IMPACTO */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
-        <div className="bg-[#101625] border border-slate-800/80 p-5 rounded-2xl text-center">
-          <span className="text-3xl block mb-1">🧹</span>
-          <span className="text-3xl font-black text-white font-mono block">350+</span>
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Trabajadores Activos</span>
-        </div>
-        <div className="bg-[#101625] border border-slate-800/80 p-5 rounded-2xl text-center">
-          <span className="text-3xl block mb-1">🛡️</span>
-          <span className="text-3xl font-black text-emerald-400 font-mono block">0%</span>
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Trabajo Infantil</span>
-        </div>
-        <div className="bg-[#101625] border border-slate-800/80 p-5 rounded-2xl text-center">
-          <span className="text-3xl block mb-1">🎓</span>
-          <span className="text-3xl font-black text-purple-400 font-mono block">4,200+</span>
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Cursos Completados</span>
-        </div>
-        <div className="bg-[#101625] border border-slate-800/80 p-5 rounded-2xl text-center">
-          <span className="text-3xl block mb-1">💳</span>
-          <span className="text-3xl font-black text-cyan-400 font-mono block">S/. 12.5K</span>
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wide">Procesado POS</span>
-        </div>
+      {/* 3. MANDATORY MetricCard GRID (No HTML Table) */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <MetricCard
+          icon="🧹"
+          value="350+"
+          label="Trabajadores Activos"
+        />
+        <MetricCard
+          icon="🛡️"
+          value="0%"
+          label="Trabajo Infantil"
+        />
+        <MetricCard
+          icon="🎓"
+          value="4,200+"
+          label="Cursos Completados"
+        />
+        <MetricCard
+          icon="💳"
+          value="S/. 12.5K"
+          label="Procesado POS"
+        />
       </div>
 
-      {/* CARDS VISUALES SEGMENTADAS POR ROL */}
+      {/* 4. MANDATORY RoleCard GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        {/* CARD TRABAJADOR */}
-        <div 
+        <RoleCard
+          icon="🧹"
+          title="Soy Trabajador Vial"
+          description="Accede a tu panel 'Chambea Ahora!', sube tu semáforo de formalización con cursos y obtén micro-créditos."
           onClick={() => navigate('/chambea-ahora')}
-          className="bg-gradient-to-b from-[#132321] to-[#101625] border border-emerald-500/20 hover:border-emerald-500/40 rounded-3xl p-6 shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer group flex flex-col justify-between h-72"
-        >
-          <div>
-            <div className="bg-emerald-500/10 text-emerald-400 h-12 w-12 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4">
-              🧹
-            </div>
-            <h3 className="font-extrabold text-white text-xl group-hover:text-emerald-400 transition-colors">
-              Soy Trabajador Vial
-            </h3>
-            <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-              Accede a tu panel "Chambea Ahora!", sube tu semáforo de formalización con cursos y obtén micro-créditos.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-emerald-400 flex items-center gap-1 mt-4">
-            Ir a Chambea Ahora! &rarr;
-          </span>
-        </div>
-
-        {/* CARD CLIENTE */}
-        <div 
+          ctaText="Ir a Chambea Ahora"
+        />
+        <RoleCard
+          icon="📍"
+          title="Necesito Asistencia"
+          description="Encuentra asistentes viales de confianza geolocalizados en semáforos cerca de ti y califícalos con estrellas."
           onClick={() => navigate('/buscar')}
-          className="bg-gradient-to-b from-[#211E15] to-[#101625] border border-amber-500/20 hover:border-amber-500/40 rounded-3xl p-6 shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer group flex flex-col justify-between h-72"
-        >
-          <div>
-            <div className="bg-amber-500/10 text-amber-400 h-12 w-12 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4">
-              📍
-            </div>
-            <h3 className="font-extrabold text-white text-xl group-hover:text-amber-400 transition-colors">
-              Necesito Asistencia
-            </h3>
-            <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-              Encuentra asistentes viales de confianza geolocalizados en semáforos cerca de ti y califícalos con estrellas.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-amber-400 flex items-center gap-1 mt-4">
-            Buscar Trabajadores &rarr;
-          </span>
-        </div>
-
-        {/* CARD RECLUTADOR */}
-        <div 
-          onClick={() => navigate('/employer')}
-          className="bg-gradient-to-b from-[#1E1627] to-[#101625] border border-purple-500/20 hover:border-purple-500/40 rounded-3xl p-6 shadow-xl hover:scale-[1.03] active:scale-[0.98] transition-all cursor-pointer group flex flex-col justify-between h-72"
-        >
-          <div>
-            <div className="bg-purple-500/10 text-purple-400 h-12 w-12 rounded-2xl flex items-center justify-center text-2xl font-bold mb-4">
-              💼
-            </div>
-            <h3 className="font-extrabold text-white text-xl group-hover:text-purple-400 transition-colors">
-              Soy Empresa / Car Wash
-            </h3>
-            <p className="text-sm text-slate-400 mt-2 leading-relaxed">
-              Busca talento calificado conversacionalmente mediante nuestro motor NLP de traducción de habilidades informales.
-            </p>
-          </div>
-          <span className="text-xs font-bold text-purple-400 flex items-center gap-1 mt-4">
-            Reclutar Personal &rarr;
-          </span>
-        </div>
-
+          ctaText="Buscar Trabajadores"
+        />
+        <RoleCard
+          icon="📶"
+          title="POS Virtual & Fintech"
+          description="Gestiona cobros sin contacto mediante NFC Tap-to-Pay y códigos QR Yape/Plin con split automático de comisiones."
+          onClick={() => navigate('/payments')}
+          ctaText="Abrir POS & Billetera"
+        />
       </div>
     </div>
   );
@@ -251,82 +242,80 @@ function HomeView(): React.JSX.Element {
 
 function LoginPlaceholder(): React.JSX.Element {
   return (
-    <div className="max-w-md w-full mx-auto bg-[#101625] rounded-3xl border border-slate-800 shadow-2xl p-8 my-12">
-      <div className="text-center mb-6">
-        <span className="text-4xl">🔐</span>
-        <h2 className="text-2xl font-black text-white mt-3">Iniciar Sesión</h2>
-        <p className="text-slate-400 text-xs mt-1">Ingresa tus credenciales autorizadas del sistema</p>
-      </div>
-      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-        <div>
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Correo Electrónico</label>
-          <input
-            type="email"
-            placeholder="correo@ejemplo.com"
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            defaultValue="admin@test.com"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1.5">Contraseña</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            className="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            defaultValue="Admin123!"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3.5 rounded-xl font-bold shadow-md hover:shadow-blue-500/10 transition-all mt-6"
-        >
-          Ingresar al Sistema
-        </button>
-      </form>
+    <div className="max-w-md mx-auto my-8">
+      <Card className="relative overflow-hidden bg-[#171923] border border-[#2D3748]">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-[#3B82F6]/5 rounded-full blur-2xl pointer-events-none" />
+        <h2 className="text-[24px] font-semibold text-[#F7FAFC] text-center mb-2 tracking-tight">Iniciar Sesión</h2>
+        <p className="text-[13px] text-[#A0AEC0] text-center mb-6 leading-[1.6]">Accede a la ruta de formalización de EnRuta</p>
+        
+        <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <div>
+            <label className="block text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em] mb-1.5">Correo Electrónico</label>
+            <input
+              type="email"
+              placeholder="correo@ejemplo.com"
+              className="w-full bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
+              defaultValue="admin@test.com"
+            />
+          </div>
+          <div>
+            <label className="block text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em] mb-1.5">Contraseña</label>
+            <input
+              type="password"
+              placeholder="••••••••"
+              className="w-full bg-[#0F1117] border border-[#2D3748] rounded-xl px-4 py-3 text-sm text-[#F7FAFC] placeholder-slate-600 focus:ring-2 focus:ring-[#3B82F6] outline-none transition-all"
+              defaultValue="Admin123!"
+            />
+          </div>
+          <Button
+            type="submit"
+            className="w-full min-h-[44px] mt-6"
+          >
+            Ingresar
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 }
 
 function DashboardPlaceholder(): React.JSX.Element {
   return (
-    <div className="space-y-8">
-      <div className="border-b border-slate-800 pb-5">
-        <h1 className="text-3xl font-black text-white tracking-tight">Panel de Control General (Admin)</h1>
-        <p className="text-sm text-slate-400 mt-1">Métricas operacionales y monitoreo fiscalizador MINTRA.</p>
+    <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="border-b border-[#2D3748] pb-6">
+        <span className="text-[#3B82F6] uppercase text-[13px] tracking-[0.05em] font-mono font-bold block mb-1">
+          📊 MÉTRICAS GENERALES DE PLATAFORMA
+        </span>
+        <h1 className="text-[36px] font-bold text-[#F7FAFC] tracking-tight">Panel de Control (Dashboard)</h1>
+        <p className="text-[16px] text-[#A0AEC0] mt-1">Inspección de operatividad y estadísticas fiscales en tiempo real.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
-        <div className="bg-[#101625] shadow-xl border border-slate-800/80 rounded-2xl p-6">
-          <dt className="text-xs font-bold text-slate-400 uppercase tracking-wider">Estatus del Servidor REST</dt>
-          <dd className="mt-2 text-2xl font-black text-emerald-400 flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-            Express Activo
-          </dd>
-        </div>
-        <div className="bg-[#101625] shadow-xl border border-slate-800/80 rounded-2xl p-6">
-          <dt className="text-xs font-bold text-slate-400 uppercase tracking-wider">Conexión Supabase</dt>
-          <dd className="mt-2 text-2xl font-black text-blue-400 flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse inline-block" />
-            DB Sincronizada
-          </dd>
-        </div>
-        <div className="bg-[#101625] shadow-xl border border-slate-800/80 rounded-2xl p-6">
-          <dt className="text-xs font-bold text-slate-400 uppercase tracking-wider">Prevención Infantil</dt>
-          <dd className="mt-2 text-2xl font-black text-purple-400">100% Seguro</dd>
-        </div>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        <Card className="flex flex-col justify-between">
+          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Estatus del Backend</span>
+          <span className="mt-2 text-[24px] font-bold text-[#48BB78]">🟢 Activo</span>
+        </Card>
+        <Card className="flex flex-col justify-between">
+          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Conexión Supabase</span>
+          <span className="mt-2 text-[24px] font-bold text-[#3B82F6]">🟢 Conectado</span>
+        </Card>
+        <Card className="flex flex-col justify-between">
+          <span className="text-[13px] font-mono font-bold text-[#A0AEC0] uppercase tracking-[0.05em]">Monitoreo SRE</span>
+          <span className="mt-2 text-[24px] font-bold text-[#F7FAFC]">100% Saludable</span>
+        </Card>
       </div>
 
-      <div className="bg-[#101625] border border-slate-800 rounded-3xl p-6 md:p-8 space-y-4">
-        <h3 className="text-lg font-bold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+      <Card className="space-y-4">
+        <h3 className="text-[20px] font-bold text-[#F7FAFC] border-b border-[#2D3748] pb-3">
           📋 Datos de Control y Fiscalización
         </h3>
-        <p className="text-sm text-slate-400 leading-relaxed">
-          Este módulo está diseñado para la fiscalización del cumplimiento de regulaciones viales de superación de trabajadores informales en Perú.
+        <p className="text-[16px] text-[#A0AEC0] leading-[1.6]">
+          Este módulo está diseñado para la fiscalización del cumplimiento de regulaciones viales de superación de trabajadores independientes en Perú.
         </p>
-        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-xs text-amber-300">
+        <div className="bg-[#F6AD55]/10 border border-[#F6AD55]/20 rounded-xl p-4 text-[13px] text-[#F6AD55] font-mono leading-relaxed">
           <strong>Tip de Administración:</strong> Usa el generador dinámico `npx tsx scripts/generate_crud.ts &lt;Entidad&gt;` para automatizar nuevas tablas y pegarlas directamente aquí.
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

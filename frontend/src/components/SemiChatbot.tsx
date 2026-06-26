@@ -5,6 +5,7 @@ export type ChatbotRole = 'trabajador' | 'cliente' | 'fiscalizador' | 'employer'
 
 interface SemiChatbotProps {
   role: ChatbotRole;
+  isFloating?: boolean;
 }
 
 interface ChatMessage {

@@ -131,4 +131,95 @@ describe('ServiceService — Motor de Asignación y Semáforos', () => {
       expect(mockPrisma.serviceRequest.update).not.toHaveBeenCalled();
     });
   });
+
+  describe('triggerSOS', () => {
+    it('debería cambiar el estado a EN_PELIGRO y emitir un log crítico', async () => {
+      mockPrisma.serviceRequest.findUnique.mockResolvedValueOnce({
+        id: 'req1',
+        pedestrianId: 'p1',
+        workerId: 'w1',
+        status: RequestStatus.EN_CAMINO,
+        intersection: { id: 'int1', name: 'Intersección SRE' },
+      });
+
+      mockPrisma.serviceRequest.update.mockResolvedValueOnce({
+        id: 'req1',
+        pedestrianId: 'p1',
+        workerId: 'w1',
+        status: RequestStatus.EN_PELIGRO,
+        intersection: { id: 'int1', name: 'Intersección SRE' },
+        worker: { name: 'Carlos Mendoza' },
+      });
+
+      const result = await ServiceService.triggerSOS('req1', -12.0945, -77.0335, 'w1');
+
+      expect(result.status).toBe(RequestStatus.EN_PELIGRO);
+      expect(mockPrisma.serviceRequest.update).toHaveBeenCalledWith({
+        where: { id: 'req1' },
+        data: { status: RequestStatus.EN_PELIGRO },
+        include: expect.any(Object),
+      });
+    });
+
+    it('debería denegar el SOS si el usuario solicitante no está asignado al servicio', async () => {
+      mockPrisma.serviceRequest.findUnique.mockResolvedValueOnce({
+        id: 'req1',
+        pedestrianId: 'p1',
+        workerId: 'w1',
+        status: RequestStatus.EN_CAMINO,
+      });
+
+      await expect(
+        ServiceService.triggerSOS('req1', -12.0945, -77.0335, 'unauthorized_user_id')
+      ).rejects.toThrow(AppError);
+    });
+  });
+
+  describe('syncOfflineOperations', () => {
+    it('debería procesar transacciones batch de forma exitosa y atómica', async () => {
+      mockPrisma.serviceRequest.findUnique.mockResolvedValueOnce({
+        id: 'req_offline_1',
+        pedestrianId: 'p1',
+        workerId: 'w1',
+        status: RequestStatus.EN_EJECUCION,
+      });
+
+      const operations = [
+        {
+          type: 'PATCH_STATUS',
+          payload: { id: 'req_offline_1', status: RequestStatus.FINALIZADO },
+        },
+      ];
+
+      const result = await ServiceService.syncOfflineOperations(operations, 'w1', 'WORKER');
+
+      expect(result.success).toBe(true);
+      expect(result.processedCount).toBe(1);
+      expect(mockPrisma.serviceRequest.update).toHaveBeenCalled();
+    });
+
+    it('debería fallar la transacción entera (rollback) si una operación del lote es inválida', async () => {
+      mockPrisma.serviceRequest.findUnique.mockResolvedValueOnce({
+        id: 'req_offline_1',
+        pedestrianId: 'p1',
+        workerId: 'w1',
+        status: RequestStatus.EN_EJECUCION,
+      });
+
+      const operations = [
+        {
+          type: 'PATCH_STATUS',
+          payload: { id: 'req_offline_1', status: RequestStatus.FINALIZADO },
+        },
+        {
+          type: 'UNSUPPORTED_OP_TYPE',
+          payload: {},
+        },
+      ];
+
+      await expect(
+        ServiceService.syncOfflineOperations(operations, 'w1', 'WORKER')
+      ).rejects.toThrow(AppError);
+    });
+  });
 });
