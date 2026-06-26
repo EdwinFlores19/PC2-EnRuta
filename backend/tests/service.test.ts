@@ -1,3 +1,6 @@
+/**
+ * service.test.ts — Suite de pruebas de integración para el motor de asignación vial
+ */
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 import { RequestStatus, TrafficLightColor } from '@prisma/client';
 
