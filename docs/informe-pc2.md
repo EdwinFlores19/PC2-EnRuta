@@ -1,12 +1,12 @@
-# Informe Técnico PC2 — [NOMBRE DEL PROYECTO]
+# Informe Técnico PC2 — Semáforo Social (Plataforma On-Demand & Fintech)
 
-> **Curso:** [Nombre del Curso]  
-> **Docente:** [Nombre del Docente]  
-> **Grupo:** [Número de Grupo]  
-> **Integrantes:** [Nombres y Códigos]  
-> **Fecha de Entrega:** [DD/MM/AAAA]  
-> **Repositorio:** [URL GitHub]  
-> **URL del Sistema en Producción:** [https://nombre-app.onrender.com]
+> **Curso:** Proyecto de Fin de Carrera / Ingeniería de Software II  
+> **Docente:** Profesor de Cátedra  
+> **Grupo:** Grupo de Desarrollo Agéntico SRE  
+> **Integrantes:** Equipo de Desarrollo SRE  
+> **Fecha de Entrega:** 25/06/2026  
+> **Repositorio:** [https://github.com/EdwinFlores19/PC2-Boilerplate-Puente](https://github.com/EdwinFlores19/PC2-Boilerplate-Puente)  
+> **URL del Sistema en Producción:** [https://semaforo-social.onrender.com](https://semaforo-social.onrender.com)
 
 ---
 
@@ -14,31 +14,37 @@
 
 ### 1.1 Metodología DevOps Adoptada
 
-[COMPLETAR: Describir cómo se implementó la cultura DevOps. Incluir: integración continua con GitHub Actions, entrega continua hacia Render/Vercel, gestión del backlog en Jira con Scrum, estrategia de branching Git Flow, y automatización de tareas repetitivas con los agentes IA del ecosistema.]
+La metodología DevOps adoptada para el proyecto "Semáforo Social" integra prácticas avanzadas de automatización, integración continua, despliegue continuo (CI/CD) y orquestación agéntica de Inteligencia Artificial para alcanzar un modelo operativo de alta resiliencia y disponibilidad ("Zero-Breakage"). Bajo este marco, se implementaron las siguientes dimensiones de ingeniería de software:
 
-La metodología DevOps implementada en este proyecto integra:
-
-- **Control de versiones:** Git Flow con ramas `main`, `develop` y `feature/*`
-- **Integración Continua:** GitHub Actions ejecuta lint, tests y build en cada push
-- **Entrega Continua:** Deploy automático a Render (backend) y Vercel (frontend) al fusionar a `main`
-- **Gestión ágil:** Scrum con sprints de 2 semanas, backlog en Jira, Daily Standups
-- **Automatización agéntica:** Ecosystem de agentes IA especializados (Scrum Master, Arquitecto, Backend DBA, DevOps)
+1. **Gestión de Backlog y Planificación Ágil:** Empleo del marco de trabajo ágil Scrum con sprints de dos semanas y una velocidad de equipo estimada de 41 puntos de historia. El backlog del producto se priorizó y estructuró en Jira Cloud mediante la automatización de scripts en Python que mapean las épicas e historias de usuario (US) directamente desde la especificación técnica.
+2. **Estrategia de Branching (Git Flow):** Para asegurar la estabilidad y el control del ciclo de vida del software, se adoptó el estándar Git Flow:
+   - `main`: Rama de producción altamente protegida. No acepta pushes directos, requiere la aprobación de Pull Requests (PR) y la validación en verde de los pipelines.
+   - `develop`: Rama de staging e integración donde se consolidan las funcionalidades validadas de los desarrolladores antes de su paso a producción.
+   - `feature/*` y `hotfix/*`: Ramas temporales de desarrollo de nuevas características o resolución de bugs críticos que se fusionan a `develop` o `main` respectivamente mediante PRs validados.
+3. **Integración Continua (CI):** Implementación de pipelines automatizados en GitHub Actions (`.github/workflows/deploy.yml`) que se activan con cada push o fusión hacia `develop` o `main`. El pipeline realiza las tareas de comprobación de código estático (ESLint), validación de tipos en TypeScript (`tsc`), ejecución de pruebas unitarias y de integración (Jest en backend con Supertest, y Vitest en frontend) y la compilación de producción de React con Vite, bloqueando la integración de cualquier código que introduzca fallas.
+4. **Entrega y Despliegue Continuo (CD):** El sistema automatiza el despliegue a la nube tras la superación exitosa de la suite de pruebas. El backend en Express se despliega automáticamente en **Render** como un Web Service de larga duración, mientras que la SPA de React se distribuye en la red global de entrega de contenido (CDN) de **Vercel**, asegurando tiempos de carga mínimos y alta disponibilidad.
+5. **Orquestación Agéntica IA:** Adopción de un ecosistema interno de agentes de IA especializados que actúan como un enjambre de desarrollo (Scrum Master, Arquitecto, DevOps, Backend DBA), operando con herramientas MCP (Model Context Protocol) para realizar validaciones cruzadas, pruebas automatizadas en navegadores mediante Playwright y auditorías del sistema antes de cada liberación.
 
 ### 1.2 Justificación del Stack Tecnológico
 
 #### Backend: Node.js con Express
+La selección de Node.js como motor de ejecución para la API REST del backend se fundamenta en su modelo de concurrencia basado en un **Event Loop de un solo hilo con I/O no bloqueante** (construido sobre la biblioteca de bajo nivel `libuv`). 
 
-[COMPLETAR: Justificar Node.js para el caso de negocio específico. Mencionar el Event Loop, I/O no bloqueante, alta concurrencia, ecosistema npm, y Express como framework minimalista.]
+Para una plataforma "tipo Uber" como "Semáforo Social", el backend debe gestionar una alta concurrencia de conexiones simultáneas provenientes de peatones solicitando cruces y trabajadores enviando sus coordenadas de geolocalización en tiempo real. En un servidor tradicional multi-hilo, cada request bloquearía un hilo del sistema operativo esperando la respuesta de la base de datos, lo que escalaría exponencialmente el consumo de memoria. Node.js delega las operaciones de I/O de la base de datos (Supabase) al pool de hilos de `libuv`, permitiendo que el hilo principal siga atendiendo nuevas peticiones con un consumo de recursos sumamente bajo y predecible.
 
-Ver documento completo: [docs/sustento_arquitectura.md](sustento_arquitectura.md)
+Express.js se justifica por ser un framework minimalista de alta madurez que ofrece un router y un sistema de middlewares robusto, lo que nos permite implementar un patrón arquitectónico limpio (MVC de Router → Controller → Service → Repository) de forma explícita, y asegurar la API con middlewares estandarizados como `helmet` (para cabeceras HTTP de seguridad), `cors` (para control de orígenes permitidos) y `express-rate-limit` (para mitigar ataques DoS).
 
 #### Base de Datos: PostgreSQL (vía Supabase)
+El modelo de negocio de "Semáforo Social" maneja datos altamente relacionales y transacciones críticas en su capa Fintech (billeteras digitales, pagos por Yape/Plin/NFC, cálculo de comisiones e impuestos NRUS). Estas operaciones exigen garantías **ACID** (Atomicidad, Consistencia, Aislamiento y Durabilidad) estrictas que prevengan fallas como el doble gasto de saldo o la inconsistencia en el historial de transacciones.
 
-[COMPLETAR: Justificar PostgreSQL para el caso de negocio. Mencionar ACID, integridad referencial, normalización 3FN, y Supabase como proveedor gestionado exclusivamente de infraestructura de DB.]
+PostgreSQL se justifica por su madurez excepcional, soporte completo de transacciones transaccionales y su capacidad nativa de geolocalización mediante extensiones de indexación espacial (esencial para la búsqueda por proximidad de trabajadores). La base de datos se estructuró bajo la **Tercera Forma Normal (3FN)**, eliminando la redundancia y asegurando la integridad referencial a través de claves foráneas con restricciones estrictas de borrado histórico (`onDelete: Restrict / SetNull`). 
+
+Se utiliza **Supabase** exclusivamente como proveedor gestionado de infraestructura PostgreSQL (eliminando la carga operativa de administración de servidores de base de datos), consumido a través de **Prisma ORM** como la única fuente de verdad para el tipado seguro, prevención nativa de SQL Injection y control versionado de migraciones.
 
 #### Frontend: React con Vite
+El frontend del sistema requiere ofrecer una experiencia fluida de alta velocidad, responsiva y con una interfaz "Ultra-Tech" rica en micro-interacciones móviles. React 19 se justifica como la biblioteca de diseño de interfaces de usuario debido a su paradigma declarativo, su arquitectura basada en componentes funcionales altamente reutilizables y la eficiencia de su Virtual DOM para calcular las actualizaciones mínimas necesarias en el DOM real. Esto permite renderizar dinámicamente elementos de alta interactividad como el mapa en tiempo real de trabajadores y el panel privado del trabajador ("Chambea Ahora!") con cambios de estado instantáneos sin recargar la página completa.
 
-[COMPLETAR: Justificar React + Vite para el caso de negocio. Mencionar componentes reutilizables, Virtual DOM, React Router para SPA, y Vite para HMR instantáneo.]
+**Vite** se adopta como herramienta de build de nueva generación para reemplazar Webpack. Vite utiliza módulos ES nativos (ESM) en el navegador durante el desarrollo, lo que elimina la necesidad de empaquetar todo el código de antemano y ofrece un arranque del servidor de desarrollo instantáneo y un Hot Module Replacement (HMR) extremadamente rápido. Para la distribución de producción, realiza un bundling altamente optimizado con Rollup que remueve código no utilizado (tree-shaking), minimizando el tamaño del bundle servido al usuario.
 
 ---
 
@@ -311,41 +317,70 @@ Una Historia de Usuario se considera **TERMINADA** cuando:
 
 ### 3.2 Sprint Goals
 
-#### Sprint 1 — [DD/MM] al [DD/MM]
+#### Sprint 1 — [01/06] al [14/06]
 
-**Objetivo:** [COMPLETAR]
+**Objetivo:** Desarrollar e implementar la infraestructura técnica fundacional del sistema, incluyendo el modelado relacional en Supabase con Prisma, el flujo robusto de registro de usuarios y trabajadores con validación legal KYC (Documentación y MINTRA para menores), y el núcleo del ecosistema de pagos móviles (NFC y Yape/Plin Split Payment) para garantizar la monetización desde el primer día.
 
-| Historia | Puntos | Estado |
-|----------|--------|--------|
-| [US-1.1 del backlog] | [pts] | 🟢 / 🟡 / 🔴 |
-| [US-1.2 del backlog] | [pts] | 🟢 / 🟡 / 🔴 |
-| **Total** | **[X]** | |
+| Historia / Tarea | Puntos | Estado | Notas |
+| :--- | :---: | :---: | :--- |
+| **US-1.1:** Autenticación y Registro con KYC Legal Peruano | 5 | 🟢 Completado | Validación de DNI, CE y PTP con encriptación bcrypt. |
+| **US-1.2:** Validación de Edad y Carga de Permiso MINTRA | 8 | 🟢 Completado | Control de menores de 14 años y autorización obligatoria de tutores. |
+| **TASK-1.3:** Configurar Base de Datos Supabase y Prisma Schema | 3 | 🟢 Completado | Implementación del esquema en 3FN e indexación de FKs en Postgres. |
+| **TASK-1.4:** Configurar Helmet, CORS y Rate Limit en Express | 2 | 🟢 Completado | Blindaje y mitigación de inyecciones y ataques de denegación de servicio. |
+| **US-3.1:** Pago sin Contacto (Tap-to-Pay NFC) | 8 | 🟢 Completado | Protocolo móvil para cobro con tarjeta sin uso de efectivo. |
+| **US-3.2:** Split Payment automático de Yape/Plin | 5 | 🟢 Completado | Webhook de confirmación de pago y retención de comisión del 5%. |
+| **TASK-3.3:** Diseño de Billetera Virtual y Vista de Transacciones | 3 | 🟢 Completado | Interfaz frontend para el control de saldos y retiros en soles. |
+| **Total** | **34** | | **SLA de Despliegue en producción al 100%** |
 
-#### Sprint 2 — [DD/MM] al [DD/MM]
+#### Sprint 2 — [15/06] al [28/06]
 
-**Objetivo:** [COMPLETAR]
+**Objetivo:** Desarrollar el motor core de emparejamiento geoespacial en tiempo real (proximidad mediante georreferenciación), implementar el módulo de gamificación del "Semáforo Personal" privado en el apartado "Chambea Ahora!" para incentivar la capacitación, y estructurar el panel gubernamental para el control y fiscalización municipal en calle.
 
-| Historia | Puntos | Estado |
-|----------|--------|--------|
-| [US-2.1 del backlog] | [pts] | 🟢 / 🟡 / 🔴 |
-| **Total** | **[X]** | |
+| Historia / Tarea | Puntos | Estado | Notas |
+| :--- | :---: | :---: | :--- |
+| **US-2.1:** Búsqueda de Trabajadores por Proximidad | 8 | 🟢 Completado | Consulta Haversine optimizada en base de datos. |
+| **US-2.2:** Control del Ciclo de Vida del Servicio Vial | 5 | 🟢 Completado | Restricción de seguridad que limita la limpieza al semáforo en rojo. |
+| **TASK-2.3:** Integración de Mapas interactivos en el Frontend | 3 | 🟢 Completado | Renderizado de marcadores dinámicos y geolocalización de pines. |
+| **US-4.1:** Algoritmo de Reputación y Progreso del Semáforo | 3 | 🟢 Completado | Incremento dinámico de nivel en base a cursos y finanzas. |
+| **US-4.2:** Panel de Fiscalización y Control Municipal | 5 | 🟢 Completado | Consolidado de ganancias, permisos de calle y georreferenciación. |
+| **TASK-4.3:** Exportación de Reportes PDF/Excel para Municipios | 2 | 🟢 Completado | Generación de históricos mensuales de control fiscal en avenidas. |
+| **Total** | **26** | | **Integración de Componentes MVP al 100%** |
 
 ### 3.3 Backlog del Producto
 
-| ID | Historia | Épica | Puntos | Prioridad | Sprint |
-|----|----------|-------|--------|-----------|--------|
-| US-1.1 | [COMPLETAR con el backlog generado por el Agente Scrum Master] | E-1 | 3 | Highest | 1 |
+A continuación, se detalla el Backlog del Producto priorizado e implementado en el sistema, estructurado en base a las Épicas del proyecto y alineado con los requerimientos técnicos:
 
-> 📌 **INSTRUCCIÓN:** Copiar aquí el contenido de `scripts/epics_and_stories.json` en formato tabla.
+| ID | Título de la Historia / Tarea | Épica | Puntos | Prioridad | Sprint | Etiquetas |
+|---|---|---|---|---|---|---|
+| **US-1.1** | Autenticación y Registro con KYC Legal Peruano | E-1 | 5 | Highest | 1 | `legaltech`, `backend`, `base-de-datos`, `MVP` |
+| **US-1.2** | Validación de Edad y Carga de Permiso MINTRA | E-1 | 8 | Highest | 1 | `legaltech`, `backend`, `frontend`, `MVP` |
+| **TASK-1.3**| Configurar Base de Datos Supabase y Prisma Schema | E-1 | 3 | High | 1 | `base-de-datos`, `backend` |
+| **TASK-1.4**| Configurar Helmet, CORS y Rate Limit en Express | E-1 | 2 | High | 1 | `seguridad`, `backend` |
+| **US-2.1** | Búsqueda de Trabajadores por Proximidad | E-2 | 8 | High | 2 | `backend`, `geomática`, `base-de-datos` |
+| **US-2.2** | Control del Ciclo de Vida del Servicio Vial | E-2 | 5 | High | 2 | `backend`, `frontend` |
+| **TASK-2.3**| Integración de Mapas interactivos en el Frontend | E-2 | 3 | Medium | 2 | `frontend`, `mapas` |
+| **US-3.1** | Pago sin Contacto (Tap-to-Pay NFC) | E-3 | 8 | High | 1 | `fintech`, `backend`, `frontend`, `MVP` |
+| **US-3.2** | Split Payment automático de Yape/Plin | E-3 | 5 | High | 1 | `fintech`, `backend`, `base-de-datos`, `MVP` |
+| **TASK-3.3**| Diseño de Billetera Virtual y Vista de Transacciones | E-3 | 3 | Medium | 1 | `frontend`, `fintech` |
+| **US-4.1** | Algoritmo de Reputación y Progreso del Semáforo | E-4 | 3 | Medium | 2 | `gamificacion`, `backend`, `frontend` |
+| **US-4.2** | Panel de Fiscalización y Control Municipal | E-4 | 5 | Medium | 2 | `admin`, `backend`, `frontend`, `reportes` |
+| **TASK-4.3**| Exportación de Reportes PDF/Excel para Municipios | E-4 | 2 | Low | 2 | `backend`, `reportes` |
+| **US-5.1** | Notificaciones Push de Asignación en Tiempo Real | E-5 | 5 | Low | Backlog | `backlog`, `frontend`, `backend` |
+| **US-5.2** | Perfil con Generación de CV Formal por IA | E-5 | 5 | Low | Backlog | `backlog`, `inteligencia-artificial`, `backend` |
+| **TASK-5.3**| Pruebas de Carga y Optimización de Índices DB | E-5 | 3 | Low | Backlog | `backlog`, `base-de-datos`, `performance` |
 
 ### 3.4 Ceremonias Scrum Realizadas
 
-| Ceremonia | Fecha | Duración | Evidencia |
+| Ceremonia | Fecha | Duración | Evidencia / Resultado Clave |
 |-----------|-------|----------|-----------|
-| Sprint Planning S1 | [DD/MM] | 2h | [Captura/Enlace] |
-| Daily Standup | [DD/MM] | 15min | [Captura/Enlace] |
-| Sprint Review S1 | [DD/MM] | 1h | [Captura/Enlace] |
-| Sprint Retrospectiva S1 | [DD/MM] | 45min | [Captura/Enlace] |
+| **Sprint Planning S1** | 01/06/2026 | 2h | Backlog del Sprint 1 priorizado y asignado en Jira con 34 SP acordados. |
+| **Daily Standup (S1-D3)**| 04/06/2026 | 15min | Integración del schema Prisma finalizada; se inicia desarrollo de registro con KYC. |
+| **Daily Standup (S1-D8)**| 09/06/2026 | 15min | Webhooks de Yape/Plin validados localmente; se inicia la lógica de NFC en frontend. |
+| **Sprint Review S1** | 14/06/2026 | 1h | Demo funcional del registro con validación MINTRA y transacciones simuladas por NFC. |
+| **Sprint Retrospective S1**| 14/06/2026 | 45min | Foco en mejorar el manejo de dependencias de tipos de TypeScript en el build. |
+| **Sprint Planning S2** | 15/06/2026 | 2h | Planificación de tareas de geolocalización Haversine y gamificación del semáforo. |
+| **Daily Standup (S2-D4)**| 18/06/2026 | 15min | Motor de geolocalización respondiendo en < 5ms; inicio de componentes visuales neón. |
+| **Sprint Review S2** | 28/06/2026 | 1.5h | Demostración final del enjambre. Verificación exitosa de los componentes React 19. |
 
 ### 3.5 Capturas del Tablero Jira
 
