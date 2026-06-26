@@ -1,0 +1,253 @@
+name: CI/CD Pipeline — PC2-PFDC3
+
+# ─────────────────────────────────────────────────────────────────
+# TRIGGERS — CUÁNDO EJECUTA EL PIPELINE
+# ─────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches:
+      - main       # → Deploy a Producción
+      - develop    # → Deploy a Staging
+  pull_request:
+    branches:
+      - main
+      - develop    # → Solo CI (sin deploy)
+
+# ─────────────────────────────────────────────────────────────────
+# VARIABLES DE ENTORNO GLOBALES
+# ─────────────────────────────────────────────────────────────────
+env:
+  NODE_VERSION: '20'
+
+# ─────────────────────────────────────────────────────────────────
+# JOBS
+# ─────────────────────────────────────────────────────────────────
+jobs:
+
+  # ═══════════════════════════════════════════
+  # JOB 1: BACKEND — Lint & Test
+  # ═══════════════════════════════════════════
+  backend-ci:
+    name: 🔍 Backend — Lint & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Instalar dependencias del backend
+        run: npm ci --prefer-offline
+
+      - name: 🔎 Ejecutar ESLint (Linter)
+        run: npm run lint
+
+      - name: 🧪 Ejecutar Tests (Jest)
+        run: npm test
+        env:
+          NODE_ENV: test
+          DATABASE_URL: "postgresql://test:test@localhost:5432/testdb"
+          JWT_SECRET: "ci-cd-test-secret-no-usar-en-produccion-64bytes-fake"
+          JWT_REFRESH_SECRET: "ci-cd-test-refresh-secret-no-usar-en-produccion-fake"
+
+      - name: 📊 Generar reporte de cobertura
+        run: npm run test:coverage
+        env:
+          NODE_ENV: test
+          DATABASE_URL: "postgresql://test:test@localhost:5432/testdb"
+          JWT_SECRET: "ci-cd-test-secret-no-usar-en-produccion-64bytes-fake"
+          JWT_REFRESH_SECRET: "ci-cd-test-refresh-secret-no-usar-en-produccion-fake"
+        continue-on-error: true
+
+      - name: 📤 Subir reporte de cobertura
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage/
+          retention-days: 7
+        continue-on-error: true
+
+  # ═══════════════════════════════════════════
+  # JOB 2: FRONTEND — Lint & Build
+  # ═══════════════════════════════════════════
+  frontend-ci:
+    name: 🔍 Frontend — Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Instalar dependencias del frontend
+        run: npm ci --prefer-offline
+
+      - name: 🔎 Ejecutar ESLint (Linter)
+        run: npm run lint
+
+      - name: 🧪 Ejecutar Tests (Vitest)
+        run: npm test
+
+      - name: 🏗️ Build de producción
+        run: npm run build
+        env:
+          VITE_API_URL: "https://placeholder-backend.onrender.com/api/v1"
+
+      - name: 📤 Subir artefacto del build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: frontend/dist/
+          retention-days: 7
+
+  # ═══════════════════════════════════════════
+  # JOB 3: Auditoría de Seguridad
+  # ═══════════════════════════════════════════
+  security-audit:
+    name: 🔒 Auditoría de Seguridad
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Configurar Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Instalar deps backend
+        run: npm ci
+        working-directory: ./backend
+
+      - name: 🔍 Auditar dependencias del backend
+        run: npm audit --audit-level=high
+        working-directory: ./backend
+        continue-on-error: true
+
+      - name: 📦 Instalar deps frontend
+        run: npm ci
+        working-directory: ./frontend
+
+      - name: 🔍 Auditar dependencias del frontend
+        run: npm audit --audit-level=high
+        working-directory: ./frontend
+        continue-on-error: true
+
+  # ═══════════════════════════════════════════
+  # JOB 4: DEPLOY A STAGING (develop)
+  # ═══════════════════════════════════════════
+  deploy-staging:
+    name: 🚀 Deploy a Staging
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: staging
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────
+      # DEPLOY BACKEND EN RENDER (STAGING)
+      # ─────────────────────────────────────────
+      # INSTRUCCIONES PARA ACTIVAR:
+      # 1. En Render: Dashboard → Web Service → Settings → Deploy Hook → Copiar URL
+      # 2. En GitHub: Settings → Secrets → New secret → Nombre: RENDER_DEPLOY_HOOK_STAGING
+      # 3. Descomentar el bloque siguiente:
+      #
+      # - name: 🔄 Deploy Backend a Render (Staging)
+      #   run: |
+      #     curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_STAGING }}" \
+      #       -H "Content-Type: application/json" \
+      #       --fail
+      #   # Render automáticamente hace pull del código, ejecuta:
+      #   #   cd backend && npm install && npx prisma generate && npx prisma migrate deploy && node server.js
+
+      - name: ✅ Deploy Staging — Listo para activar
+        run: |
+          echo "=================================================="
+          echo "✅ PIPELINE CI/CD — STAGING"
+          echo "=================================================="
+          echo "Branch   : ${{ github.ref_name }}"
+          echo "Commit   : ${{ github.sha }}"
+          echo "Autor    : ${{ github.actor }}"
+          echo "Fecha    : $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo ""
+          echo "Para activar el deploy automático:"
+          echo "1. Configura RENDER_DEPLOY_HOOK_STAGING en GitHub Secrets"
+          echo "2. Descomenta el bloque 'Deploy Backend a Render' en deploy.yml"
+          echo "=================================================="
+
+  # ═══════════════════════════════════════════
+  # JOB 5: DEPLOY A PRODUCCIÓN (main)
+  # ═══════════════════════════════════════════
+  deploy-production:
+    name: 🚀 Deploy a Producción
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-ci, security-audit]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────
+      # DEPLOY BACKEND EN RENDER (PRODUCCIÓN)
+      # ─────────────────────────────────────────
+      # - name: 🔄 Deploy Backend a Render (Producción)
+      #   run: |
+      #     curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_PRODUCTION }}" \
+      #       -H "Content-Type: application/json" \
+      #       --fail
+
+      # ─────────────────────────────────────────
+      # DEPLOY FRONTEND EN VERCEL (PRODUCCIÓN)
+      # ─────────────────────────────────────────
+      # - name: 🔄 Deploy Frontend a Vercel
+      #   uses: amondnet/vercel-action@v25
+      #   with:
+      #     vercel-token: ${{ secrets.VERCEL_TOKEN }}
+      #     vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+      #     vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      #     working-directory: ./frontend
+      #     vercel-args: '--prod'
+
+      - name: ✅ Deploy Producción — Listo para activar
+        run: |
+          echo "=================================================="
+          echo "🚀 PIPELINE CI/CD — PRODUCCIÓN"
+          echo "=================================================="
+          echo "Branch   : ${{ github.ref_name }}"
+          echo "Commit   : ${{ github.sha }}"
+          echo "Autor    : ${{ github.actor }}"
+          echo "Fecha    : $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo ""
+          echo "Secrets necesarios en GitHub:"
+          echo "  RENDER_DEPLOY_HOOK_PRODUCTION"
+          echo "  VERCEL_TOKEN"
+          echo "  VERCEL_ORG_ID"
+          echo "  VERCEL_PROJECT_ID"
+          echo "=================================================="

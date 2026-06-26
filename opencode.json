@@ -1,0 +1,74 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    ".agents/AGENTS.md",
+    "docs/sustento_arquitectura.md"
+  ],
+  "mcp": {
+    "supabase": {
+      "type": "remote",
+      "url": "https://mcp.supabase.com/mcp?project_ref=bkoxlytgdblskafywnxs",
+      "enabled": true
+    },
+    "render": {
+      "type": "remote",
+      "url": "https://mcp.render.com/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer {env:RENDER_API_KEY}"
+      }
+    },
+    "jira": {
+      "type": "remote",
+      "url": "https://mcp.atlassian.com/v1/mcp",
+      "enabled": true
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "{env:GITHUB_PAT}"
+      },
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres.bkoxlytgdblskafywnxs:PracticaCalificada3%3F@aws-1-us-west-2.pooler.supabase.com:5432/postgres"
+      ],
+      "enabled": true
+    },
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "@playwright/mcp@latest",
+        "--headless"
+      ],
+      "enabled": true
+    },
+    "chrome-devtools": {
+      "enabled": false
+    },
+    "puppeteer-ui-debugger": {
+      "enabled": false
+    },
+    "docker-orchestrator": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "docker-mcp"
+      ],
+      "enabled": false
+    }
+  }
+}

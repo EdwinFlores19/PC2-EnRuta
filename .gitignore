@@ -1,0 +1,82 @@
+# Archivos de entorno con secretos reales
+.env
+.env.agents
+.env.local
+.env.production
+.env.staging
+
+# Dependencias
+node_modules/
+*/node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Prisma — no versionar el cliente generado
+backend/node_modules/.prisma/
+backend/prisma/migrations/*.sql.bak
+
+# Build de producción
+frontend/dist/
+frontend/.vite/
+backend/dist/
+
+# Coverage de tests
+coverage/
+*/coverage/
+*.lcov
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDEs y editores
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+dist/
+.venv/
+venv/
+env/
+.Python
+scripts/__pycache__/
+
+# Jupyter
+.ipynb_checkpoints
+
+# Archivos temporales
+*.tmp
+*.temp
+*.bak
+*.backup
+*.orig
+
+# GitHub Actions — no ignorar workflows (sí queremos versionarlos)
+# .github/ → NO agregar aquí
+
+# Archivos de test de Prisma Studio
+.prisma/
+
+.vercel
+.env*

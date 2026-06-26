@@ -1,0 +1,271 @@
+{
+  "_comentario": "epics_and_stories.json — Backlog Scrum Genérico",
+  "_instrucciones": [
+    "Este archivo define las Épicas e Historias de Usuario del producto.",
+    "story_points DEBEN ser números de la sucesión de Fibonacci: 1, 2, 3, 5, 8, 13, 21",
+    "priority puede ser: Highest, High, Medium, Low, Lowest",
+    "El campo 'id' es un identificador LOCAL para el script (no el ID de Jira)",
+    "Cada 'description' sigue el formato estándar de Historia de Usuario Scrum:",
+    "  COMO [rol del usuario]",
+    "  QUIERO [acción o funcionalidad]",
+    "  PARA [valor o beneficio obtenido]"
+  ],
+
+  "project": {
+    "name": "[NOMBRE DEL PROYECTO]",
+    "version": "MVP v1.0",
+    "sprint_duration_weeks": 2,
+    "team_velocity_points": 40
+  },
+
+  "epics": [
+    {
+      "id": "E-1",
+      "title": "ÉPICA 1: Gestión de Autenticación y Seguridad de Usuarios",
+      "description": "Implementar el sistema completo de autenticación, registro y gestión de sesiones de usuarios con estándares de seguridad modernos (JWT + bcrypt).",
+      "acceptance_criteria": [
+        "Los usuarios pueden registrarse con email y contraseña",
+        "Las contraseñas se almacenan hasheadas con bcrypt (mínimo 12 rondas)",
+        "La autenticación utiliza JWT con expiración de 7 días",
+        "El sistema implementa rate limiting en endpoints de auth (máx 20 req/15min)",
+        "Los tokens expirados generan un refresh automático transparente al usuario"
+      ],
+      "story_points": 21,
+      "priority": "Highest",
+      "labels": ["seguridad", "autenticacion", "MVP"],
+      "stories": [
+        {
+          "title": "US-1.1: Registro de nuevo usuario con validación de datos",
+          "description": "COMO usuario nuevo del sistema\nQUIERO poder registrarme con mi correo electrónico y una contraseña\nPARA acceder a las funcionalidades de la plataforma y tener una cuenta personal",
+          "acceptance_criteria": [
+            "DADO que soy un usuario nuevo, CUANDO envío el formulario de registro con email válido y contraseña >= 8 caracteres, ENTONCES recibo un mensaje de confirmación y mi cuenta queda activa",
+            "DADO que intento registrarme con un email ya existente, CUANDO envío el formulario, ENTONCES recibo el error 'El email ya está registrado' y NO se crea un duplicado en la base de datos",
+            "DADO que envío la contraseña en texto plano, CUANDO se procesa en el backend, ENTONCES la contraseña se almacena como hash bcrypt (nunca en texto plano)",
+            "DADO que el email no tiene formato válido (sin @, sin dominio), CUANDO intento registrarme, ENTONCES el frontend y el backend devuelven un mensaje de error de validación",
+            "El endpoint POST /api/v1/auth/register responde con status 201 en éxito y 400/409 en error"
+          ],
+          "story_points": 3,
+          "priority": "Highest",
+          "labels": ["autenticacion", "registro", "backend", "frontend"]
+        },
+        {
+          "title": "US-1.2: Inicio de sesión con JWT",
+          "description": "COMO usuario registrado en el sistema\nQUIERO poder iniciar sesión con mi email y contraseña\nPARA obtener un token de acceso y usar las funcionalidades protegidas de la plataforma",
+          "acceptance_criteria": [
+            "DADO que tengo credenciales válidas, CUANDO hago login, ENTONCES recibo un accessToken (JWT, expira en 7d) y un refreshToken almacenado como httpOnly cookie",
+            "DADO que ingreso credenciales incorrectas, CUANDO intento hacer login, ENTONCES recibo el error genérico 'Credenciales inválidas' (NO se especifica si el email o la contraseña son incorrectos, por seguridad)",
+            "DADO que mi cuenta está inactiva/baneada, CUANDO intento hacer login, ENTONCES recibo el error 'Cuenta desactivada. Contacta al administrador'",
+            "DADO 5 intentos de login fallidos consecutivos, CUANDO ocurren en menos de 15 minutos, ENTONCES el rate limiter bloquea temporalmente mi IP",
+            "El token JWT contiene: userId, email, role y expiresIn en su payload"
+          ],
+          "story_points": 3,
+          "priority": "Highest",
+          "labels": ["autenticacion", "jwt", "seguridad"]
+        },
+        {
+          "title": "US-1.3: Cierre de sesión (Logout) e invalidación de token",
+          "description": "COMO usuario autenticado en la plataforma\nQUIERO poder cerrar mi sesión de forma segura\nPARA que mi token quede invalidado y nadie más pueda usar mi cuenta desde este dispositivo",
+          "acceptance_criteria": [
+            "DADO que hago click en 'Cerrar sesión', CUANDO el frontend envía la petición, ENTONCES el accessToken se elimina del localStorage y la httpOnly cookie del refreshToken queda invalidada",
+            "DADO que intento usar un token después de haber cerrado sesión, CUANDO el backend lo verifica, ENTONCES responde con 401 Unauthorized",
+            "El logout es inmediato y redirige al usuario a la página de login"
+          ],
+          "story_points": 2,
+          "priority": "High",
+          "labels": ["autenticacion", "seguridad", "sesion"]
+        },
+        {
+          "title": "US-1.4: Middleware de autorización por roles",
+          "description": "COMO administrador del sistema\nQUIERO que existan rutas protegidas accesibles solo para usuarios con rol ADMIN\nPARA que los datos sensibles del sistema no estén expuestos a usuarios con permisos básicos",
+          "acceptance_criteria": [
+            "DADO que un usuario con rol USER intenta acceder a una ruta /api/v1/admin/*, CUANDO el middleware de autorización verifica el JWT, ENTONCES responde con 403 Forbidden",
+            "DADO que un usuario con rol ADMIN accede a una ruta protegida, CUANDO el middleware valida su rol en el JWT, ENTONCES la petición continúa normalmente",
+            "El middleware de autenticación verifica: firma JWT válida, token no expirado, usuario activo en la BBDD",
+            "Los roles disponibles son: ADMIN, USER, MODERATOR (según el schema de Prisma)"
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["autorizacion", "roles", "middleware", "backend"]
+        },
+        {
+          "title": "US-1.5: Renovación automática de token JWT (Token Refresh)",
+          "description": "COMO usuario autenticado con una sesión activa\nQUIERO que mi sesión se renueve automáticamente antes de expirar\nPARA no tener que volver a iniciar sesión cada 7 días de forma manual",
+          "acceptance_criteria": [
+            "DADO que el accessToken expira, CUANDO el interceptor de Axios detecta el error 401, ENTONCES automáticamente llama a POST /api/v1/auth/refresh-token con la httpOnly cookie",
+            "DADO que el refresh es exitoso, CUANDO el nuevo accessToken se recibe, ENTONCES la petición original se reintenta automáticamente sin que el usuario lo note",
+            "DADO que el refreshToken también expiró, CUANDO se intenta renovar, ENTONCES el usuario es redirigido al login con el mensaje 'Tu sesión ha expirado'",
+            "Las peticiones en cola mientras se renueva el token no se duplican ni fallan"
+          ],
+          "story_points": 8,
+          "priority": "Medium",
+          "labels": ["jwt", "sesion", "frontend", "axios"]
+        }
+      ]
+    },
+
+    {
+      "id": "E-2",
+      "title": "ÉPICA 2: Gestión del Perfil y Datos del Usuario",
+      "description": "Permitir a los usuarios visualizar y actualizar su información personal, así como gestionar sus preferencias dentro de la plataforma.",
+      "acceptance_criteria": [
+        "Los usuarios autenticados pueden ver y editar su información de perfil",
+        "Los cambios de contraseña requieren confirmación de la contraseña actual",
+        "La imagen de perfil puede ser actualizada",
+        "Todos los endpoints de esta épica requieren autenticación válida"
+      ],
+      "story_points": 13,
+      "priority": "High",
+      "labels": ["perfil", "usuarios", "MVP"],
+      "stories": [
+        {
+          "title": "US-2.1: Visualización del perfil de usuario",
+          "description": "COMO usuario autenticado en la plataforma\nQUIERO ver mi perfil con mi información personal actualizada\nPARA verificar que mis datos están correctos y conocer mi configuración de cuenta",
+          "acceptance_criteria": [
+            "DADO que accedo a la página de perfil, CUANDO se carga, ENTONCES veo: nombre completo, email, rol, fecha de registro y estado de cuenta",
+            "El endpoint GET /api/v1/users/me devuelve los datos del usuario autenticado (sin el campo password)",
+            "Si el token JWT no es válido, se redirige automáticamente al login"
+          ],
+          "story_points": 2,
+          "priority": "Medium",
+          "labels": ["perfil", "frontend", "backend"]
+        },
+        {
+          "title": "US-2.2: Actualización de datos de perfil",
+          "description": "COMO usuario autenticado\nQUIERO actualizar mi nombre y otros datos de mi perfil\nPARA mantener mi información personal actualizada en el sistema",
+          "acceptance_criteria": [
+            "DADO que modifico mi nombre y hago click en 'Guardar', CUANDO el backend procesa la petición PATCH /api/v1/users/me, ENTONCES los cambios se persisten en la base de datos y la UI se actualiza",
+            "El campo email NO puede modificarse por esta ruta (requiere verificación por email)",
+            "Los campos vacíos no sobrescriben los valores existentes en la BBDD",
+            "La respuesta incluye el objeto usuario actualizado"
+          ],
+          "story_points": 3,
+          "priority": "Medium",
+          "labels": ["perfil", "CRUD", "backend"]
+        },
+        {
+          "title": "US-2.3: Cambio de contraseña",
+          "description": "COMO usuario autenticado\nQUIERO poder cambiar mi contraseña de acceso\nPARA mantener la seguridad de mi cuenta actualizando mis credenciales periódicamente",
+          "acceptance_criteria": [
+            "DADO que ingreso la contraseña actual correcta y una nueva contraseña >= 8 caracteres, CUANDO envío el formulario, ENTONCES la contraseña se actualiza en la BBDD (hasheada con bcrypt)",
+            "DADO que ingreso una contraseña actual incorrecta, CUANDO envío el formulario, ENTONCES recibo el error 'Contraseña actual incorrecta'",
+            "DADO que la nueva contraseña es igual a la actual, CUANDO envío el formulario, ENTONCES recibo el aviso 'La nueva contraseña debe ser diferente a la actual'",
+            "Tras cambiar la contraseña, todas las sesiones activas quedan invalidadas (se invalidan los refreshTokens)"
+          ],
+          "story_points": 5,
+          "priority": "Medium",
+          "labels": ["seguridad", "contraseña", "perfil"]
+        },
+        {
+          "title": "US-2.4: Listado de usuarios (Panel de Administración)",
+          "description": "COMO administrador del sistema\nQUIERO ver una lista paginada de todos los usuarios registrados\nPARA gestionar las cuentas, monitorear el crecimiento y realizar acciones de moderación",
+          "acceptance_criteria": [
+            "DADO que soy un ADMIN y accedo a GET /api/v1/admin/users, ENTONCES recibo una lista paginada (page, limit, total) de usuarios",
+            "Puedo filtrar por: rol, estado (activo/inactivo), rango de fechas de creación",
+            "Puedo ordenar por: fecha de creación, nombre, email",
+            "Si no soy ADMIN, el endpoint devuelve 403 Forbidden",
+            "La respuesta NO incluye el campo password de ningún usuario"
+          ],
+          "story_points": 3,
+          "priority": "Low",
+          "labels": ["admin", "usuarios", "backend"]
+        }
+      ]
+    },
+
+    {
+      "id": "E-3",
+      "title": "ÉPICA 3: [NOMBRE DEL MÓDULO PRINCIPAL DE NEGOCIO — PERSONALIZAR]",
+      "description": "Esta épica es un placeholder para el módulo central de negocio del proyecto. Debe ser renombrada y detallada según el caso de negocio específico una vez se defina el contexto del proyecto.",
+      "acceptance_criteria": [
+        "Los recursos del módulo siguen el estándar REST (GET, POST, PUT/PATCH, DELETE)",
+        "Todas las operaciones de escritura requieren autenticación JWT",
+        "Los datos cumplen las reglas de normalización (3FN) en la base de datos",
+        "Todas las entradas son validadas en el backend (express-validator)",
+        "Las respuestas siguen el formato estándar: { status, data, message, pagination }"
+      ],
+      "story_points": 21,
+      "priority": "Highest",
+      "labels": ["core-business", "MVP", "PERSONALIZAR"],
+      "stories": [
+        {
+          "title": "US-3.1: Crear [RECURSO] — PERSONALIZAR CON EL CONTEXTO DE NEGOCIO",
+          "description": "COMO [ROL DE USUARIO — ej: gestor, cliente, operador]\nQUIERO [ACCIÓN — ej: crear un nuevo pedido, registrar un producto]\nPARA [VALOR — ej: gestionar mi inventario, procesar las ventas del día]",
+          "acceptance_criteria": [
+            "DADO que completo el formulario con datos válidos, CUANDO hago submit, ENTONCES el recurso se crea en la BBDD y recibo status 201 con el objeto creado",
+            "DADO que envío datos inválidos (campos requeridos vacíos), CUANDO el backend valida, ENTONCES recibo status 422 con el detalle de los campos con error",
+            "El ID del recurso creado es un UUID generado por la base de datos",
+            "La respuesta incluye los timestamps createdAt y updatedAt"
+          ],
+          "story_points": 5,
+          "priority": "Highest",
+          "labels": ["CRUD", "core-business", "PERSONALIZAR"]
+        },
+        {
+          "title": "US-3.2: Listar [RECURSOS] con paginación y filtros — PERSONALIZAR",
+          "description": "COMO [ROL DE USUARIO]\nQUIERO ver una lista paginada de [RECURSOS] con opciones de búsqueda y filtro\nPARA encontrar rápidamente la información que necesito sin cargar todos los registros",
+          "acceptance_criteria": [
+            "DADO que llamo a GET /api/v1/[recurso]?page=1&limit=10, ENTONCES recibo máximo 10 registros con metadatos de paginación (total, totalPages, currentPage, hasNextPage)",
+            "Puedo filtrar por [CAMPOS RELEVANTES DEL NEGOCIO — ej: categoría, fecha, estado]",
+            "La búsqueda por texto es insensible a mayúsculas/minúsculas",
+            "El endpoint responde en menos de 500ms para hasta 10,000 registros en BBDD"
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["CRUD", "listado", "paginacion", "PERSONALIZAR"]
+        },
+        {
+          "title": "US-3.3: Actualizar [RECURSO] — PERSONALIZAR",
+          "description": "COMO [ROL DE USUARIO CON PERMISOS DE EDICIÓN]\nQUIERO modificar los datos de un [RECURSO] existente\nPARA corregir errores o actualizar información desactualizada",
+          "acceptance_criteria": [
+            "DADO que soy el propietario del recurso, CUANDO envío PATCH /api/v1/[recurso]/:id con datos válidos, ENTONCES los campos enviados se actualizan y recibo el objeto actualizado",
+            "DADO que intento editar un recurso que no es mío, CUANDO el backend verifica la propiedad, ENTONCES recibo 403 Forbidden",
+            "DADO que el recurso no existe (ID inválido), CUANDO hago la petición, ENTONCES recibo 404 Not Found",
+            "Solo se actualizan los campos enviados en el body (PATCH parcial)"
+          ],
+          "story_points": 3,
+          "priority": "Medium",
+          "labels": ["CRUD", "edicion", "PERSONALIZAR"]
+        },
+        {
+          "title": "US-3.4: Eliminar [RECURSO] (Soft Delete) — PERSONALIZAR",
+          "description": "COMO [ADMINISTRADOR O PROPIETARIO DEL RECURSO]\nQUIERO eliminar un [RECURSO] que ya no es necesario\nPARA mantener los datos limpios sin afectar los registros históricos del sistema",
+          "acceptance_criteria": [
+            "DADO que elimino un recurso, CUANDO se procesa DELETE /api/v1/[recurso]/:id, ENTONCES el campo isDeleted se marca como true (soft delete) y el registro NO se borra físicamente de la BBDD",
+            "Los recursos con isDeleted=true no aparecen en los listados por defecto",
+            "Solo usuarios con rol ADMIN pueden restaurar recursos eliminados",
+            "La respuesta de eliminación exitosa es status 200 con { message: 'Recurso eliminado correctamente' }"
+          ],
+          "story_points": 3,
+          "priority": "Medium",
+          "labels": ["CRUD", "eliminacion", "soft-delete", "PERSONALIZAR"]
+        },
+        {
+          "title": "US-3.5: Detalle de [RECURSO] individual — PERSONALIZAR",
+          "description": "COMO usuario de la plataforma\nQUIERO ver el detalle completo de un [RECURSO] específico\nPARA obtener toda la información necesaria para tomar decisiones o completar una tarea",
+          "acceptance_criteria": [
+            "DADO que accedo a GET /api/v1/[recurso]/:id con un ID válido, ENTONCES recibo el objeto completo con todas sus relaciones cargadas (eager loading)",
+            "DADO que el ID no existe o el recurso fue eliminado, ENTONCES recibo 404 Not Found",
+            "Los campos sensibles (si los hay) se omiten en la respuesta según los permisos del usuario",
+            "La respuesta incluye metadatos: fechas, estado y relaciones con otros recursos"
+          ],
+          "story_points": 2,
+          "priority": "High",
+          "labels": ["CRUD", "detalle", "PERSONALIZAR"]
+        },
+        {
+          "title": "US-3.6: Búsqueda avanzada de [RECURSOS] — PERSONALIZAR",
+          "description": "COMO usuario de la plataforma con necesidades de búsqueda complejas\nQUIERO buscar [RECURSOS] usando múltiples criterios simultáneos\nPARA encontrar exactamente lo que necesito sin tener que revisar toda la lista",
+          "acceptance_criteria": [
+            "La búsqueda soporta múltiples filtros combinados (AND lógico entre filtros distintos)",
+            "El tiempo de respuesta no supera 1 segundo para conjuntos de datos de hasta 50,000 registros",
+            "Los resultados incluyen el total de coincidencias y son paginados",
+            "Los parámetros de búsqueda se validan en el backend (no se permite inyección SQL)"
+          ],
+          "story_points": 8,
+          "priority": "Low",
+          "labels": ["busqueda", "filtros", "PERSONALIZAR"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+## Dependencias del script Python de automatización Jira
+
+# Cliente HTTP para llamadas a la API REST de Jira
+requests>=2.31.0
+
+# Carga de variables de entorno desde archivo .env
+python-dotenv>=1.0.0

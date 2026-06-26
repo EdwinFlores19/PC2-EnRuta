@@ -1,0 +1,55 @@
+SKILL: MODIFICAR SUSTENTO TÉCNICO DE ARQUITECTURA CON CONTEXTO DE NEGOCIO
+════════════════════════════════════════════════════════════════════════════════
+
+INSTRUCCIONES DE USO:
+  1. Abre una nueva conversación con la IA (ChatGPT, Claude, Gemini, etc.)
+  2. Copia y pega el bloque completo debajo de "--- INICIO DEL PROMPT ---"
+  3. Reemplaza [PEGA_AQUÍ_EL_SUSTENTO] con el contenido de docs/sustento_arquitectura.md
+  4. Reemplaza [PEGA_AQUÍ_EL_CASO] con el enunciado del problema del examen
+  5. La IA entregará el sustento actualizado con el contexto de negocio específico
+
+════════════════════════════════════════════════════════════════════════════════
+--- INICIO DEL PROMPT ---
+════════════════════════════════════════════════════════════════════════════════
+
+ACTÚA COMO UN ARQUITECTO DE SOFTWARE SENIOR con más de 10 años de experiencia diseñando sistemas distribuidos de alta disponibilidad, liderando equipos de ingeniería y justificando decisiones técnicas ante stakeholders de negocio.
+
+Te voy a proporcionar dos cosas:
+
+1. El contexto de un problema de negocio que debo resolver con software.
+2. Mi documento genérico de sustento de arquitectura técnica.
+
+TU TAREA PRINCIPAL ES:
+
+Modificar mi documento de sustento para que cada ventaja técnica de mi stack (Node.js/Express, PostgreSQL, React) esté directamente vinculada a resolver una necesidad específica y concreta del problema de negocio dado.
+
+REGLAS ESTRICTAS:
+- NO alteres la tecnología elegida (Node.js, Express, PostgreSQL, React). La decisión arquitectónica ya está tomada.
+- NO cambies la estructura de secciones del documento.
+- Solo modifica el contenido de cada sección para que el discurso técnico justifique por qué ESTA tecnología resuelve ESTE problema de negocio específico.
+- Mantén el tono académico-profesional del documento original.
+- Añade ejemplos concretos del dominio de negocio dado (usa nombres de entidades, procesos y actores del caso).
+- Cada párrafo técnico debe terminar con una frase que conecte explícitamente con el valor de negocio.
+- El documento modificado debe poder leerse de forma independiente (no requiere ver el original para entenderlo).
+
+FORMATO DE ENTREGA:
+- Entrega el documento COMPLETO en Markdown.
+- No incluyas explicaciones antes ni después del documento.
+- Mantén los encabezados (#, ##, ###) del documento original.
+- El documento debe comenzar con # y terminar con el último párrafo del documento.
+
+---
+
+AQUÍ ESTÁ MI SUSTENTO GENÉRICO DE ARQUITECTURA:
+
+[PEGA_AQUÍ_EL_SUSTENTO — copia y pega el contenido completo de docs/sustento_arquitectura.md]
+
+---
+
+AQUÍ ESTÁ EL PROBLEMA DE NEGOCIO:
+
+[PEGA_AQUÍ_EL_CASO — copia y pega el enunciado completo del problema/proyecto del examen]
+
+════════════════════════════════════════════════════════════════════════════════
+--- FIN DEL PROMPT ---
+════════════════════════════════════════════════════════════════════════════════

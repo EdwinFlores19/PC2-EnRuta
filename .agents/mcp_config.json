@@ -1,0 +1,156 @@
+{
+  "_schema_version": "2.1",
+  "_format": "Antigravity/Gemini MCP Config — Formato validado para ~/.gemini/config/mcp_config.json",
+  "_verified_from": "C:\\Users\\ejuni\\.gemini\\config\\mcp_config.json (configuración real del usuario)",
+  "_documentation": "https://github.com/modelcontextprotocol/servers",
+  "_note_importante": [
+    "FORMATO CONFIRMADO: Los servidores remotos usan 'serverUrl' (NO 'url' ni 'httpUrl').",
+    "FORMATO CONFIRMADO: Los servidores locales usan 'command' + 'args' + 'env'.",
+    "Para activar en Antigravity: Panel Agent → ··· → Manage MCP Servers → View raw config.",
+    "COPIAR el bloque 'mcpServers' al archivo global: C:\\Users\\ejuni\\.gemini\\config\\mcp_config.json",
+    "REEMPLAZAR los valores YOUR_* con tus credenciales reales.",
+    "NUNCA commitear credenciales al repositorio Git."
+  ],
+
+  "mcpServers": {
+
+    "filesystem": {
+      "_description": "Acceso seguro al sistema de archivos del proyecto PC2-PFDC3.",
+      "_source": "https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem",
+      "_status": "OFICIAL — Mantenido por Anthropic/MCP",
+      "_verified": true,
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\ejuni\\OneDrive - SEIDOR SOLUTIONS S.L\\Escritorio\\PC2-PFDC3"
+      ]
+    },
+
+    "github": {
+      "_description": "MCP oficial de GitHub. Gestión de repos, PRs, Issues, Actions, code review.",
+      "_source": "https://github.com/github/github-mcp-server",
+      "_status": "OFICIAL — Mantenido por GitHub. El paquete npm @modelcontextprotocol/server-github fue DEPRECADO en abril 2025.",
+      "_verified": true,
+      "_setup": "Reemplaza YOUR_GITHUB_PAT con un token Personal Access Token de GitHub con permisos: repo, workflow, read:org",
+      "_get_token": "https://github.com/settings/tokens/new",
+      "serverUrl": "https://api.githubcopilot.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_GITHUB_PAT"
+      }
+    },
+
+    "playwright": {
+      "_description": "Browser automation MCP OFICIAL de Microsoft/Playwright. Navega, hace click, toma screenshots para testing E2E.",
+      "_source": "https://github.com/microsoft/playwright-mcp",
+      "_status": "OFICIAL — Mantenido por Microsoft/Playwright",
+      "_verified": true,
+      "_warning": "NO usar 'playwright-mcp' ni '@executeautomation/playwright-mcp-server' — son forks no oficiales.",
+      "_prerequisite": "Ejecutar ANTES de usar: npx playwright install chromium",
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest",
+        "--headless"
+      ]
+    },
+
+    "supabase": {
+      "_description": "MCP OFICIAL de Supabase (endpoint remoto). Gestión de PostgreSQL: tablas, migraciones, SQL, storage.",
+      "_source": "https://github.com/supabase-community/supabase-mcp",
+      "_status": "OFICIAL — YA CONFIGURADO en tu mcp_config.json global",
+      "_verified": true,
+      "_note": "Este servidor ya está en tu configuración global. Aquí solo para referencia del proyecto.",
+      "serverUrl": "https://mcp.supabase.com/mcp?project_ref=bkoxlytgdblskafywnxs"
+    },
+
+    "render": {
+      "_description": "MCP OFICIAL de Render. Gestiona servicios web, bases de datos, logs y deploys desde el AI.",
+      "_source": "https://github.com/render-oss/render-mcp-server",
+      "_status": "OFICIAL — Mantenido por Render",
+      "_verified": true,
+      "_setup": "Obtener RENDER_API_KEY desde: https://dashboard.render.com/account/api-keys",
+      "serverUrl": "https://mcp.render.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_RENDER_API_KEY"
+      }
+    },
+
+    "jira": {
+      "_description": "MCP OFICIAL de Atlassian Rovo. Crea épicas, stories, sprints en Jira Cloud con OAuth 2.1.",
+      "_source": "https://github.com/atlassian/mcp-atlassian",
+      "_status": "OFICIAL — Mantenido por Atlassian",
+      "_verified": true,
+      "_note": "Requiere autenticación OAuth cuando el cliente AI lo solicite. Alternativa: el script Python scripts/jira_automator.py",
+      "serverUrl": "https://mcp.atlassian.com/v1/mcp"
+    },
+
+    "postgres": {
+      "_description": "Conexión directa a PostgreSQL para queries, introspección y diagnóstico. Alternativa al MCP de Supabase.",
+      "_source": "https://github.com/benborla/mcp-server-postgres",
+      "_status": "COMUNIDAD — @benborla29/mcp-server-postgres (el oficial está DEPRECADO con vulnerabilidades conocidas)",
+      "_verified": true,
+      "_warning": "NO usar @modelcontextprotocol/server-postgres — está deprecado con vulnerabilidades de SQL injection.",
+      "_setup": "Reemplaza la cadena de conexión con tu DATABASE_URL real de Supabase.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@benborla29/mcp-server-postgres"
+      ],
+      "env": {
+        "POSTGRESQL_CONNECTION_STRING": "postgresql://postgres.bkoxlytgdblskafywnxs:PracticaCalificada3%3F@aws-1-us-west-2.pooler.supabase.com:5432/postgres"
+      }
+    },
+
+    "memory": {
+      "_description": "Memoria persistente para el agente AI entre sesiones. Almacena contexto del proyecto.",
+      "_source": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory",
+      "_status": "OFICIAL — Mantenido por Anthropic/MCP",
+      "_verified": true,
+      "_use_case": "Útil para que el agente recuerde el contexto del caso de negocio entre conversaciones.",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "chrome-devtools": {
+      "disabled": true
+    },
+    "puppeteer-ui-debugger": {
+      "disabled": true
+    },
+    "docker-orchestrator": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "docker-mcp"
+      ]
+    }
+  },
+
+  "installation_commands": {
+    "_title": "Comandos a ejecutar UNA VEZ para preparar el entorno",
+    "1_playwright_browsers": "npx playwright install chromium",
+    "2_verify_node": "node --version (requiere >= 18.0.0)",
+    "3_verify_python": "python --version (requiere >= 3.9)",
+    "4_python_deps": "pip install requests python-dotenv",
+    "5_test_mcp_inspector": "npx @modelcontextprotocol/inspector (herramienta de debug de MCPs)"
+  },
+
+  "deprecated_avoid": {
+    "_title": "Paquetes DEPRECADOS — NO usar",
+    "@modelcontextprotocol/server-postgres": "Vulnerabilidades conocidas de SQL injection",
+    "@modelcontextprotocol/server-github": "Deprecado en abril 2025 — usar endpoint remoto",
+    "@modelcontextprotocol/server-git": "Versión TypeScript archivada — usar mcp-server-git via uvx",
+    "playwright-mcp": "Fork no oficial — usar @playwright/mcp (scope oficial de Microsoft)",
+    "@executeautomation/playwright-mcp-server": "Fork no oficial"
+  },
+
+  "resources": {
+    "mcp_official_registry": "https://registry.modelcontextprotocol.io",
+    "mcp_servers_repo": "https://github.com/modelcontextprotocol/servers",
+    "awesome_mcp_servers": "https://github.com/punkpeye/awesome-mcp-servers",
+    "mcp_inspector_tool": "npx @modelcontextprotocol/inspector",
+    "your_global_config": "C:\\Users\\ejuni\\.gemini\\config\\mcp_config.json"
+  }
+}

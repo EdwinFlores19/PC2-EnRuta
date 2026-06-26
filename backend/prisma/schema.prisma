@@ -1,0 +1,75 @@
+// prisma/schema.prisma — Schema de Base de Datos con Prisma ORM
+//
+// Este archivo define el modelo relacional de la aplicación.
+// Representa la ÚNICA fuente de verdad del esquema de base de datos.
+//
+// Comandos clave:
+//   npx prisma migrate dev --name <nombre>   → Crear y aplicar migración en desarrollo
+//   npx prisma migrate deploy                → Aplicar migraciones en producción
+//   npx prisma generate                      → Regenerar el Prisma Client
+//   npx prisma studio                        → GUI para explorar la BBDD
+//   npx prisma db pull                       → Introspección: generar schema desde BBDD existente
+
+generator client {
+  provider      = "prisma-client-js"
+  // Opcional: habilitar query engine nativo para mejor rendimiento en producción
+  // engineType = "binary"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Para Supabase con pgBouncer (connection pooler), usar directUrl para migraciones:
+  // directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────
+// MODELO DE USUARIO (Ejemplo Base — Adaptar al caso de negocio)
+// ─────────────────────────────────────────────
+model User {
+  id        String   @id @default(uuid())          // UUID como PK (mejor que entero autoincremental en sistemas distribuidos)
+  email     String   @unique
+  password  String                                  // Hash bcrypt — nunca texto plano
+  name      String
+  role      Role     @default(USER)
+  isActive  Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones (descomentar según el modelo de negocio)
+  // sessions  Session[]
+  // posts     Post[]
+
+  @@index([email])                                  // Índice para consultas de autenticación
+  @@map("users")                                    // Nombre de la tabla en PostgreSQL
+}
+
+// ─────────────────────────────────────────────
+// ENUMERACIONES
+// ─────────────────────────────────────────────
+enum Role {
+  ADMIN
+  USER
+  MODERATOR
+
+  @@map("role")
+}
+
+// ─────────────────────────────────────────────
+// [ESPACIO PARA MODELOS DE NEGOCIO]
+// ─────────────────────────────────────────────
+// Aquí se añadirán los modelos específicos del proyecto una vez
+// se defina el caso de negocio. Ejemplos genéricos:
+//
+// model Product { ... }
+// model Order { ... }
+// model Category { ... }
+//
+// Principios de diseño de schema a seguir:
+//   1. NORMALIZACIÓN: Cada tabla representa una sola entidad
+//   2. INTEGRIDAD REFERENCIAL: Usar relaciones con @relation y onDelete
+//   3. ÍNDICES: Añadir @@index en campos frecuentemente consultados
+//   4. UUID vs AUTOINCREMENT: Preferir UUID para IDs expuestos externamente
+//   5. TIMESTAMPS: Siempre incluir createdAt/updatedAt con @default(now()) y @updatedAt
+//   6. SOFT DELETE: Considerar isDeleted Boolean @default(false) en lugar de DELETE físico

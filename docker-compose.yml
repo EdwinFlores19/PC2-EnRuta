@@ -1,0 +1,32 @@
+# docker-compose.yml — Entorno de Base de Datos Local de Contingencia
+# 
+# PROPÓSITO:
+#   Levantar una instancia local de PostgreSQL en caso de fallas de red
+#   o problemas de conexión pooled con Supabase durante la evaluación.
+#
+# USO:
+#   Iniciar: docker compose up -d
+#   Apagar:  docker compose down
+#
+# VARIABLE DE ENTORNO LOCAL (backend/.env):
+#   DATABASE_URL="postgresql://postgres:PracticaCalificada3%3F@localhost:5432/postgres?schema=public"
+
+version: '3.8'
+
+services:
+  postgres-local:
+    image: postgres:15-alpine
+    container_name: postgres-pfdc3-local
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: PracticaCalificada3? # Mismo password que Supabase
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_pfdc3_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_pfdc3_data:
+    driver: local

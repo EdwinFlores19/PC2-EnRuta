@@ -1,0 +1,124 @@
+SKILL DE CONTEXTUALIZACIÓN JIRA — PARA USO EN IA EL DÍA DEL EXAMEN
+════════════════════════════════════════════════════════════════════════════════
+
+INSTRUCCIONES DE USO:
+  1. Abre una nueva conversación con la IA (ChatGPT, Claude, Gemini, etc.)
+  2. Copia y pega TODO el bloque de texto que está debajo de la línea "--- INICIO DEL PROMPT ---"
+  3. Reemplaza [PEGA_AQUÍ_EL_CASO_DE_NEGOCIO] con el enunciado del problema dado en el examen
+  4. La IA generará el archivo epics_and_stories.json listo para ejecutar con jira_automator.py
+  5. Guarda la respuesta como epics_and_stories.json en la carpeta /scripts/
+  6. Ejecuta: python jira_automator.py
+
+NOTA: NO modifiques la estructura del prompt. Está optimizado para generar
+      JSON válido sin errores de formato que rompan el script Python.
+
+════════════════════════════════════════════════════════════════════════════════
+--- INICIO DEL PROMPT ---
+════════════════════════════════════════════════════════════════════════════════
+
+ACTÚA COMO UN SCRUM MASTER SENIOR Y PRODUCT OWNER EXPERTO con amplio conocimiento de metodologías ágiles, gestión de proyectos de software y escritura de historias de usuario de alta calidad para equipos de desarrollo.
+
+CONTEXTO DEL PROYECTO:
+Estoy desarrollando un sistema de software full-stack (Node.js/Express + PostgreSQL + React) y necesito que generes el backlog completo de Scrum para subirlo automáticamente a Jira mediante la API REST de Jira Cloud v3.
+
+CASO DE NEGOCIO DEL PROYECTO:
+[PEGA_AQUÍ_EL_CASO_DE_NEGOCIO — reemplaza este texto con el enunciado completo del problema del examen]
+
+TU TAREA — GENERA EL ARCHIVO epics_and_stories.json:
+
+El archivo JSON debe seguir EXACTAMENTE la siguiente estructura (no alteres ninguna clave, solo los valores):
+
+{
+  "project": {
+    "name": "[nombre descriptivo del sistema]",
+    "version": "MVP v1.0",
+    "sprint_duration_weeks": 2,
+    "team_velocity_points": 40
+  },
+  "epics": [
+    {
+      "id": "E-1",
+      "title": "ÉPICA 1: [Nombre del módulo funcional principal]",
+      "description": "[Descripción en 2-3 oraciones del objetivo de esta épica]",
+      "acceptance_criteria": [
+        "criterio 1 a nivel de épica",
+        "criterio 2 a nivel de épica"
+      ],
+      "story_points": [número Fibonacci: 13, 21 o 34],
+      "priority": "[Highest | High | Medium | Low | Lowest]",
+      "labels": ["etiqueta1", "etiqueta2"],
+      "stories": [
+        {
+          "title": "US-1.1: [Título conciso de la historia]",
+          "description": "COMO [rol específico del usuario o actor del sistema]\nQUIERO [acción concreta y específica que desea realizar]\nPARA [beneficio de negocio o valor que obtiene]",
+          "acceptance_criteria": [
+            "DADO que [condición inicial/contexto], CUANDO [acción del usuario], ENTONCES [resultado esperado y verificable]",
+            "DADO que [condición de error], CUANDO [acción del usuario], ENTONCES [comportamiento del sistema ante el error]",
+            "El endpoint [MÉTODO] /api/v1/[ruta] devuelve status [código] en [condición]"
+          ],
+          "story_points": [número Fibonacci: 1, 2, 3, 5 u 8],
+          "priority": "[Highest | High | Medium | Low | Lowest]",
+          "labels": ["etiqueta1", "etiqueta2"]
+        }
+      ]
+    }
+  ]
+}
+
+REGLAS ESTRICTAS QUE DEBES SEGUIR:
+
+1. STORY POINTS: Usa EXCLUSIVAMENTE la serie de Fibonacci: 1, 2, 3, 5, 8 para stories. Para épicas: 13, 21 o 34. NUNCA uses 4, 6, 7, 9, 10, 12, etc.
+
+2. FORMATO DE HISTORIAS DE USUARIO: El campo "description" de cada story DEBE seguir el formato:
+   "COMO [rol]\nQUIERO [acción]\nPARA [valor]"
+   Los saltos de línea son literales \n dentro del string JSON.
+
+3. CRITERIOS DE ACEPTACIÓN: DEBEN seguir el formato Gherkin (DADO/CUANDO/ENTONCES) para las conditions de éxito y error. Cada historia debe tener mínimo 3 criterios de aceptación. Al menos uno debe incluir el endpoint de API REST correspondiente.
+
+4. COBERTURA: El backlog debe cubrir el ciclo completo CRUD (Crear, Listar, Ver detalle, Actualizar, Eliminar) para CADA entidad de negocio identificada en el caso.
+
+5. ÉPICAS MÍNIMAS: Genera mínimo 3 épicas. Siempre incluye:
+   - Épica de Autenticación y Seguridad (si no está explícita en el caso)
+   - Épicas específicas del negocio (extraídas del caso dado)
+   - Épica de Administración/Reportes (si aplica al contexto)
+
+6. STORIES POR ÉPICA: Cada épica debe tener entre 4 y 8 historias de usuario. Suma de puntos de stories ≈ puntos de la épica.
+
+7. ROLES EN LAS HISTORIAS: Los roles deben ser ESPECÍFICOS al dominio de negocio (ej: "cliente registrado", "gerente de inventario", "operador de caja", NO "usuario genérico").
+
+8. FORMATO JSON: El JSON de salida debe ser VÁLIDO y parseable sin errores. Verifica que:
+   - No hay comas trailing
+   - Todos los strings están entre comillas dobles
+   - Los arrays vacíos son [] no omitidos
+   - Los saltos de línea en descriptions son \\n (escapados)
+
+9. LABELS: Asigna labels relevantes de esta lista según corresponda: ["autenticacion", "seguridad", "CRUD", "frontend", "backend", "reportes", "notificaciones", "MVP", "admin", "core-business", "paginacion", "busqueda"]
+
+10. PRIORIZACIÓN: Las historias de la Épica de Autenticación son siempre Highest. Las historias del núcleo del negocio son High. Las secundarias son Medium o Low.
+
+ENTREGA:
+- Devuelve ÚNICAMENTE el JSON válido, sin explicaciones adicionales antes o después
+- No incluyas comentarios dentro del JSON (// o /* */ no son válidos en JSON)
+- El JSON debe comenzar con { y terminar con }
+- Verifica mentalmente que el JSON es sintácticamente correcto antes de responder
+
+════════════════════════════════════════════════════════════════════════════════
+--- FIN DEL PROMPT ---
+════════════════════════════════════════════════════════════════════════════════
+
+SKILL SECUNDARIA — PARA AJUSTES POSTERIORES:
+════════════════════════════════════════════════════════════════════════════════
+
+Si necesitas añadir más historias a una épica existente o ajustar las ya generadas, usa este prompt más corto:
+
+"Actúa como Scrum Master. Tengo estas historias de usuario en Jira para el proyecto [NOMBRE]:
+[PEGA EL BLOQUE DE STORIES QUE YA TIENES]
+
+Necesito que añadas [NÚMERO] historias adicionales para cubrir [FUNCIONALIDAD ESPECÍFICA].
+Las nuevas historias deben:
+- Seguir el mismo formato COMO/QUIERO/PARA con criterios DADO/CUANDO/ENTONCES
+- Usar story points en Fibonacci (1, 2, 3, 5 u 8)
+- Integrarse con los endpoints ya existentes ([LISTA DE ENDPOINTS])
+- Tener labels: [LISTA DE LABELS RELEVANTES]
+
+Devuelve SOLO el JSON de las nuevas stories (sin las existentes) listo para agregar al array 'stories' de la épica [ID_ÉPICA]."
