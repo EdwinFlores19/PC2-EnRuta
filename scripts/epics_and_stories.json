@@ -1,7 +1,7 @@
 {
   "project": {
     "name": "Semáforo Social",
-    "case_summary": "Plataforma de micro-empleo y fintech para formalización e inclusión financiera de trabajadores informales y vulnerables en el Perú.",
+    "case_summary": "Plataforma on-demand y fintech para la formalización y micro-empleo de limpiadores de vehículos, controlando la luz roja y protegiendo a menores de edad.",
     "version": "MVP v1.0",
     "sprint_duration_weeks": 2,
     "team_velocity_points": 41
@@ -9,238 +9,129 @@
   "epics": [
     {
       "id": "E-1",
-      "title": "ÉPICA 1: Seguridad, Onboarding y Validaciones KYC (LegalTech)",
-      "description": "Automatiza y blinda el registro de usuarios verificando la edad del trabajador, nacionalidad e inyección segura de credenciales.",
+      "title": "ÉPICA 1: Ecosistema On-Demand de Lavado Express",
+      "description": "Permite al Conductor solicitar lavados express de lunas y al Trabajador Vial aceptar los servicios bajo la validación de la luz roja del semáforo.",
       "acceptance_criteria": [
-        "El sistema valida y clasifica el registro entre usuarios, trabajadores y municipalidad.",
-        "Se bloquea estrictamente a menores de 14 años."
+        "El servicio vial solo se habilita si el semáforo está en Rojo.",
+        "Se calcula la distancia por geolocalización entre conductor y limpiador."
       ],
-      "story_points": 21,
+      "story_points": 13,
       "priority": "Highest",
-      "labels": ["legaltech", "seguridad", "auth", "MVP"],
+      "labels": ["on-demand", "core-business", "mapas", "sprint-1"],
       "stories": [
         {
-          "title": "US-1.1: Autenticación y Registro con KYC Legal Peruano",
-          "description": "COMO Desarrollador DevOps\nQUIERO registrar un usuario validando su DNI, CE o PTP\nPARA garantizar que el sistema cumpla con la normativa de identidad de Perú.",
+          "title": "US-1.1: Solicitud de Lavado Express en Luz Roja (Conductor)",
+          "description": "COMO Conductor sin tiempo para ir a un taller\nQUIERO solicitar un lavado express de lunas cuando el semáforo cambie a rojo\nPARA ahorrar tiempo y mejorar la visibilidad de mi vehículo sin desviar mi ruta.",
           "acceptance_criteria": [
-            "DADO QUE un usuario de nacionalidad extranjera intenta registrarse, CUANDO ingresa su documento tipo 'PTP' y el número, ENTONCES el sistema acepta el documento y permite continuar con el registro.",
-            "El endpoint POST /api/v1/auth/register devuelve status 201."
+            "DADO QUE el conductor está detenido en un cruce, CUANDO selecciona 'Solicitar Lavado Express' en la app, ENTONCES el sistema detecta su ubicación y busca limpiadores disponibles en un radio de 200 metros.",
+            "El endpoint POST /api/v1/services/request devuelve status 201."
           ],
           "story_points": 5,
           "priority": "Highest",
-          "labels": ["legaltech", "backend", "base-de-datos", "MVP"]
+          "labels": ["frontend", "backend", "mapas", "sprint-1"]
         },
         {
-          "title": "US-1.2: Validación de Edad y Carga de Permiso MINTRA",
-          "description": "COMO Administrador Legaltech\nQUIERO validar que los jóvenes de 14 a 17 años adjunten su permiso de trabajo del MINTRA\nPARA cumplir con las normas de protección del menor de edad.",
+          "title": "US-1.2: Aceptación de Servicio y Validación Vial (Trabajador Vial)",
+          "description": "COMO Trabajador Vial expuesto al sol y accidentes\nQUIERO recibir alertas de lavado express y que el servicio solo se habilite en luz roja\nPARA aumentar mis ingresos diarios de forma segura y mitigar el riesgo de atropellos.",
           "acceptance_criteria": [
-            "DADO QUE un usuario de 15 años intenta registrarse como trabajador (WORKER), CUANDO el sistema calcula su edad en base a su nacimiento, ENTONCES le exige de forma obligatoria subir el PDF de su autorización de MINTRA para finalizar el onboarding.",
-            "El endpoint POST /api/v1/users/upload-mintra devuelve status 200."
+            "DADO QUE un limpiador recibe una solicitud de lavado, CUANDO la app verifica que el semáforo del cruce está en rojo, ENTONCES se activa el botón 'Iniciar Lavado' y comienza un contador regresivo de 45 segundos.",
+            "El endpoint PATCH /api/v1/services/:id/start devuelve status 200."
           ],
-          "story_points": 8,
+          "story_points": 5,
           "priority": "Highest",
-          "labels": ["legaltech", "backend", "frontend", "MVP"]
+          "labels": ["frontend", "backend", "seguridad", "sprint-1"]
         },
         {
-          "title": "TASK-1.3: Configurar Base de Datos Supabase (PostgreSQL) y Prisma Schema",
-          "description": "COMO Backend DBA\nQUIERO configurar el Prisma Schema con las tablas relacionales del proyecto\nPARA habilitar la persistencia de datos en Supabase.",
+          "title": "TASK-1.3: Configurar Algoritmo de Proximidad por Coordenadas en Backend",
+          "description": "COMO Backend DBA\nQUIERO programar una consulta SQL geoespacial indexada\nPARA ubicar y conectar al Conductor con el Trabajador Vial más cercano de forma ultra-rápida.",
           "acceptance_criteria": [
-            "DADO QUE se modifica el archivo schema.prisma, CUANDO se ejecuta la migración, ENTONCES las tablas se crean físicamente en Supabase de forma exitosa."
+            "DADO QUE el backend recibe las coordenadas de latitud y longitud, CUANDO ejecuta la consulta parametrizada con índices, ENTONCES devuelve el limpiador óptimo en menos de 10ms."
           ],
           "story_points": 3,
           "priority": "High",
-          "labels": ["base-de-datos", "backend"]
-        },
-        {
-          "title": "TASK-1.4: Configurar Helmet, CORS y Rate Limit en el Servidor Express",
-          "description": "COMO Ingeniero DevSecOps\nQUIERO asegurar las rutas y cabeceras HTTP del servidor Express\nPARA mitigar ataques de fuerza bruta y denegación de servicio.",
-          "acceptance_criteria": [
-            "DADO QUE el servidor está levantado en producción, CUANDO recibe peticiones desde orígenes no permitidos, ENTONCES el middleware de CORS bloquea la petición inmediatamente."
-          ],
-          "story_points": 2,
-          "priority": "High",
-          "labels": ["seguridad", "backend"]
+          "labels": ["backend", "base-de-datos", "sprint-1"]
         }
       ]
     },
     {
       "id": "E-2",
-      "title": "ÉPICA 2: Motor On-Demand y Asignación Geográfica (Uber Engine)",
-      "description": "Implementación del motor de asignación por coordenadas de proximidad y ciclo de vida de transacciones de micro-empleo vial.",
+      "title": "ÉPICA 2: Gobernanza, Prevención Infantil y Formalización",
+      "description": "Flujo de registro legal KYC que valida la edad, requiere permisos del MINTRA para menores (14-17) y permite auditar las calles.",
       "acceptance_criteria": [
-        "El motor realiza búsquedas geoespaciales en Supabase en un radio de 5km.",
-        "Los servicios viales de limpieza solo operan con el semáforo en rojo."
+        "Bloqueo estricto de menores de 14 años.",
+        "Carga obligatoria de permiso del MINTRA para menores de 14 a 17 años."
       ],
-      "story_points": 21,
+      "story_points": 13,
       "priority": "High",
-      "labels": ["core-business", "mapas", "geomática"],
+      "labels": ["legaltech", "seguridad", "sprint-2"],
       "stories": [
         {
-          "title": "US-2.1: Búsqueda de Trabajadores por Proximidad Geoespacial",
-          "description": "COMO Cliente con auto\nQUIERO buscar los trabajadores de micro-empleo más cercanos en un radio de 5km\nPARA solicitar un servicio rápido mientras me encuentro detenido.",
+          "title": "US-2.1: Onboarding Inclusivo y Validación KYC Legal (Trabajador Vial)",
+          "description": "COMO Trabajador Vial nacional o extranjero\nQUIERO registrarme en la plataforma usando mi DNI, Carnet de Extranjería o PTP\nPARA ingresar al sistema de micro-empleo y acceder a capacitaciones financieras de forma formal.",
           "acceptance_criteria": [
-            "DADO QUE un cliente solicita un servicio en las coordenadas, CUANDO el motor de geolocalización busca en Supabase, ENTONCES devuelve un listado de trabajadores activos a menos de 5km.",
-            "El endpoint GET /api/v1/services/nearby devuelve status 200."
-          ],
-          "story_points": 8,
-          "priority": "High",
-          "labels": ["backend", "geomática", "base-de-datos"]
-        },
-        {
-          "title": "US-2.2: Control del Ciclo de Vida del Servicio Vial",
-          "description": "COMO Trabajador de la calle\nQUIERO que el servicio de limpieza se habilite solo cuando el semáforo esté en rojo\nPARA realizar mi trabajo de forma segura sin interrumpir el tránsito.",
-          "acceptance_criteria": [
-            "DADO QUE el servicio está en estado 'Asignado', CUANDO el sistema vial detecta que el semáforo cambia a 'Rojo', ENTONCES se habilita el botón 'Iniciar Ejecución' en la app del trabajador.",
-            "El endpoint PATCH /api/v1/services/:id/status devuelve status 200."
+            "DADO QUE un limpiador extranjero intenta registrarse, CUANDO selecciona su tipo de documento como 'PTP' e ingresa sus datos y fecha de nacimiento, ENTONCES el sistema valida su identidad y aprueba su KYC inicial.",
+            "El endpoint POST /api/v1/auth/register devuelve status 201."
           ],
           "story_points": 5,
           "priority": "High",
-          "labels": ["backend", "frontend"]
+          "labels": ["frontend", "backend", "legaltech", "sprint-2"]
         },
         {
-          "title": "TASK-2.3: Integración de Mapas de Google Maps / Leaflet en el Frontend",
-          "description": "COMO Desarrollador Frontend\nQUIERO integrar un mapa interactivo en la SPA de React\nPARA visualizar la localización de los trabajadores y semáforos en tiempo real.",
+          "title": "US-2.2: Auditoría y Prevención de Trabajo Infantil (Fiscalizador MINTRA)",
+          "description": "COMO Fiscalizador Gubernamental del MINTRA / MIMP\nQUIERO auditar los perfiles de los trabajadores viales y verificar que los menores (14-17) tengan permiso cargado\nPARA fiscalizar la seguridad pública y erradicar la explotación infantil en las calles.",
           "acceptance_criteria": [
-            "DADO QUE el usuario abre la vista del mapa, CUANDO carga la página, ENTONCES se renderiza el mapa dinámicamente pintando los marcadores correspondientes."
+            "DADO QUE el inspector del gobierno inicia sesión, CUANDO accede al panel de control de calles, ENTONCES visualiza la lista de trabajadores activos, destacando con alerta roja si algún menor de edad no tiene cargada su autorización municipal o del MINTRA.",
+            "El endpoint GET /api/v1/government/audit devuelve status 200."
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["frontend", "backend", "admin", "sprint-2"]
+        },
+        {
+          "title": "TASK-2.3: Implementar Middleware de Restricción de Edad y Onboarding",
+          "description": "COMO Desarrollador DevSecOps\nQUIERO programar un validador que verifique la fecha de nacimiento y exija el PDF de MINTRA\nPARA blindar legalmente el registro del sistema.",
+          "acceptance_criteria": [
+            "DADO QUE el usuario tiene menos de 14 años, CUANDO envía el formulario, ENTONCES el backend rechaza la petición con error 403 Forbidden inmediatamente."
           ],
           "story_points": 3,
-          "priority": "Medium",
-          "labels": ["frontend", "mapas"]
+          "priority": "High",
+          "labels": ["backend", "seguridad", "sprint-2"]
         }
       ]
     },
     {
       "id": "E-3",
-      "title": "ÉPICA 3: Ecosistema Fintech, NFC & Yape/Plin (Fintech)",
-      "description": "Integración de pasarelas de pago digitales NFC, Yape/Plin y cálculo automático de comisiones de plataforma.",
+      "title": "ÉPICA 3: Empleabilidad Inteligente B2B (AI Matcher)",
+      "description": "Uso de inteligencia artificial y perfiles RAG para conectar a los trabajadores con talleres de Car Wash formales y empresas aliadas.",
       "acceptance_criteria": [
-        "Se integran transacciones NFC a nivel de protocolo móvil.",
-        "Se procesan split-payments de comisiones de mantenimiento del 5%."
+        "El sistema genera perfiles formales en base al desempeño en la calle.",
+        "Se evalúan habilidades blandas mediante NLP para el motor de reclutamiento."
       ],
-      "story_points": 21,
+      "story_points": 13,
       "priority": "High",
-      "labels": ["fintech", "pagos", "MVP"],
+      "labels": ["inteligencia-artificial", "b2b", "sprint-3"],
       "stories": [
         {
-          "title": "US-3.1: Pago sin Contacto (Tap-to-Pay NFC)",
-          "description": "COMO Cliente de auto\nQUIERO pagar acercando mi tarjeta física al celular del trabajador (NFC)\nPARA transaccionar de forma instantánea sin usar efectivo.",
+          "title": "US-3.1: Reclutamiento de Limpiadores Verificados (Administrador de Car Wash)",
+          "description": "COMO Administrador de Car Wash con alta demanda\nQUIERO buscar y contratar trabajadores viales con calificación sobresaliente\nPARA reclutar personal operativo calificado que agilice los servicios de mi taller.",
           "acceptance_criteria": [
-            "DADO QUE el servicio ha finalizado, CUANDO el cliente acerca su tarjeta de débito al lector NFC, ENTONCES la API Fintech procesa la transacción de cobro y devuelve status SUCCESS.",
-            "El endpoint POST /api/v1/payments/nfc devuelve status 201."
+            "DADO QUE el dueño del taller busca personal de lavado, CUANDO filtra por calificación >4.6 estrellas y estatus 'Semáforo Verde', ENTONCES el sistema le devuelve los perfiles óptimos con historial de micro-empleos completados.",
+            "El endpoint GET /api/v1/b2b/candidates devuelve status 200."
+          ],
+          "story_points": 5,
+          "priority": "High",
+          "labels": ["frontend", "backend", "b2b", "sprint-3"]
+        },
+        {
+          "title": "US-3.2: Búsqueda RAG de Habilidades Blandas por IA (Analista de RRHH)",
+          "description": "COMO Analista de RRHH de un Call Center o Retail\nQUIERO realizar búsquedas semánticas sobre los perfiles de los trabajadores usando un motor de IA RAG\nPARA ubicar personal que haya forjado habilidades blandas robustas en la calle (tolerancia al estrés, manejo de caja).",
+          "acceptance_criteria": [
+            "DADO QUE la reclutadora ingresa el prompt 'personal tolerante al estrés y con experiencia en caja', CUANDO la IA procesa la solicitud, ENTONCES devuelve los perfiles que demuestren mejor desempeño e historial de micro-empleos viales.",
+            "El endpoint POST /api/v1/b2b/ai-match devuelve status 201."
           ],
           "story_points": 8,
           "priority": "High",
-          "labels": ["fintech", "backend", "frontend", "MVP"]
-        },
-        {
-          "title": "US-3.2: Split Payment automático de Yape/Plin",
-          "description": "COMO Administrador de la Plataforma\nQUIERO retener de forma automática una comisión del 5% de cada transacción procesada por Yape/Plin\nPARA financiar los costos de mantenimiento técnico del sistema.",
-          "acceptance_criteria": [
-            "DADO QUE se procesa un pago por QR de Yape, CUANDO se confirma el ingreso del dinero, ENTONCES el sistema inyecta S/. 9.50 al trabajador y transfiere S/. 0.50 a la cuenta de la plataforma.",
-            "El endpoint POST /api/v1/payments/yape-webhook devuelve status 200."
-          ],
-          "story_points": 5,
-          "priority": "High",
-          "labels": ["fintech", "backend", "base-de-datos", "MVP"]
-        },
-        {
-          "title": "TASK-3.3: Diseño de la Billetera Virtual y Vista de Transacciones",
-          "description": "COMO Diseñador UX/UI\nQUIERO diseñar la vista de saldo y transferencias de la billetera virtual del trabajador\nPARA mostrar los fondos disponibles y retiros completados.",
-          "acceptance_criteria": [
-            "DADO QUE el trabajador tiene fondos acumulados, CUANDO abre su vista de billetera, ENTONCES visualiza su saldo actual en soles peruanos y la lista de transferencias exitosas."
-          ],
-          "story_points": 3,
-          "priority": "Medium",
-          "labels": ["frontend", "fintech"]
-        }
-      ]
-    },
-    {
-      "id": "E-4",
-      "title": "ÉPICA 4: Gamificación, Semáforo y Control Municipal",
-      "description": "Cálculo dinámico del semáforo de progreso de reputación del trabajador y panel municipal de fiscalización.",
-      "acceptance_criteria": [
-        "El algoritmo actualiza el estatus del semáforo en base a servicios y capacitaciones.",
-        "Los inspectores de serenazgo pueden auditar las calles en tiempo real."
-      ],
-      "story_points": 13,
-      "priority": "Medium",
-      "labels": ["gamificacion", "admin", "reportes"],
-      "stories": [
-        {
-          "title": "US-4.1: Algoritmo de Reputación y Progreso del Semáforo",
-          "description": "COMO Trabajador vulnerable\nQUIERO que mi perfil muestre un semáforo de progreso (Rojo, Amarillo, Verde)\nPARA demostrar mi confiabilidad, formalización y habilidades a los clientes.",
-          "acceptance_criteria": [
-            "DADO QUE un trabajador tiene calificación mayor a 4.6 y ha completado 10 servicios, CUANDO el sistema evalúa su reputación y verifica que completó sus cursos en el Chatbot, ENTONCES su estatus cambia de 'YELLOW' a 'GREEN'.",
-            "El endpoint GET /api/v1/profiles/:id/status devuelve status 200."
-          ],
-          "story_points": 3,
-          "priority": "Medium",
-          "labels": ["gamificacion", "backend", "frontend"]
-        },
-        {
-          "title": "US-4.2: Panel de Fiscalización y Control Municipal (Gobierno)",
-          "description": "COMO Fiscalizador de la Municipalidad\nQUIERO ver en tiempo real la geolocalización y los registros de los trabajadores autorizados\nPARA auditar la seguridad pública y el cumplimiento de las normas en la calle.",
-          "acceptance_criteria": [
-            "DADO QUE un inspector de serenazgo inicia sesión con el rol 'MUNICIPAL_ADMIN', CUANDO ingresa al panel, ENTONCES visualiza en tiempo real los trabajadores activos, su estatus de semáforo de progreso y si cuentan con permiso MINTRA.",
-            "El endpoint GET /api/v1/government/workers devuelve status 200."
-          ],
-          "story_points": 5,
-          "priority": "Medium",
-          "labels": ["admin", "backend", "frontend", "reportes"]
-        },
-        {
-          "title": "TASK-4.3: Exportación de Reportes PDF/Excel de Cumplimiento Municipal",
-          "description": "COMO Desarrollador Backend\nQUIERO programar un endpoint para descargar reportes consolidados\nPARA que la municipalidad guarde el historial de control de avenidas.",
-          "acceptance_criteria": [
-            "DADO QUE el inspector solicita la exportación, CUANDO hace clic en descargar, ENTONCES el sistema genera y descarga un archivo consolidado en formato de hoja de cálculo."
-          ],
-          "story_points": 2,
-          "priority": "Low",
-          "labels": ["backend", "reportes"]
-        }
-      ]
-    },
-    {
-      "id": "E-5",
-      "title": "ÉPICA 5: Backlog — Mejoras Futuras e Integración de IA",
-      "description": "Épica de backlog para almacenar requerimientos no urgentes e integraciones avanzadas de inteligencia artificial.",
-      "acceptance_criteria": [
-        "El sistema genera perfiles formales para la bolsa de trabajo."
-      ],
-      "story_points": 13,
-      "priority": "Low",
-      "labels": ["backlog", "inteligencia-artificial"],
-      "stories": [
-        {
-          "title": "US-5.1: Notificaciones Push de Asignación en Tiempo Real",
-          "description": "COMO Trabajador de micro-empleo\nQUIERO recibir notificaciones push instantáneas cuando un cliente me solicite un servicio\nPARA responder y aceptar el trabajo antes de que cambie el semáforo.",
-          "acceptance_criteria": [
-            "DADO QUE el cliente emite la solicitud, CUANDO el backend detecta al trabajador más cercano, ENTONCES envía una notificación push a su celular con sonido de alerta."
-          ],
-          "story_points": 5,
-          "priority": "Low",
-          "labels": ["backlog", "frontend", "backend", "notificaciones"]
-        },
-        {
-          "title": "US-5.2: Perfil del Trabajador con Generación de CV Formal por IA",
-          "description": "COMO Trabajador informal\nQUIERO que un bot con inteligencia artificial recopile mi historial de servicios para generar un CV profesional formalizado\nPARA postularme a trabajos corporativos estables.",
-          "acceptance_criteria": [
-            "DADO QUE el trabajador solicita su currículum, CUANDO presiona generar, ENTONCES el modelo LLM analiza sus calificaciones y redacta un PDF formal listo para descargar."
-          ],
-          "story_points": 5,
-          "priority": "Low",
-          "labels": ["backlog", "inteligencia-artificial", "backend", "frontend"]
-        },
-        {
-          "title": "TASK-5.3: Pruebas de Carga de Base de Datos y Optimización de Índices",
-          "description": "COMO Administrador de Base de Datos (DBA)\nQUIERO realizar pruebas de carga con miles de peticiones de geolocalización concurrentes\nPARA asegurar que los índices geoespaciales de Supabase respondan en menos de 10ms.",
-          "acceptance_criteria": [
-            "DADO QUE el sistema recibe 1000 requests concurrentes de geolocalización, CUANDO se ejecutan, ENTONCES el tiempo de respuesta promedio de base de datos se mantiene por debajo de 5ms."
-          ],
-          "story_points": 3,
-          "priority": "Low",
-          "labels": ["backlog", "base-de-datos", "performance"]
+          "labels": ["frontend", "backend", "inteligencia-artificial", "sprint-3"]
         }
       ]
     }
